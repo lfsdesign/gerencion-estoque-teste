@@ -30,8 +30,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 #toast.warn{border-color:var(--am3);color:var(--am);}
 
 /* ── TELAS ── */
-.tela{display:none;min-height:100vh;}
-.tela.on{display:block;}
+.tela{display:none !important;min-height:100vh;}
+.tela.on{display:block !important;}
+#telaSetup.on{display:flex !important;}
+#telaLogin.on{display:flex !important;}
 
 /* ── SETUP ── */
 #telaSetup{background:linear-gradient(180deg,#0B1120 0%,#0d1a2e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;min-height:100vh;}
@@ -215,6 +217,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 #fab{position:fixed;right:16px;bottom:86px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gn),#16A34A);border:none;color:#0B1120;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(34,197,94,.4);display:none;align-items:center;justify-content:center;z-index:100;}
 #fab:active{transform:scale(.95);}
 
+
+/* ── LOGO ── */
+.logo-preview{width:80px;height:80px;border-radius:20px;object-fit:cover;border:2px solid var(--gn3);}
+.logo-placeholder{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--gn),#16A34A);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}
+.logo-wrap{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.logo-info{flex:1;}
+.logo-btn{padding:8px 16px;background:var(--s2);border:1px solid var(--b);border-radius:10px;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+/* ── CAT CUSTOM ── */
+.cat-custom{display:flex;gap:8px;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.cat-custom-ico{font-size:20px;cursor:pointer;}
+.cat-custom-nome{flex:1;font-size:13px;font-weight:600;color:var(--t);}
+.cat-custom-del{padding:4px 8px;background:var(--rd2);border:1px solid var(--rd3);border-radius:6px;color:var(--rd);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;}
+
 /* CAT COLORS */
 .cc-carnes{background:rgba(239,68,68,.15);color:#FCA5A5;}
 .cc-bebidas{background:rgba(59,130,246,.15);color:#93C5FD;}
@@ -235,7 +250,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   <div class="setup-card">
     <div class="setup-title">Bem-vindo! 👋</div>
     <div class="setup-desc">Vamos configurar o seu sistema. Isso leva menos de 1 minuto.</div>
-    <div class="fg"><label class="fl">Nome do Restaurante</label><input class="inp" id="sNome" placeholder="ex: Restaurante do João"></div>
+    <div class="fg"><label class="fl">Nome do Estabelecimento</label><input class="inp" id="sNome" placeholder="ex: Mercado do João, Farmácia Silva..."></div>
+    <div class="fg"><label class="fl">Tipo do Negócio</label>
+      <select class="inp" id="sTipo">
+        <option value="Restaurante">🍽️ Restaurante / Lanchonete</option>
+        <option value="Mercado">🛒 Mercado / Mercearia</option>
+        <option value="Farmácia">💊 Farmácia / Drogaria</option>
+        <option value="Padaria">🥖 Padaria / Confeitaria</option>
+        <option value="Oficina">🔧 Oficina / Mecânica</option>
+        <option value="Salão">✂️ Salão / Estética</option>
+        <option value="Loja">🏪 Loja / Comércio</option>
+        <option value="Hotel">🏨 Hotel / Pousada</option>
+        <option value="Clínica">🏥 Clínica / Consultório</option>
+        <option value="Outro">📦 Outro</option>
+      </select>
+    </div>
     <div class="fg">
       <label class="fl">Seu Nome (Dono)</label>
       <input class="inp" id="sDonoNome" placeholder="ex: João Silva">
@@ -348,12 +377,37 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <button class="btn-cfg btn-blue" onclick="abrirNovoFunc()" style="margin-top:10px">+ Adicionar Funcionário</button>
       </div>
 
-      <!-- Estoque mínimo / nome restaurante -->
+      <!-- Logo + Nome -->
       <div class="cfg-card">
-        <div class="cfg-title">🏪 Nome do Restaurante</div>
-        <div class="cfg-sub">O nome que aparece no sistema e nos relatórios.</div>
-        <input class="inp" id="cfgNomeRest" placeholder="Nome do restaurante" style="margin-bottom:10px">
-        <button class="btn-cfg btn-gn" onclick="salvarNomeRest()">Salvar</button>
+        <div class="cfg-title">🏪 Identidade do Estabelecimento</div>
+        <div class="cfg-sub">Personalize como o sistema aparece para você e seus funcionários.</div>
+        <div class="logo-wrap">
+          <div id="logoPreviewWrap">
+            <div class="logo-placeholder" id="logoPlaceholder">📦</div>
+            <img id="logoImg" class="logo-preview" style="display:none">
+          </div>
+          <div class="logo-info">
+            <div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:6px;">Logo do estabelecimento</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:10px;">Opcional — aparece no topo do app</div>
+            <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="previewLogo()">
+            <button class="logo-btn" onclick="document.getElementById('logoFile').click()">📷 Escolher foto</button>
+            <button class="logo-btn" onclick="removerLogo()" style="margin-left:6px;color:var(--rd)">✕ Remover</button>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Nome do Estabelecimento</label><input class="inp" id="cfgNomeRest" placeholder="Nome do estabelecimento"></div>
+        <button class="btn-cfg btn-gn" onclick="salvarIdentidade()">Salvar</button>
+      </div>
+
+      <!-- Categorias customizáveis -->
+      <div class="cfg-card">
+        <div class="cfg-title">🏷️ Categorias de Produtos</div>
+        <div class="cfg-sub">Crie as categorias que fazem sentido para o seu negócio.</div>
+        <div id="listaCats"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input class="inp" id="novaCatNome" placeholder="Nome da categoria" style="flex:1">
+          <input class="inp" id="novaCatIco" placeholder="🏷️" style="width:60px;text-align:center;font-size:20px;">
+          <button class="btn-cfg btn-gn" onclick="adicionarCat()" style="width:auto;padding:0 16px;">+</button>
+        </div>
       </div>
 
       <!-- Relatório WhatsApp -->
@@ -703,6 +757,9 @@ function entrar() {
   }
 
   mostrarTela('telaApp');
+  renderCatPills();
+  renderSelectCat();
+  atualizarLogoTopbar();
   carregarProds();
   renderDash();
 }
@@ -782,7 +839,7 @@ function renderProds() {
 
   var el = document.getElementById('prodList');
   if (!lista.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">📦</div><div class="empty-t">Nenhum produto</div><div class="empty-s">Toque no <strong>+</strong> para cadastrar.</div></div>';
+    el.innerHTML = '<div class="empty"><div class="empty-ico">📦</div><div class="empty-t">Nenhum produto</div><div class="empty-s">Toque no botão + para cadastrar.</div></div>';
     return;
   }
 
@@ -790,7 +847,7 @@ function renderProds() {
   el.innerHTML = lista.map(function(p) {
     var st = status(p);
     var cor = corSt(st);
-    var ico = catIco[p.categoria] || '📦';
+    var ico = getCatIco(p.categoria);
     var cls = catCls[p.categoria] || 'cc-outros';
     var brd = st==='critico'?'border-left:3px solid var(--rd)':st==='baixo'?'border-left:3px solid var(--am)':'';
     var editBtn = isDono ? '<button class="pbtn pbtn-ed" onclick="editarProd(\''+p.id+'\')">✏️</button>' : '';
@@ -895,7 +952,7 @@ function abrirMov(tipo, prodId) {
   PRODS.sort(function(a,b){return a.nome.localeCompare(b.nome);}).forEach(function(p) {
     var opt = document.createElement('option');
     opt.value = p.id;
-    opt.textContent = (catIco[p.categoria]||'📦') + ' ' + p.nome + ' (' + fN(p.quantidade) + ' ' + p.unidade + ')';
+    opt.textContent = getCatIco(p.categoria) + ' ' + p.nome + ' (' + fN(p.quantidade) + ' ' + p.unidade + ')';
     sel.appendChild(opt);
   });
   if (prodId) sel.value = prodId;
@@ -1089,6 +1146,10 @@ function estornar(movId, prodId, qty, tipo) {
 function renderConfig() {
   document.getElementById('cfgNomeRest').value = REST ? REST.nome : '';
   renderFuncs();
+  renderListaCats();
+  renderCatPills();
+  renderSelectCat();
+  carregarLogoConfig();
 }
 
 function salvarNomeRest() {
@@ -1242,6 +1303,152 @@ function limparHist() {
     renderHist();
     renderDash();
   }).catch(function(){toast('Erro','err');});
+}
+
+// ══════════════════════════════════════════════════════
+// LOGO E IDENTIDADE
+// ══════════════════════════════════════════════════════
+function previewLogo() {
+  var file = document.getElementById('logoFile').files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = document.getElementById('logoImg');
+    var ph = document.getElementById('logoPlaceholder');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+    // Salvar em localStorage como preview
+    localStorage.setItem('ge_logo_' + (REST ? REST.id : 'tmp'), e.target.result);
+    atualizarLogoTopbar();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerLogo() {
+  document.getElementById('logoImg').style.display = 'none';
+  document.getElementById('logoPlaceholder').style.display = 'flex';
+  if (REST) localStorage.removeItem('ge_logo_' + REST.id);
+  atualizarLogoTopbar();
+}
+
+function atualizarLogoTopbar() {
+  if (!REST) return;
+  var logo = localStorage.getItem('ge_logo_' + REST.id);
+  var ico = document.querySelector('.top-icon');
+  if (!ico) return;
+  if (logo) {
+    ico.innerHTML = '<img src="'+logo+'" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">';
+  } else {
+    ico.textContent = '📦';
+  }
+}
+
+function carregarLogoConfig() {
+  if (!REST) return;
+  var logo = localStorage.getItem('ge_logo_' + REST.id);
+  if (logo) {
+    var img = document.getElementById('logoImg');
+    var ph = document.getElementById('logoPlaceholder');
+    if (img) { img.src = logo; img.style.display = 'block'; }
+    if (ph) ph.style.display = 'none';
+  }
+}
+
+function salvarIdentidade() {
+  var nome = document.getElementById('cfgNomeRest').value.trim();
+  if (!nome) { toast('Informe o nome', 'err'); return; }
+  sf('ge_restaurantes?id=eq.' + REST.id, {method:'PATCH', body:JSON.stringify({nome:nome})}).then(function(){
+    REST.nome = nome;
+    document.getElementById('topNome').textContent = nome;
+    atualizarLogoTopbar();
+    toast('Identidade salva! ✅');
+  }).catch(function(){toast('Erro ao salvar','err');});
+}
+
+// ══════════════════════════════════════════════════════
+// CATEGORIAS CUSTOMIZÁVEIS
+// ══════════════════════════════════════════════════════
+var CATS_DEFAULT = [
+  {ico:'🥩',nome:'Carnes'},{ico:'🥤',nome:'Bebidas'},{ico:'🥦',nome:'Hortifruti'},
+  {ico:'🌾',nome:'Grãos'},{ico:'🧀',nome:'Laticínios'},{ico:'📦',nome:'Outros'}
+];
+
+function getCats() {
+  if (!REST) return CATS_DEFAULT;
+  var s = localStorage.getItem('ge_cats_' + REST.id);
+  return s ? JSON.parse(s) : CATS_DEFAULT;
+}
+
+function saveCats(cats) {
+  if (!REST) return;
+  localStorage.setItem('ge_cats_' + REST.id, JSON.stringify(cats));
+}
+
+function adicionarCat() {
+  var nome = document.getElementById('novaCatNome').value.trim();
+  var ico = document.getElementById('novaCatIco').value.trim() || '🏷️';
+  if (!nome) { toast('Informe o nome da categoria','err'); return; }
+  var cats = getCats();
+  if (cats.find(function(c){return c.nome.toLowerCase()===nome.toLowerCase();})) {
+    toast('Categoria já existe','err'); return;
+  }
+  cats.push({ico:ico,nome:nome});
+  saveCats(cats);
+  document.getElementById('novaCatNome').value = '';
+  document.getElementById('novaCatIco').value = '';
+  renderListaCats();
+  renderCatPills();
+  renderSelectCat();
+  toast('Categoria adicionada! ✅');
+}
+
+function removerCat(nome) {
+  if (!confirm('Remover categoria "'+nome+'"?')) return;
+  var cats = getCats().filter(function(c){return c.nome!==nome;});
+  saveCats(cats);
+  renderListaCats();
+  renderCatPills();
+  renderSelectCat();
+  toast('Categoria removida.');
+}
+
+function renderListaCats() {
+  var el = document.getElementById('listaCats');
+  if (!el) return;
+  var cats = getCats();
+  el.innerHTML = cats.map(function(c){
+    return '<div class="cat-custom">'
+      +'<span class="cat-custom-ico">'+c.ico+'</span>'
+      +'<span class="cat-custom-nome">'+c.nome+'</span>'
+      +'<button class="cat-custom-del" onclick="removerCat(\''+c.nome+'\')">Remover</button>'
+      +'</div>';
+  }).join('');
+}
+
+function renderCatPills() {
+  var el = document.getElementById('catPills');
+  if (!el) return;
+  var cats = getCats();
+  el.innerHTML = '<button class="cat on" onclick="setCat(\'\'\',this)">Todos</button>'
+    + cats.map(function(c){
+        return '<button class="cat" onclick="setCat(\''+c.nome+'\',this)">'+c.ico+' '+c.nome+'</button>';
+      }).join('');
+}
+
+function renderSelectCat() {
+  var el = document.getElementById('mpCat');
+  if (!el) return;
+  var cats = getCats();
+  el.innerHTML = cats.map(function(c){
+    return '<option value="'+c.nome+'">'+c.ico+' '+c.nome+'</option>';
+  }).join('');
+}
+
+function getCatIco(nome) {
+  var cats = getCats();
+  var c = cats.find(function(x){return x.nome===nome;});
+  return c ? c.ico : '📦';
 }
 
 // ══════════════════════════════════════════════════════
