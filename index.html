@@ -6,9 +6,14 @@
 <meta name="theme-color" content="#22C55E">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gerencion Estoque">
+<meta name="application-name" content="Gerencion Estoque">
+<meta name="msapplication-TileColor" content="#22C55E">
 <title>Gerencion Estoque</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="manifest" href="ge-manifest.json">
+<link rel="apple-touch-icon" href="ge-icon.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -69,7 +74,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 /* ── TOPBAR ── */
 #topbar{background:var(--s1);border-bottom:1px solid var(--b);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:100;}
 .top-brand{display:flex;align-items:center;gap:10px;}
-.top-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gn),#16A34A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.top-icon{width:36px;height:36px;background:linear-gradient(135deg,#22C55E,#16A34A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;}
 .top-name{font-size:14px;font-weight:800;color:var(--t);}
 .top-user{font-size:10px;color:var(--t2);}
 .top-right{display:flex;align-items:center;gap:8px;}
@@ -77,7 +82,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 .top-sair{padding:6px 12px;background:var(--rd2);border:1px solid var(--rd3);border-radius:8px;color:var(--rd);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
 
 /* ── NAV ── */
-#nav{background:var(--s1);border-top:1px solid var(--b);position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+#nav{background:var(--s1);border-top:1px solid var(--b);position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
 .nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;gap:3px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;border-top:2px solid transparent;transition:all .15s;}
 .nav-btn.on{color:var(--gn);border-top-color:var(--gn);}
 .nav-btn span{font-size:20px;line-height:1;}
@@ -218,6 +223,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 #fab:active{transform:scale(.95);}
 
 
+
+/* ── MODAL AJUDA ── */
+.help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.help-overlay.show{display:flex;}
+.help-modal{background:var(--s1);border-radius:24px 24px 0 0;padding:24px 20px 32px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;}
+.help-handle{width:40px;height:4px;background:var(--b2);border-radius:20px;margin:0 auto 16px;}
+.help-title{font-size:17px;font-weight:800;color:var(--gn);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.help-item{display:flex;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--b);}
+.help-item:last-child{border-bottom:none;margin-bottom:0;}
+.help-ico{font-size:24px;flex-shrink:0;margin-top:2px;}
+.help-info-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:4px;}
+.help-info-text{font-size:12px;color:var(--t2);line-height:1.7;}
+.help-info-text strong{color:var(--am);}
+/* Botão ? flutuante */
+#helpBtn{position:fixed;left:16px;bottom:86px;width:40px;height:40px;border-radius:50%;background:var(--s2);border:1px solid var(--b2);color:var(--t2);font-size:18px;font-weight:700;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:100;}
+
 /* ── LOGO ── */
 .logo-preview{width:80px;height:80px;border-radius:20px;object-fit:cover;border:2px solid var(--gn3);}
 .logo-placeholder{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--gn),#16A34A);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}
@@ -249,7 +270,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   <div class="setup-sub">Controle inteligente para o seu restaurante</div>
   <div class="setup-card">
     <div class="setup-title">Bem-vindo! 👋</div>
-    <div class="setup-desc">Vamos configurar o seu sistema. Isso leva menos de 1 minuto.</div>
+    <div class="setup-desc">Vamos configurar o sistema do seu estabelecimento. Isso leva menos de 1 minuto.</div>
     <div class="fg"><label class="fl">Nome do Estabelecimento</label><input class="inp" id="sNome" placeholder="ex: Mercado do João, Farmácia Silva..."></div>
     <div class="fg"><label class="fl">Tipo do Negócio</label>
       <select class="inp" id="sTipo">
@@ -403,19 +424,29 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div class="cfg-title">🏷️ Categorias de Produtos</div>
         <div class="cfg-sub">Crie as categorias que fazem sentido para o seu negócio.</div>
         <div id="listaCats"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <input class="inp" id="novaCatNome" placeholder="Nome da categoria" style="flex:1">
-          <input class="inp" id="novaCatIco" placeholder="🏷️" style="width:60px;text-align:center;font-size:20px;">
-          <button class="btn-cfg btn-gn" onclick="adicionarCat()" style="width:auto;padding:0 16px;">+</button>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <input class="inp" id="novaCatNome" placeholder="Nome da categoria" style="flex:1;min-width:140px">
+          <div style="position:relative;display:flex;align-items:center;">
+            <button onclick="toggleEmojiPicker()" id="emojiBtn" style="width:52px;height:52px;background:var(--s2);border:1.5px solid var(--b);border-radius:12px;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;" id="novaCatIcoBtn">🏷️</button>
+            <input type="hidden" id="novaCatIco" value="🏷️">
+          </div>
+          <button class="btn-cfg btn-gn" onclick="adicionarCat()" style="width:auto;padding:0 18px;height:52px;">+</button>
+        </div>
+        <div id="emojiPicker" style="display:none;background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:12px;margin-top:8px;flex-wrap:wrap;gap:6px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t2);margin-bottom:8px;text-transform:uppercase;">Escolha um emoji</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="emojiGrid"></div>
         </div>
       </div>
 
       <!-- Relatório WhatsApp -->
       <div class="cfg-card">
-        <div class="cfg-title">📱 Relatório via WhatsApp</div>
-        <div class="cfg-sub">Envie um resumo completo do estoque para qualquer número — seu celular, seu sócio, quem quiser.</div>
+        <div class="cfg-title">📱 Enviar Relatório</div>
+        <div class="cfg-sub">Envie um resumo completo do estoque por WhatsApp ou Email — seu celular, seu sócio, quem quiser.</div>
         <input class="inp" id="cfgWpp" placeholder="55 + DDD + número (ex: 5521999999999)" style="margin-bottom:10px">
-        <button class="btn-cfg btn-gn" onclick="enviarRelatorioWpp()">📲 Enviar Relatório Agora</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-cfg btn-gn" onclick="enviarRelatorioWpp()" style="flex:1">📲 WhatsApp</button>
+          <button class="btn-cfg btn-blue" onclick="enviarRelatorioEmail()" style="flex:1">✉️ E-mail</button>
+        </div>
       </div>
 
       <!-- Exportar -->
@@ -503,6 +534,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <button class="nav-btn on" onclick="irPg('dash',this)"><span>🏠</span>Início</button>
     <button class="nav-btn" onclick="irPg('produtos',this)"><span>📦</span>Produtos</button>
     <button class="nav-btn" onclick="irPg('hist',this)"><span>📋</span>Histórico</button>
+    <button class="nav-btn" id="navRelatorio" onclick="abrirRelatorioFuncionario()"><span>📊</span>Relatório</button>
     <button class="nav-btn" id="navConfig" onclick="irPg('config',this)"><span>⚙️</span>Config</button>
   </div>
 </div><!-- /telaApp -->
@@ -753,7 +785,6 @@ function entrar() {
     navCfg.style.display = 'none';
   } else {
     navCfg.style.display = 'flex';
-    // Adicionar tutorial no nav para dono
   }
 
   mostrarTela('telaApp');
@@ -787,6 +818,10 @@ function irPg(id, btn) {
   if (btn) btn.classList.add('on');
   var fab = document.getElementById('fab');
   fab.style.display = id === 'produtos' ? 'flex' : 'none';
+  // Botão de ajuda — mostrar em todas as telas principais
+  var hbtn = document.getElementById('helpBtn');
+  if (hbtn) hbtn.style.display = ['dash','produtos','hist','config'].includes(id) ? 'flex' : 'none';
+  pgAtualAjuda = id;
   if (id === 'dash') renderDash();
   if (id === 'produtos') renderProds();
   if (id === 'hist') renderHist();
@@ -939,8 +974,8 @@ function excluirProd() {
 // ══════════════════════════════════════════════════════
 function abrirMov(tipo, prodId) {
   document.getElementById('mmTipo').value = tipo;
-  qtyMov = 1;
-  document.getElementById('qpVal').textContent = '1';
+  qtyMov = 0;
+  document.getElementById('qpVal').textContent = '0';
   document.getElementById('mmObs').value = '';
   var isEnt = tipo === 'entrada';
   document.getElementById('mmTitle').textContent = isEnt ? '📥 Registrar Entrada' : '📤 Registrar Saída';
@@ -973,13 +1008,14 @@ function atualizarEstAtual() {
 }
 
 function ajQ(d) {
-  qtyMov = Math.max(0.5, parseFloat((qtyMov + d).toFixed(2)));
+  qtyMov = Math.max(0, parseFloat((qtyMov + d).toFixed(2)));
   document.getElementById('qpVal').textContent = fN(qtyMov);
 }
 
 function registrarMov() {
   var prodId = document.getElementById('mmProd').value;
   if (!prodId) { toast('Selecione um produto', 'err'); return; }
+  if (qtyMov <= 0) { toast('Informe uma quantidade maior que zero', 'err'); return; }
   var tipo = document.getElementById('mmTipo').value;
   var obs = document.getElementById('mmObs').value.trim();
   var p = PRODS.find(function(x) { return x.id === prodId; });
@@ -1249,7 +1285,9 @@ function enviarRelatorioWpp() {
   var num = document.getElementById('cfgWpp').value.trim().replace(/\D/g,'');
   if (!num) { toast('Informe o número de WhatsApp','err'); return; }
 
-  var linhas = ['📦 *RELATÓRIO DE ESTOQUE*', '*' + REST.nome + '*', new Date().toLocaleString('pt-BR'), ''];
+  var linhas = ['📦 *RELATÓRIO DE ESTOQUE*', '*' + REST.nome + '*', 
+    'Gerado por: ' + EU.nome + ' (' + (EU.tipo==='dono'?'Dono':'Funcionário') + ')',
+    new Date().toLocaleString('pt-BR'), ''];
   var crit = PRODS.filter(function(p){return status(p)==='critico';});
   var baixo = PRODS.filter(function(p){return status(p)==='baixo';});
   var ok = PRODS.filter(function(p){return status(p)==='ok';});
@@ -1271,16 +1309,49 @@ function enviarRelatorioWpp() {
   linhas.push('');
   linhas.push('_Enviado pelo Gerencion Estoque_');
 
-  var texto = encodeURIComponent(linhas.join('\n'));
+  var texto = encodeURIComponent(linhas.join('\\n'));
   window.open('https://wa.me/'+num+'?text='+texto, '_blank');
 }
 
 // ══════════════════════════════════════════════════════
 // EXPORTAR CSV
 // ══════════════════════════════════════════════════════
+function enviarRelatorioEmail() {
+  var email = prompt('Digite o e-mail para enviar o relatório:');
+  if (!email) return;
+  var linhas = ['RELATÓRIO DE ESTOQUE — ' + REST.nome,
+    'Gerado por: ' + EU.nome,
+    'Data: ' + new Date().toLocaleString('pt-BR'), '',
+    'PRODUTOS CRÍTICOS:'];
+  var crit = PRODS.filter(function(p){return status(p)==='critico';});
+  var baixo = PRODS.filter(function(p){return status(p)==='baixo';});
+  var ok = PRODS.filter(function(p){return status(p)==='ok';});
+  if(crit.length) crit.forEach(function(p){linhas.push('🔴 '+p.nome+': '+fN(p.quantidade)+' '+p.unidade);});
+  else linhas.push('Nenhum produto crítico.');
+  linhas.push('','ABAIXO DO MÍNIMO:');
+  if(baixo.length) baixo.forEach(function(p){linhas.push('⚠️ '+p.nome+': '+fN(p.quantidade)+' '+p.unidade);});
+  else linhas.push('Nenhum produto abaixo do mínimo.');
+  linhas.push('','ESTOQUE OK:');
+  ok.forEach(function(p){linhas.push('✅ '+p.nome+': '+fN(p.quantidade)+' '+p.unidade);});
+  var corpo = encodeURIComponent(linhas.join('%0A'));
+  var subj = encodeURIComponent('Relatório de Estoque — ' + REST.nome);
+  // Tentar abrir cliente de email
+  var link = 'mailto:' + email + '?subject=' + subj + '&body=' + corpo;
+  window.location.href = link;
+  setTimeout(function(){
+    // Se não abriu, oferecer copiar
+    if(confirm('Se o email não abriu automaticamente, clique OK para copiar o texto do relatório.')){
+      navigator.clipboard && navigator.clipboard.writeText(linhas.join('\n')).then(function(){
+        toast('Texto copiado! Cole no seu email.');
+      });
+    }
+  }, 1500);
+}
+
 function exportarCSV() {
   var linhas = ['RELATÓRIO DE ESTOQUE — ' + REST.nome];
   linhas.push('Gerado em: ' + new Date().toLocaleString('pt-BR'));
+  linhas.push('Gerado por: ' + EU.nome + ' (' + (EU.tipo==='dono'?'Dono':'Funcionário') + ')');
   linhas.push('');
   linhas.push('Nome,Categoria,Quantidade,Unidade,Mínimo,Status');
   PRODS.forEach(function(p) {
@@ -1288,7 +1359,7 @@ function exportarCSV() {
     linhas.push([p.nome,p.categoria,p.quantidade,p.unidade,p.minimo,st==='ok'?'OK':st==='baixo'?'BAIXO':'CRÍTICO'].join(','));
   });
 
-  var blob = new Blob([linhas.join('\n')], {type:'text/csv;charset=utf-8'});
+  var blob = new Blob([linhas.join('\\n')], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'estoque-' + new Date().toISOString().split('T')[0] + '.csv';
@@ -1449,6 +1520,128 @@ function getCatIco(nome) {
   var cats = getCats();
   var c = cats.find(function(x){return x.nome===nome;});
   return c ? c.ico : '📦';
+}
+
+// ══════════════════════════════════════════════════════
+// SISTEMA DE AJUDA (botão ?)
+// ══════════════════════════════════════════════════════
+var AJUDAS = {
+  'dash': {
+    titulo: '🏠 Tela Inicial — Como usar',
+    itens: [
+      {ico:'📊', titulo:'Resumo do estoque', texto:'Os 3 números mostram: total de produtos, quantos estão com estoque <strong>baixo</strong> (amarelo) e quantos estão <strong>críticos</strong> (vermelho — acabando ou zerado).'},
+      {ico:'⚠️', titulo:'Alertas automáticos', texto:'Quando um produto fica abaixo do mínimo que você definiu, ele aparece aqui com um alerta. Toque em <strong>+ Repor</strong> para registrar a entrada imediatamente.'},
+      {ico:'📤', titulo:'Registrar Saída', texto:'Use sempre que consumir ou vender um produto. Selecione o produto, ajuste a quantidade com os botões + e −, e confirme. O estoque atualiza na hora.'},
+      {ico:'📥', titulo:'Registrar Entrada', texto:'Use quando receber mercadoria do fornecedor. Selecione o produto, coloque a quantidade recebida e confirme. Ideal registrar no momento da entrega.'},
+    ]
+  },
+  'produtos': {
+    titulo: '📦 Produtos — Como usar',
+    itens: [
+      {ico:'+', titulo:'Cadastrar produto', texto:'Toque no botão verde <strong>+</strong> no canto da tela. Preencha nome, categoria, unidade (kg, litros, unidade...), quantidade atual e o <strong>estoque mínimo</strong> — abaixo disso o sistema alerta.'},
+      {ico:'🌡️', titulo:'Termômetro de estoque', texto:'A barra colorida mostra o nível do estoque. <strong>Verde</strong> = ok, <strong>amarelo</strong> = atenção, <strong>vermelho</strong> = crítico. Quanto mais à direita, mais estoque você tem.'},
+      {ico:'✏️', titulo:'Editar produto', texto:'Toque no botão <strong>✏️</strong> para editar nome, categoria, quantidade ou estoque mínimo. Só o dono pode editar.'},
+      {ico:'🔍', titulo:'Busca e filtros', texto:'Use a barra de busca para encontrar um produto pelo nome. Use os botões de categoria para filtrar por tipo.'},
+    ]
+  },
+  'hist': {
+    titulo: '📋 Histórico — Como usar',
+    itens: [
+      {ico:'📥', titulo:'Entradas (verde)', texto:'Registros de mercadoria recebida ou ajuste de estoque para cima. Mostra quem registrou e quando.'},
+      {ico:'📤', titulo:'Saídas (vermelho)', texto:'Registros de consumo, venda ou retirada. Mostra quem registrou, quantidade e observação.'},
+      {ico:'↩️', titulo:'Estornar (só dono)', texto:'Se um funcionário registrou errado, o dono pode tocar em <strong>Estornar</strong> para desfazer. O estoque é ajustado automaticamente.'},
+      {ico:'🔍', titulo:'Buscar no histórico', texto:'Digite o nome do produto ou funcionário para filtrar os registros.'},
+    ]
+  },
+  'config': {
+    titulo: '⚙️ Configurações — Como usar',
+    itens: [
+      {ico:'👥', titulo:'Funcionários e PINs', texto:'Cadastre cada funcionário com um nome e um PIN de 4 dígitos. O PIN é criado <strong>por você</strong>. O funcionário não pode ver nem alterar o PIN de ninguém.'},
+      {ico:'🖼️', titulo:'Logo do estabelecimento', texto:'Faça upload da logo do estabelecimento — recomendado <strong>400x400 pixels</strong>, formato quadrado. Aparece no topo do app.'},
+      {ico:'🏷️', titulo:'Categorias', texto:'Crie as categorias que fazem sentido para o seu negócio. Toque no emoji para escolher um ícone. Funciona para qualquer tipo de produto.'},
+      {ico:'📊', titulo:'Relatório', texto:'Envie um resumo completo do estoque por <strong>WhatsApp</strong> ou <strong>E-mail</strong>. Mostra o que está crítico, baixo e ok. Perfeito para fazer a lista de compras.'},
+    ]
+  }
+};
+
+var pgAtualAjuda = 'dash';
+
+function abrirAjuda() {
+  var ajuda = AJUDAS[pgAtualAjuda] || AJUDAS['dash'];
+  document.getElementById('helpTitle').textContent = ajuda.titulo;
+  document.getElementById('helpContent').innerHTML = ajuda.itens.map(function(item){
+    return '<div class="help-item">'
+      +'<div class="help-ico">'+item.ico+'</div>'
+      +'<div><div class="help-info-title">'+item.titulo+'</div>'
+      +'<div class="help-info-text">'+item.texto+'</div></div>'
+      +'</div>';
+  }).join('');
+  abrirModal('ovHelp');
+}
+
+// ══════════════════════════════════════════════════════
+// RELATÓRIO FUNCIONÁRIO (WhatsApp + Email)
+// ══════════════════════════════════════════════════════
+function abrirRelatorioFuncionario() {
+  // Modal simples com opções
+  var opcao = confirm('Enviar relatório por WhatsApp?\n\nOK = WhatsApp\nCancelar = E-mail');
+  if (opcao) {
+    var num = prompt('Número WhatsApp (com 55 + DDD):');
+    if (num) { document.getElementById('cfgWpp').value = num; enviarRelatorioWpp(); }
+  } else {
+    enviarRelatorioEmail();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// EMOJI PICKER
+// ══════════════════════════════════════════════════════
+var EMOJIS = [
+  '📦','🛒','🍽️','🥩','🥤','🥦','🌾','🧀','🍞','🍖','🐟','🥚',
+  '🧴','💊','🩺','🔧','✂️','💄','🧹','🪣','📋','📊','🖥️','📱',
+  '🔑','💡','🛢️','⚙️','🔩','🪛','🎨','🖌️','📐','📏','🗂️','📁',
+  '🏷️','🎯','💰','🧾','🪴','🌿','🌱','🍃','☕','🧃','🍷','🍺',
+  '🚗','🏠','🏪','🏨','🏥','🏋️','⚽','🎮','📚','✏️','🔬','🌡️'
+];
+
+function toggleEmojiPicker() {
+  var picker = document.getElementById('emojiPicker');
+  if (!picker) return;
+  var isOpen = picker.style.display !== 'none';
+  if (!isOpen) {
+    renderEmojiGrid();
+    picker.style.display = 'block';
+  } else {
+    picker.style.display = 'none';
+  }
+}
+
+function renderEmojiGrid() {
+  var grid = document.getElementById('emojiGrid');
+  if (!grid) return;
+  grid.innerHTML = EMOJIS.map(function(e) {
+    return '<button onclick="selecionarEmoji(\'' + e + '\')" style="width:40px;height:40px;border:none;background:var(--s3);border-radius:8px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">'+e+'</button>';
+  }).join('');
+}
+
+function selecionarEmoji(emoji) {
+  document.getElementById('novaCatIco').value = emoji;
+  var btn = document.getElementById('emojiBtn');
+  if (btn) btn.textContent = emoji;
+  document.getElementById('emojiPicker').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+// PWA — Service Worker
+// ══════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./ge-sw.js').then(function(reg) {
+      console.log('SW registrado:', reg.scope);
+    }).catch(function(err) {
+      console.log('SW erro:', err);
+    });
+  });
 }
 
 // ══════════════════════════════════════════════════════
