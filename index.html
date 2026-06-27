@@ -652,9 +652,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div class="mt">🛒 Revisar Lista de Compras</div>
     <div class="ms">Ajuste as quantidades antes de enviar. A lista será separada por fornecedor automaticamente.</div>
     <div id="listaComprasItens"></div>
-    <div class="mb">
-      <button class="mb-s" onclick="fM('ovListaCompras')">Cancelar</button>
-      <button class="mb-p" onclick="confirmarEnvioLista()">📲 Enviar ao Fornecedor</button>
+    <div style="margin-top:8px;">
+      <button class="mb-s" onclick="fM('ovListaCompras')" style="width:100%;padding:13px;">✕ Fechar</button>
     </div>
   </div>
 </div>
@@ -1061,31 +1060,56 @@ async function excluirFornec(){if(!confirm('Remover fornecedor?'))return;try{awa
 function enviarListaCompras(){
   const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);
   if(!baixos.length)return toast('Nenhum produto com estoque baixo','info');
-  // Abrir modal de revisão
+
+  // Agrupar por fornecedor
+  const grupos={};
+  baixos.forEach(p=>{
+    const fid=p.fornecedor_id||'__geral__';
+    if(!grupos[fid])grupos[fid]=[];
+    grupos[fid].push(p);
+  });
+
+  // Montar um card por fornecedor
   const el=$('listaComprasItens');
   if(!el)return;
-  el.innerHTML=baixos.map(p=>{
-    const fornec=todosFornecs.find(f=>f.id===p.fornecedor_id);
-    const sugerido=Math.max(0,(p.estoque_minimo||0)-(p.quantidade||0));
-    return`<div style="background:var(--s2);border:1px solid var(--b);border-radius:11px;padding:12px 13px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <div><div style="font-size:13px;font-weight:700;">${p.emoji||'📦'} ${p.nome}</div>
-        <div style="font-size:10px;color:var(--t3);margin-top:2px;">🚚 ${fornec?fornec.nome:'Sem fornecedor'} · Atual: ${numFmt(p.quantidade||0)} ${p.unidade||'un'}</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;color:var(--t2);white-space:nowrap;">Pedir:</span>
-        <div style="display:flex;align-items:center;background:var(--s3);border:1px solid var(--b);border-radius:9px;overflow:hidden;flex:1;">
-          <button onclick="ajLista('${p.id}',-1)" style="width:38px;height:38px;border:none;background:none;font-size:20px;font-weight:700;color:var(--t);cursor:pointer;">−</button>
-          <input type="number" id="lista-qty-${p.id}" value="${sugerido}" min="0" step="1" inputmode="numeric"
-            style="flex:1;text-align:center;border:none;background:transparent;color:var(--t);font-size:16px;font-weight:800;outline:none;font-family:Inter,sans-serif;" onfocus="this.select()">
-          <button onclick="ajLista('${p.id}',1)" style="width:38px;height:38px;border:none;background:none;font-size:20px;font-weight:700;color:var(--t);cursor:pointer;">+</button>
+  el.innerHTML=Object.entries(grupos).map(([fid,prods])=>{
+    const fornec=todosFornecs.find(f=>f.id===fid);
+    const nomeFornec=fornec?fornec.nome:'📋 Sem Fornecedor';
+    const wpp=fornec?.whatsapp||'';
+    const itens=prods.map(p=>{
+      const sugerido=Math.max(0,(p.estoque_minimo||0)-(p.quantidade||0));
+      return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:var(--t);">${p.emoji||'📦'} ${p.nome}</div>
+          <div style="font-size:10px;color:var(--t2);">Atual: ${numFmt(p.quantidade||0)} ${p.unidade||'un'}</div>
         </div>
-        <span style="font-size:11px;color:var(--t2);white-space:nowrap;">${p.unidade||'un'}</span>
+        <div style="display:flex;align-items:center;background:var(--s3);border:1px solid var(--b);border-radius:9px;overflow:hidden;">
+          <button onclick="ajLista('${p.id}',-1)" style="width:34px;height:34px;border:none;background:none;font-size:18px;font-weight:700;color:var(--t);cursor:pointer;">−</button>
+          <input type="number" id="lista-qty-${p.id}" value="${sugerido}" min="0" step="1" inputmode="numeric"
+            style="width:50px;text-align:center;border:none;background:transparent;color:var(--t);font-size:15px;font-weight:800;outline:none;font-family:Inter,sans-serif;" onfocus="this.select()">
+          <button onclick="ajLista('${p.id}',1)" style="width:34px;height:34px;border:none;background:none;font-size:18px;font-weight:700;color:var(--t);cursor:pointer;">+</button>
+        </div>
+        <span style="font-size:11px;color:var(--t2);width:28px;">${p.unidade||'un'}</span>
+      </div>`;
+    }).join('');
+    return`<div style="background:var(--s2);border:1.5px solid var(--b);border-radius:14px;padding:14px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--b);">
+        <span style="font-size:20px;">🚚</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:800;color:var(--t);">${nomeFornec}</div>
+          <div style="font-size:10px;color:var(--t2);">${wpp?'📱 '+wpp:'Sem WhatsApp cadastrado'}</div>
+        </div>
       </div>
+      ${itens}
+      <button onclick="enviarParaFornecedor('${fid}')" 
+        style="width:100%;margin-top:10px;padding:12px;background:var(--gn);border:none;border-radius:11px;color:#0B1120;font-weight:800;font-size:13px;cursor:pointer;font-family:Inter,sans-serif;">
+        📲 Enviar Pedido para ${nomeFornec}
+      </button>
     </div>`;
   }).join('');
-  // Guardar referência dos produtos baixos
+
   window._listaComprasBaixos=baixos;
+  window._listaComprasGrupos=grupos;
   abrirModal('ovListaCompras');
 }
 
@@ -1095,35 +1119,30 @@ function ajLista(pid,d){
   el.value=Math.max(0,(parseFloat(el.value)||0)+d);
 }
 
-async function confirmarEnvioLista(){
-  const baixos=window._listaComprasBaixos||[];
-  if(!baixos.length)return;
+function enviarParaFornecedor(fid){
+  const grupos=window._listaComprasGrupos||{};
+  const prods=grupos[fid]||[];
+  const fornec=todosFornecs.find(f=>f.id===fid);
   const data=new Date().toLocaleDateString('pt-BR');
-  // Agrupar por fornecedor com quantidades editadas
-  const grupos={};
-  baixos.forEach(p=>{
+  const linhas=prods.map(p=>{
     const qty=parseFloat(document.getElementById('lista-qty-'+p.id)?.value||0);
-    if(qty<=0)return; // pular se quantidade for 0
-    const fid=p.fornecedor_id||'__geral__';
-    if(!grupos[fid])grupos[fid]=[];
-    grupos[fid].push({...p,qtdPedido:qty});
-  });
-  if(!Object.keys(grupos).length)return toast('Nenhuma quantidade informada','warn');
-  fM('ovListaCompras');
-  let enviados=0;
-  for(const [fid,prods] of Object.entries(grupos)){
-    const fornec=todosFornecs.find(f=>f.id===fid);
-    const wpp=fornec?.whatsapp||'';
-    const linhas=prods.map(p=>`• ${p.emoji||'📦'} ${p.nome}: *${numFmt(p.qtdPedido)} ${p.unidade||'un'}*`).join('\n');
-    const dest=fornec?fornec.nome:'Lista Geral';
-    const msg=encodeURIComponent(`🛒 *Pedido de Compras — ${dest}*\n🏪 ${REST_NOME||''}${FUNC_NOME?' · '+FUNC_NOME:''}\n${data}\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);
-    if(wpp){window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');enviados++;}
-    else{
-      const num=prompt(`Fornecedor "${dest}" sem WhatsApp.\nDigite o número (55+DDD+número):`);
-      if(num){window.open(`https://wa.me/${num.replace(/\D/g,'')}?text=${msg}`,'_blank');enviados++;}
-    }
+    if(qty<=0)return null;
+    return`• ${p.emoji||'📦'} ${p.nome}: *${numFmt(qty)} ${p.unidade||'un'}*`;
+  }).filter(Boolean).join('\n');
+  if(!linhas)return toast('Coloque pelo menos uma quantidade','warn');
+  const dest=fornec?fornec.nome:'Lista Geral';
+  const wpp=fornec?.whatsapp||'';
+  const msg=encodeURIComponent(`🛒 *Pedido de Compras — ${dest}*\n🏪 ${REST_NOME||''}${FUNC_NOME?' · '+FUNC_NOME:''}\n${data}\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);
+  if(wpp){window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');}
+  else{
+    const num=prompt(`Fornecedor "${dest}" sem WhatsApp.\nDigite o número (55+DDD+número):`);
+    if(num)window.open(`https://wa.me/${num.replace(/\D/g,'')}?text=${msg}`,'_blank');
   }
-  if(enviados>0)toast(`✅ ${enviados} pedido${enviados>1?'s':''} enviado${enviados>1?'s':''}!`);
+  toast(`✅ Pedido enviado para ${dest}!`);
+}
+
+function confirmarEnvioLista(){
+  // Mantido para compatibilidade — não usado mais
 }
 
 // RELATÓRIOS
@@ -1164,7 +1183,7 @@ const TUTORIAIS={
     hi('📊','Resumo do Mês','Mostra entradas, saídas e perdas do mês atual. Compare os números e identifique tendências no seu negócio.'),
     hi('📈','Comparativo por Categoria','Barras mostram o consumo de cada categoria. Quanto maior a barra, mais saiu naquele período. Ótimo para planejar compras.'),
     hi('⚠️','Relatório de Perdas','Lista todas as perdas e vencimentos do mês com quantidade. Use para identificar o que mais desperdiça e tomar ação.'),
-    hi('🛒','Lista de Compras Automática','O sistema identifica todos os produtos abaixo do mínimo e monta a lista. Ao clicar <strong>Enviar ao Fornecedor</strong>, abre uma tela para você <strong>revisar e ajustar as quantidades</strong> antes de enviar. Use − e + ou digite direto. Cada fornecedor recebe <strong>somente os seus produtos</strong> pelo WhatsApp.'),
+    hi('🛒','Lista de Compras por Fornecedor','O sistema monta a lista separada por fornecedor. Cada fornecedor tem seu próprio <strong>card com os produtos</strong> e um botão <strong>📲 Enviar Pedido</strong> independente. Ajuste as quantidades com − e + ou digitando. Envie para cada fornecedor na hora que quiser, na ordem que preferir.'),
   ],
   config:[
     hi('🔗','Link para Funcionários','Envie o link pelo WhatsApp. O funcionário abre no celular, o sistema já reconhece o estabelecimento. Ele cria o PIN e instala. Muito mais fácil que digitar código.'),
