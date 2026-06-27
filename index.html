@@ -417,6 +417,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <button class="btn-c b-am" onclick="regenerarCod()">🔄 Gerar Novo Link / Código</button>
       </div>
       <div class="cfg-c">
+        <div class="cfg-t">🚚 Fornecedores</div>
+        <div class="cfg-s">Cadastre seus fornecedores com nome e WhatsApp. Ao cadastrar produtos, vincule cada um ao fornecedor — a lista de compras será enviada separada para cada um.</div>
+        <div id="listaFornec"></div>
+        <button class="btn-c b-gn" onclick="abrirNovoFornec()" style="margin-top:7px;">+ Adicionar Fornecedor</button>
+      </div>
+      <div class="cfg-c">
         <div class="cfg-t">👥 Funcionários</div>
         <div class="cfg-s">Cadastre cada funcionário com nome e PIN único de 4 dígitos.</div>
         <div id="listaFuncs"></div>
@@ -536,6 +542,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <input class="inp" type="date" id="mpVal" oninput="atualizarStatusVal()">
       </div>
     </div>
+    <div class="fg" style="margin-top:4px;">
+      <label class="fl">Fornecedor <span class="fl-hint">— opcional</span></label>
+      <select class="inp" id="mpFornec">
+        <option value="">Sem fornecedor vinculado</option>
+      </select>
+    </div>
     <div class="val-status-box" id="mpValStatus"></div>
     <div class="val-status-box" id="mpPrevBox" style="display:none;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:600;margin-bottom:9px;line-height:1.5;"></div>
     <div class="mb">
@@ -604,6 +616,32 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   </div>
 </div>
 
+<!-- MODAL FORNECEDOR -->
+<div class="overlay" id="ovFornec">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div class="mt" id="mfnTit">Novo Fornecedor</div>
+    <div class="ms">Cadastre o fornecedor e vincule aos produtos. A lista de compras será enviada separada para cada um.</div>
+    <input type="hidden" id="mfnId">
+    <div class="fg"><label class="fl">Nome do Fornecedor</label><input class="inp" id="mfnNome" placeholder="Ex: Distribuidora Silva, João Biscoitos..."></div>
+    <div class="fg">
+      <label class="fl">WhatsApp</label>
+      <div class="wpp-input-wrap">
+        <span class="wpp-ddi">🇧🇷 +55</span>
+        <div class="wpp-sep"></div>
+        <input class="wpp-num" id="mfnWpp" placeholder="(DDD) Número" inputmode="tel" maxlength="15" oninput="maskWpp(this)">
+      </div>
+    </div>
+    <div class="mb">
+      <button class="mb-s" onclick="fM('ovFornec')">Cancelar</button>
+      <button class="mb-p" onclick="salvarFornec()">Salvar</button>
+    </div>
+    <div id="mfnExc" style="display:none;margin-top:8px;">
+      <button class="mb-d" onclick="excluirFornec()" style="width:100%">🗑️ Remover Fornecedor</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL AJUDA -->
 <div class="help-ov" id="ovHelp">
   <div class="help-m" onclick="event.stopPropagation()">
@@ -624,6 +662,7 @@ const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','
 
 // Estado
 let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null;
+let todosFornecs=[];
 let prodAtual=null,funcAtual=null;
 let todosProds=[],todosFuncs=[],todasCats=[],todasUnits=[];
 let emojiTarget=null,pinDigitos='',movQty=1,subtipoSaida='normal',histFiltro='';
@@ -634,6 +673,7 @@ const $=id=>document.getElementById(id);
 const toast=(m,t='ok',d=2600)=>{const el=$('toast');el.textContent=m;el.className='show'+(t==='err'?' err':t==='warn'?' warn':t==='info'?' info':'');clearTimeout(el._t);el._t=setTimeout(()=>el.className='',d);};
 const fmt=v=>(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmtN=v=>(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const numFmt=v=>{const n=parseFloat(v)||0;return n%1===0?n.toString():n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
 const diasParaVencer=dt=>{
   if(!dt)return null;
   const hoje=new Date();hoje.setHours(0,0,0,0);
@@ -706,11 +746,12 @@ function trocarEst(){if(confirm('Sair e trocar de estabelecimento?')){REST_ID=nu
 async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_NOME||'Gerencion Estoque';$('topUser').textContent=FUNC_ROLE==='proprietario'?'👑 '+FUNC_NOME:'👤 '+FUNC_NOME;
   const logoSalva=REST_ID?localStorage.getItem('ge_logo_'+REST_ID):null;
   const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
-  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();}
+  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();}
 function sair(){if(confirm('Deseja sair?')){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;pinDigitos='';mostrarTela('tela1Acesso');}}
 
 // PÁGINAS
-function irPg(pg,btn){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=pg==='produtos'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['produtos','hist','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist')renderHist();if(pg==='insights')renderInsights();if(pg==='config'){if(FUNC_ROLE==='proprietario')carregarConfig();else toast('Acesso restrito','warn');}}
+let pgAtual='dash';
+function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=pg==='produtos'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist')renderHist();if(pg==='insights')renderInsights();if(pg==='config'){if(FUNC_ROLE==='proprietario')carregarConfig();else toast('Acesso restrito','warn');}}
 
 // PRODUTOS
 async function carregarProds(){try{todosProds=await sb(`ge_produtos?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosProds=[];toast('Erro ao carregar produtos','err');}}
@@ -749,6 +790,8 @@ function abrirProd(id){
   $('mpCusto').value=p?(p.preco_custo||0):0;
   $('mpFab').value=p?(p.data_fabricacao||''):'';
   $('mpVal').value=p?(p.data_validade||''):'';
+  const fornSel=$('mpFornec');
+  if(fornSel){fornSel.innerHTML='<option value="">Sem fornecedor vinculado</option>'+todosFornecs.map(f=>`<option value="${f.id}" ${p&&p.fornecedor_id===f.id?'selected':''}>${f.nome}</option>`).join('');}
   // Botão emoji do produto
   if(!$('mpEmojiBtn')){
     const nf=$('mpNome');
@@ -800,7 +843,7 @@ function abrirProd(id){
   }
   abrirModal('ovProd');
 }
-async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const dados={restaurante_id:REST_ID,nome,categoria:$('mpCat').value||null,emoji:($('mpEmoji')&&$('mpEmoji').value)||($('mpEmojiBtn')&&$('mpEmojiBtn').textContent)||'📦',unidade:$('mpUnit').value||'un',quantidade:parseFloat($('mpQty').value)||0,estoque_minimo:parseFloat($('mpMin').value)||0,preco_custo:parseFloat($('mpCusto').value)||0,data_fabricacao:$('mpFab').value||null,data_validade:$('mpVal').value||null,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()};try{const id=$('mpId').value;if(id)await sb(`ge_produtos?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_produtos',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Produto atualizado!':'✅ Produto criado!');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const dados={restaurante_id:REST_ID,nome,categoria:$('mpCat').value||null,emoji:($('mpEmoji')&&$('mpEmoji').value)||($('mpEmojiBtn')&&$('mpEmojiBtn').textContent)||'📦',unidade:$('mpUnit').value||'un',quantidade:parseFloat($('mpQty').value)||0,estoque_minimo:parseFloat($('mpMin').value)||0,preco_custo:parseFloat($('mpCusto').value)||0,data_fabricacao:$('mpFab').value||null,data_validade:$('mpVal').value||null,fornecedor_id:$('mpFornec').value||null,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()};try{const id=$('mpId').value;if(id)await sb(`ge_produtos?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_produtos',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Produto atualizado!':'✅ Produto criado!');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirProd(){if(!confirm('Excluir produto?'))return;try{await sb(`ge_produtos?id=eq.${$('mpId').value}`,{method:'DELETE'});toast('Produto removido');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro ao excluir','err');}}
 
 // MOVIMENTOS
@@ -881,11 +924,48 @@ async function addUnit(){const nome=$('novaUnit').value.trim().toLowerCase();if(
 async function excluirUnit(id){try{await sb(`ge_unidades?id=eq.${id}`,{method:'DELETE'});await carregarUnits();renderUnits();}catch(e){toast('Erro','err');}}
 
 // CONFIGURAÇÕES
-async function carregarConfig(){try{const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=*`);const rest=r[0];if(!rest)return;$('cfgNome')&&($('cfgNome').value=rest.nome||'');$('cfgTipo')&&($('cfgTipo').value=rest.tipo_negocio||'');const wpp=(rest.whatsapp||'').replace(/^55/,'');const wEl=$('cfgWpp');if(wEl){wEl.value=wpp;maskWpp(wEl);}const cod=rest.codigo_acesso||'------';const link=`${window.location.origin}${window.location.pathname}?cod=${cod}`;$('linkFuncEl')&&($('linkFuncEl').textContent=link);$('codVal')&&($('codVal').textContent=cod);renderFuncs();renderCats();renderUnits();}catch(e){toast('Erro ao carregar config','err');}}
+async function carregarConfig(){try{const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=*`);const rest=r[0];if(!rest)return;$('cfgNome')&&($('cfgNome').value=rest.nome||'');$('cfgTipo')&&($('cfgTipo').value=rest.tipo_negocio||'');const wpp=(rest.whatsapp||'').replace(/^55/,'');const wEl=$('cfgWpp');if(wEl){wEl.value=wpp;maskWpp(wEl);}const cod=rest.codigo_acesso||'------';const link=`${window.location.origin}${window.location.pathname}?cod=${cod}`;$('linkFuncEl')&&($('linkFuncEl').textContent=link);$('codVal')&&($('codVal').textContent=cod);renderFuncs();renderFornecs();renderCats();renderUnits();}catch(e){toast('Erro ao carregar config','err');}}
 async function salvarIdent(){const nome=$('cfgNome').value.trim();const tipo=$('cfgTipo').value.trim();if(!nome)return toast('Nome obrigatório','err');const wppRaw=($('cfgWpp').value||'').replace(/\D/g,'');try{await sb(`ge_restaurantes?id=eq.${REST_ID}`,{method:'PATCH',body:JSON.stringify({nome:nome,tipo_negocio:tipo,whatsapp:wppRaw?'55'+wppRaw:null})});REST_NOME=nome;toast('✅ Dados salvos!');$('topNome').textContent=nome;}catch(e){toast('Erro ao salvar','err');}}
 
 // LISTA DE COMPRAS
-async function enviarListaCompras(){const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=whatsapp,nome`).catch(()=>null);const wpp=(r&&r[0]&&r[0].whatsapp)||'';if(!wpp)return toast('Configure o WhatsApp nas configurações','warn');const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);if(!baixos.length)return toast('Nenhum produto com estoque baixo','info');const linhas=baixos.map(p=>`• ${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'} (mín: ${fmtN(p.estoque_minimo||0)})`).join('\n');const msg=encodeURIComponent(`🛒 *Lista de Compras — ${new Date().toLocaleDateString('pt-BR')}*\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');}
+// ===== FORNECEDORES =====
+async function carregarFornecs(){try{todosFornecs=await sb(`ge_fornecedores?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosFornecs=[];}}
+function renderFornecs(){
+  const el=$('listaFornec');if(!el)return;
+  if(!todosFornecs.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3);font-size:12px;">Nenhum fornecedor cadastrado</div>';return;}
+  el.innerHTML=todosFornecs.map(f=>`<div class="f-c" onclick="abrirFornec('${f.id}')"><div style="font-size:22px;width:36px;height:36px;border-radius:50%;background:var(--bl2);display:flex;align-items:center;justify-content:center;">🚚</div><div class="f-inf"><div class="f-n">${f.nome}</div><div class="f-s">${f.whatsapp?'📱 '+f.whatsapp:'Sem WhatsApp'}</div></div><div style="color:var(--t3);">›</div></div>`).join('');
+}
+function abrirNovoFornec(){$('mfnTit').textContent='Novo Fornecedor';$('mfnId').value='';$('mfnNome').value='';$('mfnWpp').value='';$('mfnExc').style.display='none';abrirModal('ovFornec');}
+function abrirFornec(id){const f=todosFornecs.find(x=>x.id===id);if(!f)return;$('mfnTit').textContent='Editar Fornecedor';$('mfnId').value=f.id;$('mfnNome').value=f.nome;$('mfnWpp').value=(f.whatsapp||'').replace(/^55/,'');maskWpp($('mfnWpp'));$('mfnExc').style.display='block';abrirModal('ovFornec');}
+async function salvarFornec(){const nome=$('mfnNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const wppRaw=($('mfnWpp').value||'').replace(/\D/g,'');const dados={restaurante_id:REST_ID,nome,whatsapp:wppRaw?'55'+wppRaw:null};try{const id=$('mfnId').value;if(id)await sb(`ge_fornecedores?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({nome,whatsapp:wppRaw?'55'+wppRaw:null})});else await sb('ge_fornecedores',{method:'POST',body:JSON.stringify(dados)});toast('✅ Fornecedor salvo!');fM('ovFornec');await carregarFornecs();renderFornecs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+async function excluirFornec(){if(!confirm('Remover fornecedor?'))return;try{await sb(`ge_fornecedores?id=eq.${$('mfnId').value}`,{method:'DELETE'});toast('Fornecedor removido');fM('ovFornec');await carregarFornecs();renderFornecs();}catch(e){toast('Erro','err');}}
+
+async function enviarListaCompras(){
+  const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);
+  if(!baixos.length)return toast('Nenhum produto com estoque baixo','info');
+  const data=new Date().toLocaleDateString('pt-BR');
+  // Agrupar por fornecedor
+  const grupos={};
+  baixos.forEach(p=>{
+    const fid=p.fornecedor_id||'__geral__';
+    if(!grupos[fid])grupos[fid]=[];
+    grupos[fid].push(p);
+  });
+  let enviados=0;
+  for(const [fid,prods] of Object.entries(grupos)){
+    const fornec=todosFornecs.find(f=>f.id===fid);
+    const wpp=fornec?.whatsapp||'';
+    const linhas=prods.map(p=>`• ${p.emoji||'📦'} ${p.nome}: ${numFmt(p.quantidade||0)} ${p.unidade||'un'} (mín: ${numFmt(p.estoque_minimo||0)})`).join('\n');
+    const dest=fornec?fornec.nome:'Lista Geral';
+    const msg=encodeURIComponent(`🛒 *Lista de Compras — ${dest}*\n${data}\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);
+    if(wpp){window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');enviados++;}
+    else{// Sem WhatsApp — perguntar para onde enviar
+      const num=prompt(`Fornecedor "${dest}" sem WhatsApp cadastrado.\nDigite o número (55+DDD+número) ou cancele:`);
+      if(num){window.open(`https://wa.me/${num.replace(/\D/g,'')}?text=${msg}`,'_blank');enviados++;}
+    }
+  }
+  if(enviados>0)toast(`✅ ${enviados} lista${enviados>1?'s':''} enviada${enviados>1?'s':''}!`);
+}
 
 // RELATÓRIOS
 function relWpp(){const raw=($('cfgWpp').value||'').replace(/\D/g,'');if(!raw)return toast('Configure o WhatsApp','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('\n');const msg=encodeURIComponent(`📦 *Relatório de Estoque*\n${new Date().toLocaleDateString('pt-BR')}\n\n${linhas}`);window.open(`https://wa.me/55${raw}?text=${msg}`,'_blank');}
@@ -895,7 +975,56 @@ function relCSV(){if(!todosProds.length)return toast('Sem produtos','warn');cons
 async function limparHist(){if(!confirm('Limpar todo o histórico?'))return;try{await sb(`ge_movimentacoes?restaurante_id=eq.${REST_ID}`,{method:'DELETE'});toast('✅ Histórico limpo!');}catch(e){toast('Erro','err');}}
 
 // AJUDA
-function abrirAjuda(){$('helpTi').textContent='❓ Como usar';$('helpCnt').innerHTML=`<div class="help-it"><div class="help-ic">📦</div><div><div class="help-nt">Cadastrar Produtos</div><div class="help-ns">Toque no <strong>+</strong> para adicionar. Use emojis para identificar visualmente. Defina estoque mínimo para alertas.</div></div></div><div class="help-it"><div class="help-ic">📅</div><div><div class="help-nt">Fabricação + Validade</div><div class="help-ns">Informe ambas as datas para evitar alertas falsos. O status aparece em tempo real no modal.</div></div></div><div class="help-it"><div class="help-ic">📥</div><div><div class="help-nt">Entradas e Saídas</div><div class="help-ns">Use os botões rápidos no Início. Classifique saídas como perda ou vencimento para relatórios precisos.</div></div></div><div class="help-it"><div class="help-ic">🔗</div><div><div class="help-nt">Link para Funcionários</div><div class="help-ns">Em Config → envie o link pelo WhatsApp. O funcionário abre, cria o PIN e instala o app automaticamente.</div></div></div>`;abrirModal('ovHelp');}
+function hi(ico,t,s){return`<div class="help-it"><div class="help-ic">${ico}</div><div><div class="help-nt">${t}</div><div class="help-ns">${s}</div></div></div>`;}
+const TUTORIAIS={
+  dash:[
+    hi('🏠','Tela Inicial — Visão Geral','Aqui você vê um resumo completo do estoque. Os 3 números mostram: total de produtos, quantos estão com estoque <strong>baixo</strong> (amarelo) e <strong>crítico</strong> (vermelho). Toque em qualquer número para ir à lista de produtos.'),
+    hi('💰','Valor do Estoque','Mostra o valor total investido em estoque, calculado automaticamente (custo × quantidade). Para funcionar, cadastre o custo unitário de cada produto.'),
+    hi('📤','Registrar Saída','Toque aqui quando consumir, vender ou perder um produto. Selecione o produto, a quantidade e o tipo: consumo normal, perda/desperdício, produto vencido ou ajuste de estoque.'),
+    hi('📥','Registrar Entrada','Toque aqui quando receber mercadoria ou fazer compra. Selecione o produto e a quantidade recebida. O estoque sobe automaticamente.'),
+    hi('⚠️','Alertas Automáticos','Quando um produto fica abaixo do mínimo aparece aqui com alerta vermelho ou amarelo. Toque em <strong>+ Repor</strong> para registrar entrada na hora.'),
+    hi('📅','Alertas de Validade','Produtos vencendo em até 30 dias aparecem na tela inicial. <strong>Vence HOJE</strong> = amarelo. <strong>VENCIDO</strong> = vermelho. Configure as datas no cadastro do produto.'),
+  ],
+  produtos:[
+    hi('+','Como Cadastrar um Produto','Toque no botão verde <strong>+</strong> no canto inferior direito. Preencha: nome, categoria, unidade (cx, kg, un...), quantidade atual e <strong>estoque mínimo</strong> — abaixo disso o sistema alerta.'),
+    hi('🏷️','Emoji do Produto','Toque no botão de emoji ao lado do nome para escolher um ícone. São mais de <strong>1.900 emojis comerciais</strong> organizados por categoria: alimentos, bebidas, automotivo, pet shop e muito mais.'),
+    hi('🚚','Vincular Fornecedor','Campo opcional no modal do produto. Selecione o fornecedor que vende aquele produto. Quando enviar a lista de compras, cada fornecedor receberá <strong>somente os seus produtos</strong>.'),
+    hi('📅','Fabricação + Validade','Preencha ambas as datas para evitar alertas falsos. Com data de fabricação o sistema sabe que o produto é novo. Status aparece em tempo real: ✅ Válido, ⚠️ Vence em Xd, 🔴 VENCIDO.'),
+    hi('💰','Custo Unitário','Quanto custa cada unidade? O sistema multiplica pelo estoque e mostra o <strong>valor total investido</strong> no dashboard. Muito útil para saber o capital parado em estoque.'),
+    hi('⏱️','Previsão de Acabar','O sistema analisa as saídas dos últimos 30 dias e calcula em quantos dias o produto vai acabar. Aparece em <strong>vermelho</strong> (urgente) ou <strong>amarelo</strong> (atenção) em cada produto.'),
+    hi('🔍','Busca e Filtros','Use a barra de busca para encontrar produtos pelo nome. Use os botões de categoria para filtrar por tipo. Produtos críticos aparecem sempre primeiro na lista.'),
+  ],
+  hist:[
+    hi('📋','O que é o Histórico','Aqui ficam registrados todos os movimentos: entradas, saídas, perdas e vencimentos. Cada registro mostra o produto, quem fez, quando e a observação.'),
+    hi('🔍','Busca e Filtros','Use a barra de busca para filtrar por produto, funcionário ou observação. Use os botões no topo para ver só <strong>Entradas</strong>, <strong>Saídas</strong> ou <strong>Perdas</strong>.'),
+    hi('📥','Entradas (verde)','Cada registro verde é uma entrada de mercadoria. Mostra o produto, quem registrou, a quantidade e o horário.'),
+    hi('📤','Saídas (vermelho)','Cada registro vermelho é uma saída: consumo, venda ou ajuste. Inclui quem fez e qualquer observação adicionada.'),
+    hi('⚠️','Perdas e Vencimentos (amarelo)','Saídas classificadas como perda ou produto vencido aparecem em amarelo. Use para acompanhar desperdícios e tomar ação.'),
+  ],
+  insights:[
+    hi('📊','Resumo do Mês','Mostra entradas, saídas e perdas do mês atual. Compare os números e identifique tendências no seu negócio.'),
+    hi('📈','Comparativo por Categoria','Barras mostram o consumo de cada categoria. Quanto maior a barra, mais saiu naquele período. Ótimo para planejar compras.'),
+    hi('⚠️','Relatório de Perdas','Lista todas as perdas e vencimentos do mês com quantidade. Use para identificar o que mais desperdiça e tomar ação.'),
+    hi('🛒','Lista de Compras Automática','O sistema identifica todos os produtos abaixo do mínimo e monta a lista. Ao clicar <strong>Enviar ao Fornecedor</strong>, cada fornecedor recebe <strong>somente os seus produtos</strong> pelo WhatsApp. Produtos sem fornecedor: o sistema pede o número na hora.'),
+  ],
+  config:[
+    hi('🔗','Link para Funcionários','Envie o link pelo WhatsApp. O funcionário abre no celular, o sistema já reconhece o estabelecimento. Ele cria o PIN e instala. Muito mais fácil que digitar código.'),
+    hi('👥','Cadastrar Funcionários','Toque em <strong>+ Adicionar Funcionário</strong>. Coloque o nome e crie um PIN de 4 dígitos para ele. Todos os registros ficam identificados com o nome de quem fez.'),
+    hi('🚚','Cadastrar Fornecedores — PASSO A PASSO','<strong>1.</strong> Toque em <strong>+ Adicionar Fornecedor</strong><br><strong>2.</strong> Digite o nome do fornecedor<br><strong>3.</strong> Digite o WhatsApp com DDD (ex: 21 99999-1111)<br><strong>4.</strong> Salve<br><strong>5.</strong> Vá em Produtos → edite cada produto → escolha o fornecedor no campo <strong>Fornecedor</strong><br><strong>6.</strong> Agora em Insights → Lista de Compras → cada fornecedor recebe só os seus produtos!'),
+    hi('🏪','Identidade do Estabelecimento','Coloque o nome do estabelecimento e o tipo de negócio. Faça upload da logo (recomendado: <strong>400×400 pixels</strong>, quadrado). A logo aparece no topo para todos os usuários.'),
+    hi('🏷️','Categorias de Produtos','Crie as categorias do seu negócio. Toque no emoji para escolher o ícone com mais de <strong>1.900 opções comerciais</strong>. Organize os produtos por tipo para facilitar a busca e os relatórios.'),
+    hi('📏','Unidades de Medida','Além das padrão (kg, g, l, ml, cx...), adicione unidades específicas do seu negócio: porção, bandeja, ampola, fardo, etc.'),
+    hi('📊','Relatórios','Envie por <strong>WhatsApp</strong> ou <strong>E-mail</strong>. Baixe em <strong>PDF</strong> (abra no navegador e imprima) ou <strong>CSV</strong> para Excel. Inclui todos os produtos com estoque, custo e valor total.'),
+  ],
+};
+function abrirAjuda(){
+  const pg=pgAtual||'dash';
+  const itens=TUTORIAIS[pg]||TUTORIAIS['dash'];
+  const titulos={dash:'🏠 Início',produtos:'📦 Produtos',hist:'📋 Histórico',insights:'📊 Insights',config:'⚙️ Configurações'};
+  $('helpTi').textContent='❓ '+( titulos[pg]||'Como usar');
+  $('helpCnt').innerHTML=itens.join('');
+  abrirModal('ovHelp');
+}
 
 // LOGO
 function previewLogo(){
