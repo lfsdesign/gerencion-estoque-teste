@@ -427,6 +427,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div class="cfg-s">Cadastre cada funcionário com nome e PIN único de 4 dígitos.</div>
         <div id="listaFuncs"></div>
         <button class="btn-c b-bl" onclick="abrirNovoFunc()" style="margin-top:7px;">+ Adicionar Funcionário</button>
+        <button class="btn-c b-am" onclick="abrirListaPins()" style="margin-top:7px;">🔐 Ver PINs dos Funcionários</button>
       </div>
       <div class="cfg-c">
         <div class="cfg-t">🏪 Identidade do Estabelecimento</div>
@@ -606,6 +607,34 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <input type="hidden" id="mfId">
     <div class="fg"><label class="fl">Nome do Funcionário</label><input class="inp" id="mfNome" placeholder="EX: MARIA DA SILVA" oninput="this.value=this.value.toUpperCase()"></div>
     <div class="fg"><label class="fl">PIN de 4 dígitos</label><input class="inp" id="mfPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••" style="letter-spacing:8px;font-size:22px;text-align:center;"></div>
+    <div id="mfPerms" style="display:none;margin-top:4px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label class="fl" style="margin:0;">🔐 Permissões</label>
+        <button onclick="liberarTudo()" style="padding:5px 12px;background:var(--gn);border:none;border-radius:8px;color:#0B1120;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">✅ Liberar Tudo</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">📋 Ver Histórico</span>
+          <input type="checkbox" id="permHist" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">📊 Ver Insights e Relatórios</span>
+          <input type="checkbox" id="permInsights" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">📦 Cadastrar/Editar Produtos</span>
+          <input type="checkbox" id="permProdutos" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">💰 Ver Valor do Estoque</span>
+          <input type="checkbox" id="permValor" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">↩️ Estornar Movimentos</span>
+          <input type="checkbox" id="permEstornar" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
+      </div>
+    </div>
     <div class="mb">
       <button class="mb-s" onclick="fM('ovFunc')">Cancelar</button>
       <button class="mb-p" onclick="salvarFunc()">Salvar</button>
@@ -613,6 +642,38 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div id="mfExc" style="display:none;margin-top:8px;">
       <button class="mb-d" onclick="excluirFunc()" style="width:100%">🗑️ Remover Funcionário</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL LISTA PINS -->
+<div class="overlay" id="ovPins">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div class="mt">🔐 Confirmar Identidade</div>
+    <div class="ms">Digite seu PIN de proprietário para visualizar os PINs dos funcionários.</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:18px;" id="pinDotsConf">
+      <div class="pin-dot" id="pdc0"></div><div class="pin-dot" id="pdc1"></div>
+      <div class="pin-dot" id="pdc2"></div><div class="pin-dot" id="pdc3"></div>
+    </div>
+    <div class="pin-grid" style="max-width:280px;margin:0 auto;">
+      <button class="pin-btn" onclick="pinConf('1')">1</button>
+      <button class="pin-btn" onclick="pinConf('2')">2</button>
+      <button class="pin-btn" onclick="pinConf('3')">3</button>
+      <button class="pin-btn" onclick="pinConf('4')">4</button>
+      <button class="pin-btn" onclick="pinConf('5')">5</button>
+      <button class="pin-btn" onclick="pinConf('6')">6</button>
+      <button class="pin-btn" onclick="pinConf('7')">7</button>
+      <button class="pin-btn" onclick="pinConf('8')">8</button>
+      <button class="pin-btn" onclick="pinConf('9')">9</button>
+      <button class="pin-btn zero" onclick="pinConf('0')">0</button>
+      <button class="pin-btn" onclick="pinConfDel()">⌫</button>
+    </div>
+    <div class="pin-erro" id="pinConfErro"></div>
+    <div id="listaPinsConf" style="display:none;margin-top:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--am);margin-bottom:10px;">⚠️ Não compartilhe esta tela</div>
+      <div id="listaPinsItens"></div>
+    </div>
+    <button class="mb-s" onclick="fM('ovPins');pinConfDigitos='';renderPinConf();" style="width:100%;margin-top:14px;">Fechar</button>
   </div>
 </div>
 
@@ -661,7 +722,7 @@ const sb=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB
 const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','🥚','🍳','🥓','🌭','🍔','🍕','🌮','🌯','🥙','🧆','🥪','🫔','🥗','🥨','🥐','🥖','🍞','🥯','🧇','🥞','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🍥','🥘','🫕','🍢','🥣','🍡','🍧','🍦','🧀','🥛','🧈','🍯','🫙','🥫','🫚','🫒','🧂','🍰','🎂','🧁','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🥜','🌰','🫘','🧃','🍶','☕','🫖','🥤','🌶️','🧄','🧅','🍴','🔪','🥄','🫙','🏪','🛒','🏬','🥡','🧊','🫗','🥢','🍽️','🎁','🥚','🧋','🍵','🥛','🧉']},{tab:'🥦',nome:'Hortifruti',emojis:['🥦','🥬','🥒','🌽','🍅','🍆','🥑','🧄','🧅','🥕','🌶️','🫑','🥔','🍠','🫛','🌿','🌾','🍃','🌱','🍀','🍄','🫘','🍋','🍊','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🍌','🍎','🍏','🍐','🍉','🥝','🌺','🌸','🌹','🌷','💐','🪷','🌻','🌼','🫒','🥜','🌰','🫙','🎃','🌲','🌳','🌴','🪴','🥗','🥣','🌾','🌿','☘️','🍀','🎍','🎋','🪸','🫑','🫛','🥬','🥦','🌽','🌰','🍄','🧅','🧄','🥔','🍠','🫘','🧴','🌱','🍃']},{tab:'🥤',nome:'Bebidas',emojis:['🥤','🧃','☕','🍵','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾','🫖','🥛','🧊','🫗','🧴','🫙','💧','🌊','🌿','🍫','🍬','🍭','🍮','🧁','🍰','🎂','🍩','🍪','🧂','🪣','🛢️','⛽','💊','🌡️','🧪','⚗️','🔬']},{tab:'💊',nome:'Saúde & Farmácia',emojis:['💊','💉','🩺','🩹','🩻','🏥','🧬','🔬','🩼','🧪','🩸','🫀','🫁','🧠','🦷','🦴','💪','🚑','⚖️','🧴','🧼','🫧','🪥','🌡️','⚗️','🦺','🧘','🏋️','🦽','🦾','🫙','🪒','🛁','🚿','💆','🧖','🏊','🤸','🧗','🚴','⛹️','🏄','🤽','🥊','🥋','⛷️','🏂','🎿','🛷','⛸️','🏒','🥅','🍎','🥦','🥕','🌿','🌱','🍵','💧','🌊','☀️','🌙','⭐']},{tab:'👗',nome:'Vestuário & Moda',emojis:['👗','👘','🥻','👙','👚','👛','👜','👝','🎒','🧳','👒','🎩','🧢','⛑️','👔','👕','👖','🧤','🧣','🧥','🥾','👞','👟','🥿','👠','👡','👢','🩴','🩱','🩲','🩳','🧦','🪖','💍','💎','👑','💄','🪮','🧵','🪡','🧶','🪢','🎀','🕶️','🥽','🦺','🥼','📿','🪬','🧿','🔮','💠','🪩','🎭','🎪','🏷️','🛍️','💼','🗃️','✂️','🧷','📌']},{tab:'🚗',nome:'Automotivo',emojis:['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍️','🛵','🛺','🚲','🛴','🛹','🚦','🚧','⛽','🛞','🔧','🪛','🔩','⚙️','🪝','🧰','🛢️','⚡','🔋','🪫','🔌','🪜','🚨','🔦','💡','🗺️','🧭','🔑','🗝️','🅿️','🚥','🔨','⚒️','🛠️','⛏️','🪚','🔗','⛓️','🧲','🔐','🔒','🛡️','⚓','⛵','🚢','✈️','🚁','🛸','🚀','🛶','⛴️','🚤','🛥️','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚞','🚝','🚋','🏗️','🧱','🪵','⛺','🛖','🏕️']},{tab:'🔧',nome:'Ferramentas & Serviços',emojis:['🔧','🪛','🔩','⚙️','🔨','⚒️','🛠️','⛏️','🪚','🔗','⛓️','🧲','🪝','🔑','🗝️','🔐','🔒','🔓','💡','🔦','🕯️','🪔','🧰','🗜️','⚖️','🪤','🪣','🪜','📐','📏','✂️','🗃️','🗄️','📦','⚗️','🧫','🪓','🗺️','🧭','📡','🛰️','🔋','🪫','🔌','⚡','🔥','💧','🌊','🌡️','☀️','🌙','⛅','🌤️','🌬️','🌪️','🌈','❄️','⛄','💨','💦','🫧','🧱','🪵','⛺','🛖','🏕️','🖊️','🖋️','✒️','🖌️','🖍️','📌','📍','🗂️','📁','📂','🗑️']},{tab:'🏠',nome:'Casa & Decoração',emojis:['🏠','🏡','🏘️','🛋️','🪑','🪞','🪟','🛏️','🛁','🚿','🪠','🧹','🧺','🧻','🪣','🧼','🫧','🧴','🪥','🔑','🚪','🪤','🧱','🪵','⚙️','💡','🔌','🪫','🧯','🪜','🛢️','🖼️','🪴','🌡️','⏰','📺','📻','🖥️','🛒','🪝','🔐','🔒','🏺','🫙','🕯️','🪔','💎','🌸','🌺','🌹','🌷','💐','🪷','🌻','🌼','🎨','🛋️','🪑','🛏️','🛁','🚿','🪠','🚽','🚰','🍳','🥘','🍲','🫕','🔪','🥄','🍴','🥢','🫙','🧊','🥗','🫗','🧹','🧺','🧻','🪣','🧼','🫧','🧴','🪥','🪒','✂️','🧷','📌','📺','📻','🖥️','📱','💻','⌨️','🖱️','🔋','🔌','💡','🔦','🕯️']},{tab:'💄',nome:'Beleza & Estética',emojis:['💄','💅','💆','💇','🪮','🧴','🧼','🪥','🪒','✂️','💈','🛁','🚿','🌸','🌺','🌹','🌷','💐','🪷','🫧','💎','💍','👑','💋','🎀','🪞','👜','🛍️','🧣','🧤','🧢','👒','🕶️','🥽','🌟','✨','💫','🧖','🌼','🌻','💮','🏵️','🌿','🫙','🧴','🪔','🕯️','🌡️','⚗️','🧪','🔬','💊','🩺','🩹','🌸','🌺','🌹','🌷','💐','🪷','🌻','🌼','💮','🏵️','🎀','💄','💅','👄','💋','💍','💎','👑','📿','🪬','🧿','🫧','🧴','🧼','🪥','🪒','✂️','💈','🪮','🧖','💆','💇','🛁','🚿','🪠','🚰','🌡️','🌿','🌱','🌾','🍃','☘️']},{tab:'📱',nome:'Tecnologia',emojis:['📱','💻','🖥️','🖨️','⌨️','🖱️','🖲️','💽','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏰','⌚','📡','🔋','🪫','🔌','💡','🔦','🕹️','🎮','🤖','🔬','🔭','🛰️','🧮','🔐','💼','📲','🤳','🎙️','🎚️','🎛️','📼','💽','💾','💿','📀','🗜️','🗃️','🗄️','📦','🧰','🔧','🪛','🔩','⚙️','🔑','🔐','🔒','🔓','🔗','⛓️','🧲','⚡','🔋','🪫','🔌','💡','🔦','🕯️','🪔','📡','🛰️','🚀','🛸','🤖','🧬']},{tab:'🐾',nome:'Pet Shop',emojis:['🐾','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🐢','🐍','🦎','🐠','🐟','🐡','🐬','🐳','🦈','🦭','🐙','🦑','🦐','🦞','🦀','🐚','🪺','🪹','🦮','🐕','🐈','🐇','🐿️','🦔','🦴','🎾','🧴','🛁','🚿','🪮','✂️','💊','💉','🩺','🩹','🏥','🏠','🐾','🌿','🌾','🥣','🦴','🏷️','🛒','📦','🧰','🪣','🧹','🦜','🐓','🦃','🦢','🦩','🦚','🦤','🪶','🐦‍⬛','🐕‍🦺','🐩','🦮','🐈‍⬛','🐇','🦔','🦦','🦥','🦙','🦘','🦬','🐄','🐖','🐏','🐑','🐐','🦌','🐓','🐁','🐀']},{tab:'📚',nome:'Papelaria & Escritório',emojis:['📚','📖','📝','✏️','🖊️','🖋️','✒️','🖌️','🖍️','📌','📍','✂️','🗃️','🗄️','🗑️','📋','📁','📂','🗂️','📓','📔','📒','📕','📗','📘','📙','📄','📃','📑','🗒️','🗓️','📅','📆','📇','📊','📈','📉','🗺️','📏','📐','🔒','🔓','🔏','🔐','💼','🧾','🖇️','📎','🔖','🏷️','🖥️','🖨️','⌨️','🖱️','📮','📬','📭','📪','📫','📩','📨','📧','📤','📥','📦','📯','📢','📣','🔔','🔕','📵','🔇','🔈','🔉','🔊','📡','🔭','🔬','🧪','⚗️','🏫','🏢','🏬','🏪','💼','👔','🗂️','📋','📊','📈','📉']},{tab:'⚽',nome:'Esporte & Lazer',emojis:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🥍','🏑','🏏','🪃','🥅','⛳','🪁','🎣','🤿','🎽','🎿','🛷','🥌','🎯','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎟️','🎫','🥊','🥋','🤺','⛷️','🏂','🏄','🚣','🧗','🚵','🚴','🎭','🎨','🎬','🎤','🎧','🎸','🎺','🎻','🥁','🪘','🎷','🎹','🪗','🎵','🎶','🎙️','🎚️','🎛️','🎮','🕹️','🃏','🀄','🎲','♟️','🎪','🎠','🎡','🎢','⛹️','🏋️','🤸','🤼','🤽','🤾','🏊','🏇','🪂','🎰','🎳','🏹','🛹','🛼','🛷']},{tab:'🍽️',nome:'Restaurante & Bar',emojis:['🍽️','🥄','🍴','🔪','🥢','🫙','🍳','🥘','🍲','🫕','🥗','🥣','🍖','🥩','🍗','🌮','🌯','🥙','🧆','🥪','🫔','🌭','🍔','🍕','🍝','🍜','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🍥','🥂','🍾','🍷','🥃','🍸','🍹','🍺','🍻','🧉','☕','🫖','🍵','🧁','🎂','🍰','🍮','🍩','🍪','🍫','🍬','🍭','🍿','🧇','🥞','🏪','🏬','🏩','🏨','🏦','🏥','🏤','🏣','🏢','🏛️','🏰','🏯','⏰','📅','📆','🗓️']},{tab:'🏗️',nome:'Construção & Reforma',emojis:['🏗️','🧱','🪵','⚒️','🛠️','⛏️','🔨','🪚','🔧','🪛','🔩','⚙️','🪝','🧰','📐','📏','🗜️','🪜','🧲','💡','🔦','🕯️','🔌','🔋','🛢️','⛽','🪣','🚪','🛋️','🪑','🛏️','🏠','🏡','🏘️','🏚️','🏛️','🏟️','🏗️','🏢','🏬','🌉','🌁','🗺️','🔑','⛓️','🔗','🪤','🏁','🚧','⚠️','⛺','🛖','🪟','🪞','🛁','🚿','🪠','🚰','🚽','🪣','🧹','🧺','🧻','🧼','🫧','🚪','🏠','🏡','🏘️','🏚️','🏛️','🏟️','🏗️','🏢','🏬','🏭','🔥','💧','🌊','💨','🌬️','⚡','🔋','🪫','🔌','💡','🔦','🕯️','🪔']},{tab:'🌿',nome:'Orgânicos & Naturais',emojis:['🌿','🌱','🌾','🍀','🍃','☘️','🌲','🌳','🌴','🌵','🪸','🪨','🪵','🌊','💧','🌞','🌟','⭐','🌈','❄️','🫙','🧴','🌻','🌸','🌺','🌹','🌷','💐','🪷','🫚','🫒','🥦','🥬','🥒','🧅','🧄','🥕','🍋','🌶️','🥝','🍅','🍏','🥑','🌽','🫛','🫘','🌰','🥜','🍄','🌾','⚗️','🧪','🫙','🌡️','☀️','🌙','⭐','🌟','💫','✨','🌈','🌊','💧','🔥','💨','🌬️','🌏','🌍','🌎','🌐','⛰️','🏔️','🗻','🏕️','🌅','🌄','🌠','🌃','🪴','🌱','🌿','🍃','🍀','☘️','🌾','🌵','🌲','🌳','🌴','🪸']},{tab:'🏥',nome:'Clínica & Estética Médica',emojis:['🏥','🚑','💊','💉','🩺','🩹','🩻','🧬','🔬','🧪','⚗️','🫀','🫁','🧠','🦷','🦴','🩼','🦽','🦾','💪','🩸','🌡️','⚖️','🧴','🧼','🫧','🪥','🏋️','🧘','🏊','🤸','🚴','⛹️','🏄','🤽','🧗','🚵','🤺','🌿','🌱','🍵','💧','🍎','🥦','🥕','🧃','🌾','🫙','🧴','🔬','⚕️','🏥','🏨','🏩','🏪','🏬','🏢','🏛️','⚖️','📋','📝','📊']},{tab:'🏨',nome:'Hotelaria & Turismo',emojis:['🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','🗼','🗽','🧳','🎫','🎟️','🚢','✈️','🚂','🚁','🛶','⛵','🪂','🏕️','🌅','🌇','🌆','🌃','🌉','🌄','🌠','🎇','🎆','🏮','🪔','🛎️','🔑','🛏️','🛁','🛋️','🪑','🍽️','🥂','🍾','🎊','🎉','🎈','🎁','🎀','🏊','🛀','⛩️','🗺️','🧭','🌏','🌍','🌎','⛰️','🏔️','🗻','🌋','🏝️','🏖️','🏜️','🌅','🌄','🌠','🌃','🌆','🌇','🌉','🌁','🎑','🏞️','🎠','🎡','🎢','🎪','🎭','🎨','🎬','🎤','🎵']},{tab:'🏦',nome:'Finanças & Negócios',emojis:['🏦','💰','💵','💴','💶','💷','💳','💸','🪙','💹','📊','📈','📉','💼','🗂️','📋','📁','📂','📝','✏️','🖊️','🖋️','✒️','📌','📍','📎','🖇️','🔖','🏷️','🧾','📄','📃','📑','🗒️','🗓️','📅','📆','📇','🔐','🔒','🔓','🔑','🗝️','🔏','🛡️','⚖️','📜','📋','📊','📈','🏪','🏬','🏢','🏛️','🏦','🏩','🏨','🏫','🏭','🏗️','💡','🎯','🏆','🥇','🎖️','🏅','🎗️','🎀','⭐','🌟','💫']},{tab:'🎓',nome:'Educação & Cursos',emojis:['🎓','📚','📖','📝','✏️','🖊️','🖋️','✒️','🖌️','🖍️','📌','📍','📐','📏','📓','📔','📒','📕','📗','📘','📙','📚','🗂️','📁','📂','📋','📊','📈','🏫','🏛️','🏢','🏬','💻','🖥️','📱','⌨️','🖱️','🖨️','📡','🔭','🔬','🧪','⚗️','🧬','🧮','💡','🔦','📢','📣','🔔','🎤','🎧','🎵','🎶','🎭','🎨','🎬','🎞️','📽️','📺','📻','🎙️','🎚️','🎛️','🧩','🎮','🕹️','🎲','♟️','🃏','🀄','🏆','🥇','🎖️','🏅','🎗️']},{tab:'🎁',nome:'Presentes & Eventos',emojis:['🎁','🎀','🎊','🎉','🎈','🎏','🎐','🎑','🧧','🎆','🎇','🎋','🎍','🎎','🎃','🎄','🎠','🎡','🎢','🎪','🎭','🎨','🖼️','🎬','🎤','🎧','🎵','🎶','🎸','🎺','🎻','🥁','🪘','🎷','🎹','🪗','🎙️','🎚️','🎛️','📻','📺','🕯️','🪔','🏮','🧨','✨','💫','⭐','🌟','💥','🔥','🌈','❄️','☃️','🎂','🍰','🧁','🍭','🍬','🍫','🍿','🥂','🍾','🥃','🍸','🍹','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎟️','🎫','🎀','🎁']}];
 
 // Estado
-let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null;
+let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null,FUNC_PERMS={};
 let todosFornecs=[];
 let prodAtual=null,funcAtual=null;
 let todosProds=[],todosFuncs=[],todasCats=[],todasUnits=[];
@@ -739,19 +800,27 @@ async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperC
 function pinD(d){if(pinDigitos.length>=4)return;pinDigitos+=d;renderPin();if(pinDigitos.length===4)setTimeout(validarPin,120);}
 function pinDel(){if(pinDigitos.length>0){pinDigitos=pinDigitos.slice(0,-1);renderPin();}}
 function renderPin(){for(let i=0;i<4;i++){const el=$('pd'+i);if(el)el.classList.toggle('filled',i<pinDigitos.length);}const err=$('pinErro');if(err)err.textContent='';}
-async function validarPin(){try{const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinDigitos}&select=id,nome,nome_proprietario`);if(rp.length){FUNC_ID=null;FUNC_NOME=rp[0].nome_proprietario||rp[0].nome;REST_NOME=rp[0].nome;FUNC_ROLE='proprietario';salvarSessao('PROP');await entrarApp();return;}const rf=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*`);const rfF=rf.filter(f=>f.pin===pinDigitos);if(rfF&&rfF.length){FUNC_ID=rfF[0].id;FUNC_NOME=rfF[0].nome;FUNC_ROLE='funcionario';salvarSessao(rfF[0].id);const rrest=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rrest.length?rrest[0].nome:'';await entrarApp();return;}pinDigitos='';renderPin();const err=$('pinErro');if(err){err.textContent='PIN incorreto. Tente novamente.';setTimeout(()=>err.textContent='',2000);}}catch(e){toast('Erro: '+e.message,'err');pinDigitos='';renderPin();}}
+async function validarPin(){try{const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinDigitos}&select=id,nome,nome_proprietario`);if(rp.length){FUNC_ID=null;FUNC_NOME=rp[0].nome_proprietario||rp[0].nome;REST_NOME=rp[0].nome;FUNC_ROLE='proprietario';salvarSessao('PROP');await entrarApp();return;}const rf=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*`);const rfF=rf.filter(f=>f.pin===pinDigitos);if(rfF&&rfF.length){FUNC_ID=rfF[0].id;FUNC_NOME=rfF[0].nome;FUNC_ROLE='funcionario';FUNC_PERMS={historico:rfF[0].perm_historico,insights:rfF[0].perm_insights,produtos:rfF[0].perm_produtos,valor:rfF[0].perm_valor_estoque,estornar:rfF[0].perm_estornar};salvarSessao(rfF[0].id);const rrest=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rrest.length?rrest[0].nome:'';await entrarApp();return;}pinDigitos='';renderPin();const err=$('pinErro');if(err){err.textContent='PIN incorreto. Tente novamente.';setTimeout(()=>err.textContent='',2000);}}catch(e){toast('Erro: '+e.message,'err');pinDigitos='';renderPin();}}
 function trocarEst(){if(confirm('Sair e trocar de estabelecimento?')){REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;localStorage.removeItem('ge_rest_id');limparSessao();mostrarTela('tela1Acesso');}}
 
 // ENTRAR NO APP
 async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_NOME||'Gerencion Estoque';$('topUser').textContent=FUNC_ROLE==='proprietario'?'👑 '+FUNC_NOME+' · Proprietário(a)':'👤 '+FUNC_NOME+' · Funcionário(a)';
+  // Aplicar permissões nas abas de navegação
+  if(FUNC_ROLE!=='proprietario'){
+    const navHist=document.querySelector('#nav .nav-btn:nth-child(3)');
+    const navIns=document.querySelector('#nav .nav-btn:nth-child(4)');
+    if(navHist)navHist.style.display=FUNC_PERMS.historico?'flex':'none';
+    if(navIns)navIns.style.display=FUNC_PERMS.insights?'flex':'none';
+  }
   const logoSalva=REST_ID?localStorage.getItem('ge_logo_'+REST_ID):null;
   const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
   const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();}
-function sair(){if(confirm('Deseja sair?')){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;pinDigitos='';mostrarTela('tela1Acesso');}}
+function sair(){if(confirm('Deseja sair?')){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;FUNC_PERMS={};pinDigitos='';mostrarTela('tela1Acesso');}}
 
 // PÁGINAS
 let pgAtual='dash';
-function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=pg==='produtos'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist')renderHist();if(pg==='insights')renderInsights();if(pg==='config'){if(FUNC_ROLE==='proprietario')carregarConfig();else toast('Acesso restrito','warn');}}
+function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
+  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario')carregarConfig();else toast('Acesso restrito','warn');}}
 
 // PRODUTOS
 async function carregarProds(){try{todosProds=await sb(`ge_produtos?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosProds=[];toast('Erro ao carregar produtos','err');}}
@@ -774,6 +843,7 @@ function renderCatPills(){const el=$('catPills');if(!el)return;const cats=[...ne
 function filtroCat(cat,btn){document.querySelectorAll('#catPills .cat').forEach(b=>b.classList.remove('on'));btn&&btn.classList.add('on');renderProds();}
 
 function abrirProd(id){
+  if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.produtos)return toast('Sem permissão para cadastrar produtos','warn');
   prodAtual=id?(todosProds.find(p=>p.id===id)||null):null;
   const p=prodAtual;
   $('mpTit').textContent=p?'Editar Produto':'Novo Produto';
@@ -863,7 +933,7 @@ function updPrev(){
 async function registrarMov(){const pid=$('mmProd').value;const tipo=$('mmTipo').value;if(!pid)return toast('Selecione um produto','err');const p=todosProds.find(x=>x.id===pid);if(!p)return;const qtdAntes=p.quantidade||0;const novaQtd=tipo==='entrada'?qtdAntes+movQty:Math.max(0,qtdAntes-movQty);try{await sb(`ge_produtos?id=eq.${pid}`,{method:'PATCH',body:JSON.stringify({quantidade:novaQtd,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()})});await sb('ge_movimentacoes',{method:'POST',body:JSON.stringify({restaurante_id:REST_ID,produto_id:pid,tipo,subtipo:tipo==='saida'?subtipoSaida:null,quantidade:movQty,quantidade_anterior:qtdAntes,quantidade_nova:novaQtd,funcionario_id:FUNC_ID,funcionario_nome:FUNC_NOME,observacao:$('mmObs').value||null})});toast(`✅ ${tipo==='entrada'?'Entrada':'Saída'} registrada!`);fM('ovMov');p.quantidade=novaQtd;renderDash();}catch(e){toast('Erro: '+e.message,'err');}}
 
 // DASHBOARD
-function renderDash(){const h=new Date().getHours();const saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';$('dGreet')&&($('dGreet').textContent=saud+' '+(FUNC_NOME||'').split(' ')[0]+' 👋');$('dDate')&&($('dDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}));$('stTot')&&($('stTot').textContent=todosProds.length);const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);const criticos=todosProds.filter(p=>(p.quantidade||0)===0&&(p.estoque_minimo||0)>0);$('stBx')&&($('stBx').textContent=baixos.length);$('stCr')&&($('stCr').textContent=criticos.length);const badge=$('alertBadge');if(badge){$('alertCnt').textContent=baixos.length;badge.style.display=baixos.length?'flex':'none';}if(FUNC_ROLE==='proprietario'){const total=todosProds.reduce((a,p)=>a+(p.preco_custo||0)*(p.quantidade||0),0);const vb=$('veBox');if(vb)vb.style.display='flex';$('veVal')&&($('veVal').textContent=fmt(total));}const secA=$('secA'),dAlerts=$('dAlerts');if(dAlerts){if(baixos.length){secA&&(secA.style.display='block');dAlerts.innerHTML=baixos.slice(0,5).map(p=>`<div class="alert-c ${(p.quantidade||0)===0?'a-rd':'a-am'}"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty">${fmtN(p.quantidade||0)} ${p.unidade||'un'} · Mín: ${fmtN(p.estoque_minimo||0)}</div></div><button class="a-btn" onclick="abrirMov('entrada')">+ Repor</button></div>`).join('');}else{secA&&(secA.style.display='none');dAlerts.innerHTML='';}}const vencendo=todosProds.filter(p=>{const d=diasParaVencer(p.data_validade);return d!==null&&d>=0&&d<=30;});const secV=$('secV'),dValid=$('dValid');if(dValid){if(vencendo.length){secV&&(secV.style.display='block');dValid.innerHTML=vencendo.map(p=>{const sv=labelVal(p);return`<div class="alert-c a-cy"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty" style="color:${sv.cls==='venc'?'var(--rd)':'var(--am)'}">${sv.ico} ${sv.txt}</div></div></div>`;}).join('');}else{secV&&(secV.style.display='none');dValid.innerHTML='';}}renderMovsRecentes();}
+function renderDash(){const h=new Date().getHours();const saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';$('dGreet')&&($('dGreet').textContent=saud+' '+(FUNC_NOME||'').split(' ')[0]+' 👋');$('dDate')&&($('dDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}));$('stTot')&&($('stTot').textContent=todosProds.length);const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);const criticos=todosProds.filter(p=>(p.quantidade||0)===0&&(p.estoque_minimo||0)>0);$('stBx')&&($('stBx').textContent=baixos.length);$('stCr')&&($('stCr').textContent=criticos.length);const badge=$('alertBadge');if(badge){$('alertCnt').textContent=baixos.length;badge.style.display=baixos.length?'flex':'none';}if(FUNC_ROLE==='proprietario'||(FUNC_PERMS&&FUNC_PERMS.valor)){const total=todosProds.reduce((a,p)=>a+(p.preco_custo||0)*(p.quantidade||0),0);const vb=$('veBox');if(vb)vb.style.display='flex';$('veVal')&&($('veVal').textContent=fmt(total));}else{const vb=$('veBox');if(vb)vb.style.display='none';}const secA=$('secA'),dAlerts=$('dAlerts');if(dAlerts){if(baixos.length){secA&&(secA.style.display='block');dAlerts.innerHTML=baixos.slice(0,5).map(p=>`<div class="alert-c ${(p.quantidade||0)===0?'a-rd':'a-am'}"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty">${fmtN(p.quantidade||0)} ${p.unidade||'un'} · Mín: ${fmtN(p.estoque_minimo||0)}</div></div><button class="a-btn" onclick="abrirMov('entrada')">+ Repor</button></div>`).join('');}else{secA&&(secA.style.display='none');dAlerts.innerHTML='';}}const vencendo=todosProds.filter(p=>{const d=diasParaVencer(p.data_validade);return d!==null&&d>=0&&d<=30;});const secV=$('secV'),dValid=$('dValid');if(dValid){if(vencendo.length){secV&&(secV.style.display='block');dValid.innerHTML=vencendo.map(p=>{const sv=labelVal(p);return`<div class="alert-c a-cy"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty" style="color:${sv.cls==='venc'?'var(--rd)':'var(--am)'}">${sv.ico} ${sv.txt}</div></div></div>`;}).join('');}else{secV&&(secV.style.display='none');dValid.innerHTML='';}}renderMovsRecentes();}
 async function renderMovsRecentes(){const el=$('dMovs');if(!el)return;try{const movs=await sb(`ge_movimentacoes?restaurante_id=eq.${REST_ID}&select=*&order=created_at.desc&limit=8`);if(!movs.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px;">Nenhum movimento ainda</div>';return;}el.innerHTML=movs.map(m=>{const dt=new Date(m.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const cor=m.tipo==='entrada'?'var(--gn)':'var(--rd)';const prod=todosProds.find(p=>p.id===m.produto_id);return`<div class="mov-c"><div class="mov-dot" style="background:${cor}"></div><div class="mov-inf"><div class="mov-n">${prod?prod.nome:'Produto'}</div><div class="mov-d">${m.funcionario_nome||''} ${m.observacao?'· '+m.observacao:''}</div></div><div class="mov-r"><div class="mov-q" style="color:${cor}">${m.tipo==='entrada'?'+':'-'}${fmtN(m.quantidade)}</div><div class="mov-t">${dt}</div></div></div>`;}).join('');}catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px;">Nenhum movimento ainda</div>';}}
 
 // HISTÓRICO
@@ -882,7 +952,11 @@ async function renderInsights(){
     el.innerHTML=`<div class="stats"><div class="stat"><div class="stat-n" style="color:var(--gn)">${fmtN(entradas)}</div><div class="stat-l">Entradas</div></div><div class="stat"><div class="stat-n" style="color:var(--bl)">${fmtN(saidas)}</div><div class="stat-l">Saídas</div></div><div class="stat"><div class="stat-n" style="color:var(--rd)">${nPerdas}</div><div class="stat-l">Perdas</div></div></div>`;
     // Comparativo por categoria
     const elC=$('insCat');
-    if(elC){const catMap={};movs.filter(m=>m.tipo==='saida').forEach(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);const cat=prod?.categoria||'Sem categoria';catMap[cat]=(catMap[cat]||0)+m.quantidade;});const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,6);const max=cats[0]?cats[0][1]:1;if(cats.length){elC.innerHTML=cats.map(([cat,qty])=>`<div style="background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:11px 13px;margin-bottom:7px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;font-weight:600;">${cat}</span><span style="font-size:12px;color:var(--t2);">${fmtN(qty)}</span></div><div style="height:6px;background:var(--s3);border-radius:20px;"><div style="height:100%;border-radius:20px;background:var(--bl);width:${Math.round(qty/max*100)}%;"></div></div></div>`).join('');}else{elC.innerHTML='<div style="padding:12px;color:var(--t3);font-size:12px;">Sem saídas registradas este mês</div>';}}
+    if(elC){const catMap={};movs.filter(m=>m.tipo==='saida').forEach(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);const cat=prod?.categoria||'Sem categoria';catMap[cat]=(catMap[cat]||0)+m.quantidade;});const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,6);const max=cats[0]?cats[0][1]:1;if(cats.length){elC.innerHTML=cats.map(([cat,qty])=>{
+  const prodsCat={};movs.filter(m=>m.tipo==='saida').forEach(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);if(!prod||prod.categoria!==cat)return;if(!prodsCat[prod.nome])prodsCat[prod.nome]={qty:0,un:prod.unidade||'un'};prodsCat[prod.nome].qty+=m.quantidade;});
+  const prodLines=Object.entries(prodsCat).sort((a,b)=>b[1].qty-a[1].qty).map(([nome,d])=>`<div style="display:flex;justify-content:space-between;padding:4px 0 0;"><span style="font-size:11px;color:var(--t3);">↳ ${nome}</span><span style="font-size:11px;color:var(--t);font-weight:600;">${fmtN(d.qty)} ${d.un}</span></div>`).join('');
+  return`<div style="background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:11px 13px;margin-bottom:7px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;font-weight:700;color:var(--t);">${cat}</span><span style="font-size:12px;color:var(--t2);">${fmtN(qty)}</span></div><div style="height:6px;background:var(--s3);border-radius:20px;margin-bottom:6px;"><div style="height:100%;border-radius:20px;background:var(--bl);width:${Math.round(qty/max*100)}%;"></div></div>${prodLines}</div>`;
+}).join('');}else{elC.innerHTML='<div style="padding:12px;color:var(--t3);font-size:12px;">Sem saídas registradas este mês</div>';}}
     // Perdas
     const elP=$('insPerd');
     if(elP){const perdas=movs.filter(m=>m.subtipo==='perda'||m.subtipo==='vencimento');if(perdas.length){elP.innerHTML=perdas.slice(0,8).map(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);return`<div class="h-c"><div class="h-ico perda">${m.subtipo==='vencimento'?'📅':'⚠️'}</div><div class="h-inf"><div class="h-n">${prod?prod.nome:'Produto'}</div><div class="h-d">${m.subtipo} · ${fmtN(m.quantidade)} ${prod?.unidade||'un'}</div></div><div class="h-r"><div class="h-q perda">-${fmtN(m.quantidade)}</div></div></div>`;}).join('');}else{elP.innerHTML='<div style="color:var(--gn);font-size:12px;padding:12px">✅ Nenhuma perda registrada este mês!</div>';}}
@@ -902,11 +976,41 @@ async function renderInsights(){
   }}
 
 // FUNCIONÁRIOS
+// PIN de confirmação para ver lista de PINs
+let pinConfDigitos='';
+function abrirListaPins(){pinConfDigitos='';renderPinConf();$('listaPinsConf').style.display='none';$('pinConfErro').textContent='';abrirModal('ovPins');}
+function pinConf(d){if(pinConfDigitos.length>=4)return;pinConfDigitos+=d;renderPinConf();if(pinConfDigitos.length===4)setTimeout(verificarPinConf,120);}
+function pinConfDel(){pinConfDigitos=pinConfDigitos.slice(0,-1);renderPinConf();}
+function renderPinConf(){for(let i=0;i<4;i++){const el=$('pdc'+i);if(el)el.classList.toggle('filled',i<pinConfDigitos.length);}}
+async function verificarPinConf(){
+  try{
+    const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinConfDigitos}&select=id`);
+    if(!r.length){$('pinConfErro').textContent='PIN incorreto.';pinConfDigitos='';renderPinConf();setTimeout(()=>$('pinConfErro').textContent='',2000);return;}
+    // PIN correto — mostrar lista
+    const funcs=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=nome,pin&order=nome.asc`);
+    const el=$('listaPinsItens');
+    if(!funcs.length){el.innerHTML='<div style="color:var(--t3);font-size:12px;text-align:center;padding:12px;">Nenhum funcionário cadastrado</div>';}
+    else{el.innerHTML=funcs.map(f=>`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:11px 14px;margin-bottom:7px;"><span style="font-size:13px;font-weight:700;color:var(--t);">👤 ${f.nome}</span><span style="font-size:18px;font-weight:900;color:var(--gn);letter-spacing:4px;">${f.pin}</span></div>`).join('');}
+    $('listaPinsConf').style.display='block';
+    $('pinConfErro').textContent='';
+  }catch(e){toast('Erro','err');}
+}
+
+function liberarTudo(){['permHist','permInsights','permProdutos','permValor','permEstornar'].forEach(id=>{const el=$(id);if(el)el.checked=true;});}
 async function carregarFuncs(){try{todosFuncs=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosFuncs=[];}}
-function renderFuncs(){const el=$('listaFuncs');if(!el)return;if(!todosFuncs.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3);font-size:12px;">Nenhum funcionário cadastrado</div>';return;}el.innerHTML=todosFuncs.map(f=>`<div class="f-c" onclick="abrirFunc('${f.id}')"><div style="font-size:22px;width:36px;height:36px;border-radius:50%;background:var(--gn2);display:flex;align-items:center;justify-content:center;">${f.nome[0]||'?'}</div><div class="f-inf"><div class="f-n">${f.nome}</div><div class="f-s">PIN: ••••</div></div><div style="color:var(--t3);">›</div></div>`).join('');}
-function abrirNovoFunc(){funcAtual=null;$('mfTit').textContent='Novo Funcionário';$('mfId').value='';$('mfNome').value='';$('mfPin').value='';$('mfExc').style.display='none';abrirModal('ovFunc');}
-function abrirFunc(id){funcAtual=todosFuncs.find(f=>f.id===id)||null;const f=funcAtual;$('mfTit').textContent='Editar Funcionário';$('mfId').value=f?f.id:'';$('mfNome').value=f?f.nome:'';$('mfPin').value='';$('mfExc').style.display='block';abrirModal('ovFunc');}
-async function salvarFunc(){const nome=$('mfNome').value.trim();const pin=$('mfPin').value;if(!nome)return toast('Nome obrigatório','err');if(!funcAtual&&(!pin||pin.length!==4||isNaN(pin)))return toast('PIN deve ter 4 números','err');const dados={restaurante_id:REST_ID,nome,...(pin?{pin}:{})};try{const id=$('mfId').value;if(id)await sb(`ge_funcionarios?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_funcionarios',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Funcionário atualizado!':'✅ Funcionário criado!');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+function renderFuncs(){const el=$('listaFuncs');if(!el)return;if(!todosFuncs.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3);font-size:12px;">Nenhum funcionário cadastrado</div>';return;}el.innerHTML=todosFuncs.map(f=>`<div class="f-c" onclick="abrirFunc('${f.id}')"><div style="font-size:22px;width:36px;height:36px;border-radius:50%;background:var(--gn2);display:flex;align-items:center;justify-content:center;">${f.nome[0]||'?'}</div><div class="f-inf"><div class="f-n">${f.nome}</div><div class="f-s">Funcionário(a) · PIN: ••••</div></div><div style="color:var(--t3);">›</div></div>`).join('');}
+function abrirNovoFunc(){funcAtual=null;$('mfTit').textContent='Novo Funcionário';$('mfId').value='';$('mfNome').value='';$('mfPin').value='';$('mfExc').style.display='none';$('mfPerms').style.display='none';abrirModal('ovFunc');}
+function abrirFunc(id){funcAtual=todosFuncs.find(f=>f.id===id)||null;const f=funcAtual;
+  $('mfTit').textContent='Editar Funcionário';$('mfId').value=f?f.id:'';$('mfNome').value=f?f.nome:'';$('mfPin').value='';$('mfExc').style.display='block';
+  $('mfPerms').style.display='block';
+  $('permHist').checked=f?.perm_historico||false;
+  $('permInsights').checked=f?.perm_insights||false;
+  $('permProdutos').checked=f?.perm_produtos||false;
+  $('permValor').checked=f?.perm_valor_estoque||false;
+  $('permEstornar').checked=f?.perm_estornar||false;
+  abrirModal('ovFunc');}
+async function salvarFunc(){const nome=$('mfNome').value.trim();const pin=$('mfPin').value;if(!nome)return toast('Nome obrigatório','err');if(!funcAtual&&(!pin||pin.length!==4||isNaN(pin)))return toast('PIN deve ter 4 números','err');const perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked}:{};
+  const dados={restaurante_id:REST_ID,nome,...(pin?{pin}:{}),...perms};try{const id=$('mfId').value;if(id)await sb(`ge_funcionarios?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_funcionarios',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Funcionário atualizado!':'✅ Funcionário criado!');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirFunc(){if(!confirm('Remover funcionário?'))return;try{await sb(`ge_funcionarios?id=eq.${$('mfId').value}`,{method:'DELETE'});toast('Funcionário removido');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro ao remover','err');}}
 
 // LINK DE ACESSO
@@ -1019,9 +1123,26 @@ const TUTORIAIS={
 };
 function abrirAjuda(){
   const pg=pgAtual||'dash';
-  const itens=TUTORIAIS[pg]||TUTORIAIS['dash'];
   const titulos={dash:'🏠 Início',produtos:'📦 Produtos',hist:'📋 Histórico',insights:'📊 Insights',config:'⚙️ Configurações'};
-  $('helpTi').textContent='❓ '+( titulos[pg]||'Como usar');
+  $('helpTi').textContent='❓ '+(titulos[pg]||'Como usar');
+  let itens=TUTORIAIS[pg]||TUTORIAIS['dash'];
+  // Filtrar tutorial por permissões do funcionário
+  if(FUNC_ROLE==='funcionario'){
+    if(pg==='dash'){
+      // Funcionário sempre vê entrada/saída, filtra o resto
+      itens=TUTORIAIS['dash'].filter((_,i)=>i<=4); // itens básicos
+      if(!FUNC_PERMS.valor)itens=itens.filter(i=>!i.includes('Valor do Estoque'));
+    }
+    if(pg==='produtos'&&!FUNC_PERMS.produtos){
+      itens=[hi('📦','Visualizar Produtos','Você pode ver a lista de produtos e o estoque atual de cada um. Para cadastrar ou editar produtos, solicite permissão ao proprietário.')];
+    }
+    if(pg==='hist'&&!FUNC_PERMS.historico){
+      itens=[hi('📋','Histórico','Você não tem acesso ao histórico. Solicite permissão ao proprietário.')];
+    }
+    if(pg==='insights'&&!FUNC_PERMS.insights){
+      itens=[hi('📊','Insights','Você não tem acesso aos insights. Solicite permissão ao proprietário.')];
+    }
+  }
   $('helpCnt').innerHTML=itens.join('');
   abrirModal('ovHelp');
 }
@@ -1065,6 +1186,21 @@ document.addEventListener('click',e=>{['tipoSugsS','tipoSugsC'].forEach(id=>{con
 // INIT
 document.addEventListener('DOMContentLoaded',async()=>{
   const codLink=capturarCodigoDaURL();
+  // Se veio com ?cod= na URL, SEMPRE priorizar esse código — ignorar localStorage
+  if(codLink){
+    try{
+      const r=await sb(`ge_restaurantes?codigo_acesso=eq.${codLink}&select=*`);
+      if(r.length){
+        REST_ID=r[0].id;REST_NOME=r[0].nome;
+        localStorage.setItem('ge_rest_id',REST_ID);
+        localStorage.removeItem('ge_cod_pendente');
+        $('loginNome').textContent=r[0].nome;
+        $('loginTipo').textContent=r[0].tipo_negocio||'';
+        $('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';
+        mostrarTela('telaLogin');pinDigitos='';renderPin();return;
+      }else{toast('Link inválido ou expirado','err');}
+    }catch(e){toast('Erro ao carregar estabelecimento','err');}
+  }
   const savedId=localStorage.getItem('ge_rest_id');
   if(savedId)REST_ID=savedId;
   if(REST_ID){
@@ -1072,7 +1208,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     if(sessUid){
       try{
         if(sessUid==='PROP'){const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome,nome_proprietario`);if(r.length){FUNC_NOME=r[0].nome_proprietario||r[0].nome;REST_NOME=r[0].nome;FUNC_ROLE='proprietario';await entrarApp();return;}}
-        else{const r=await sb(`ge_funcionarios?id=eq.${sessUid}&restaurante_id=eq.${REST_ID}&select=*`);if(r.length){FUNC_ID=r[0].id;FUNC_NOME=r[0].nome;const rr=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rr.length?rr[0].nome:'';FUNC_ROLE='funcionario';await entrarApp();return;}}
+        else{const r=await sb(`ge_funcionarios?id=eq.${sessUid}&restaurante_id=eq.${REST_ID}&select=*`);if(r.length){FUNC_ID=r[0].id;FUNC_NOME=r[0].nome;FUNC_PERMS={historico:r[0].perm_historico,insights:r[0].perm_insights,produtos:r[0].perm_produtos,valor:r[0].perm_valor_estoque,estornar:r[0].perm_estornar};const rr=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rr.length?rr[0].nome:'';FUNC_ROLE='funcionario';await entrarApp();return;}}
       }catch(e){limparSessao();}
     }
     try{
@@ -1085,18 +1221,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       }
     }catch(e){}
   }
-  if(codLink){
-    try{
-      const r=await sb(`ge_restaurantes?codigo_acesso=eq.${codLink}&select=*`);
-      if(r.length){
-        REST_ID=r[0].id;localStorage.setItem('ge_rest_id',REST_ID);
-        $('loginNome').textContent=r[0].nome;
-        $('loginTipo').textContent=r[0].tipo_negocio||'';
-        $('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';
-        mostrarTela('telaLogin');pinDigitos='';renderPin();return;
-      }
-    }catch(e){}
-  }
+  // codLink já tratado no início
   try{const total=await sb('ge_restaurantes?select=id&limit=1');if(total.length)mostrarTela('tela1Acesso');else mostrarTela('telaSetup');}catch(e){mostrarTela('telaSetup');}
 });
 </script>
