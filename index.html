@@ -348,6 +348,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div class="dash-greet">Bem-vindo(a)</div>
         <div class="dash-title" id="dGreet">Boa tarde! 👋</div>
         <div class="dash-date" id="dDate"></div>
+        <div style="margin-top:8px;">
+          <button onclick="recarregarEAtualizar()" style="padding:5px 12px;background:var(--gn2);border:1px solid var(--gn3);border-radius:8px;color:var(--gn);font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">🔄 Atualizar dados</button>
+        </div>
       </div>
       <div class="stats">
         <div class="stat" onclick="irPg('produtos',null)"><div class="stat-n" style="color:var(--gn)" id="stTot">0</div><div class="stat-l">Produtos</div></div>
@@ -931,7 +934,16 @@ async function excluirProd(){if(!confirm('Excluir produto?'))return;try{await sb
 
 // MOVIMENTOS
 function abrirMov(tipo){movQty=1;subtipoSaida='normal';$('mmTit').textContent=tipo==='entrada'?'📥 Registrar Entrada':'📤 Registrar Saída';$('mmSub').textContent=tipo==='entrada'?'Compra, recebimento ou ajuste':'Consumo, venda, perda ou vencimento';$('mmTipo').value=tipo;$('mmStWrap').style.display=tipo==='saida'?'block':'none';$('mmEstBox').style.display='none';movQty=1;const qv=$('qpV');if(qv)qv.value=1;$('mmObs').value='';const sel=$('mmProd');sel.innerHTML='<option value="">Selecione um produto...</option>'+todosProds.map(p=>`<option value="${p.id}">${p.emoji||'📦'} ${p.nome} (${fmtN(p.quantidade||0)} ${p.unidade||'un'})</option>`).join('');['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});$('tbN')&&$('tbN').classList.add('on');abrirModal('ovMov');}
-function setSt(sub){subtipoSaida=sub;['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');}
+function setSt(sub){
+  // Confirmação para perda e vencimento
+  if(sub==='perda'){
+    if(!confirm('⚠️ Registrar como PERDA?\n\nUse isso quando o produto estragou, foi desperdiçado ou descartado.\n\nTem certeza?')){return;}
+  }
+  if(sub==='vencimento'){
+    if(!confirm('📅 Registrar como VENCIDO?\n\nUse isso quando o produto passou da data de validade.\n\nTem certeza?')){return;}
+  }
+  subtipoSaida=sub;['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
+}
 function updEst(){const id=$('mmProd').value;const p=todosProds.find(x=>x.id===id);$('mmEstBox').style.display=p?'block':'none';if(p){$('mmEstV').textContent=fmtN(p.quantidade||0)+' '+(p.unidade||'un');$('mmEstV').style.color=(p.quantidade||0)<=(p.estoque_minimo||0)?'var(--rd)':'var(--gn)';updPrev();}}
 function ajQ(d){
   movQty=Math.max(0,movQty+d);
@@ -947,6 +959,7 @@ async function registrarMov(){const pid=$('mmProd').value;const tipo=$('mmTipo')
 
 // DASHBOARD
 function renderDash(){const h=new Date().getHours();const saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';$('dGreet')&&($('dGreet').textContent=saud+' '+(FUNC_NOME||'').split(' ')[0]+' 👋');$('dDate')&&($('dDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}));$('stTot')&&($('stTot').textContent=todosProds.length);const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);const criticos=todosProds.filter(p=>(p.quantidade||0)===0&&(p.estoque_minimo||0)>0);$('stBx')&&($('stBx').textContent=baixos.length);$('stCr')&&($('stCr').textContent=criticos.length);const badge=$('alertBadge');if(badge){$('alertCnt').textContent=baixos.length;badge.style.display=baixos.length?'flex':'none';}if(FUNC_ROLE==='proprietario'||(FUNC_PERMS&&FUNC_PERMS.valor)){const total=todosProds.reduce((a,p)=>a+(p.preco_custo||0)*(p.quantidade||0),0);const vb=$('veBox');if(vb)vb.style.display='flex';$('veVal')&&($('veVal').textContent=fmt(total));}else{const vb=$('veBox');if(vb)vb.style.display='none';}const secA=$('secA'),dAlerts=$('dAlerts');if(dAlerts){if(baixos.length){secA&&(secA.style.display='block');dAlerts.innerHTML=baixos.slice(0,5).map(p=>`<div class="alert-c ${(p.quantidade||0)===0?'a-rd':'a-am'}"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty">${fmtN(p.quantidade||0)} ${p.unidade||'un'} · Mín: ${fmtN(p.estoque_minimo||0)}</div></div><button class="a-btn" onclick="abrirMov('entrada')">+ Repor</button></div>`).join('');}else{secA&&(secA.style.display='none');dAlerts.innerHTML='';}}const vencendo=todosProds.filter(p=>{const d=diasParaVencer(p.data_validade);return d!==null&&d>=0&&d<=30;});const secV=$('secV'),dValid=$('dValid');if(dValid){if(vencendo.length){secV&&(secV.style.display='block');dValid.innerHTML=vencendo.map(p=>{const sv=labelVal(p);return`<div class="alert-c a-cy"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty" style="color:${sv.cls==='venc'?'var(--rd)':'var(--am)'}">${sv.ico} ${sv.txt}</div></div></div>`;}).join('');}else{secV&&(secV.style.display='none');dValid.innerHTML='';}}renderMovsRecentes();}
+async function recarregarEAtualizar(){await carregarProds();renderDash();}
 async function renderMovsRecentes(){const el=$('dMovs');if(!el)return;try{const movs=await sb(`ge_movimentacoes?restaurante_id=eq.${REST_ID}&select=*&order=created_at.desc&limit=8`);if(!movs.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px;">Nenhum movimento ainda</div>';return;}el.innerHTML=movs.map(m=>{const dt=new Date(m.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const cor=m.tipo==='entrada'?'var(--gn)':'var(--rd)';const prod=todosProds.find(p=>p.id===m.produto_id);return`<div class="mov-c"><div class="mov-dot" style="background:${cor}"></div><div class="mov-inf"><div class="mov-n">${prod?prod.nome:'Produto'}</div><div class="mov-d">${m.funcionario_nome||''} ${m.observacao?'· '+m.observacao:''}</div></div><div class="mov-r"><div class="mov-q" style="color:${cor}">${m.tipo==='entrada'?'+':'-'}${fmtN(m.quantidade)}</div><div class="mov-t">${dt}</div></div></div>`;}).join('');}catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px;">Nenhum movimento ainda</div>';}}
 
 // HISTÓRICO
@@ -958,7 +971,7 @@ async function renderInsights(){
   // Resumo do mês
   const el=$('insMes');
   if(el){try{const ini=new Date();ini.setDate(1);ini.setHours(0,0,0,0);
-    const movs=await sb(`ge_movimentacoes?restaurante_id=eq.${REST_ID}&created_at=gte.${ini.toISOString()}&select=tipo,subtipo,quantidade,produto_id&limit=500`);
+    const movs=await sb(`ge_movimentacoes?restaurante_id=eq.${REST_ID}&created_at=gte.${ini.toISOString()}&select=*&limit=500`);
     const entradas=movs.filter(m=>m.tipo==='entrada').reduce((a,m)=>a+m.quantidade,0);
     const saidas=movs.filter(m=>m.tipo==='saida'&&m.subtipo!=='perda'&&m.subtipo!=='vencimento').reduce((a,m)=>a+m.quantidade,0);
     const nPerdas=movs.filter(m=>m.subtipo==='perda'||m.subtipo==='vencimento').length;
@@ -972,7 +985,12 @@ async function renderInsights(){
 }).join('');}else{elC.innerHTML='<div style="padding:12px;color:var(--t3);font-size:12px;">Sem saídas registradas este mês</div>';}}
     // Perdas
     const elP=$('insPerd');
-    if(elP){const perdas=movs.filter(m=>m.subtipo==='perda'||m.subtipo==='vencimento');if(perdas.length){elP.innerHTML=perdas.slice(0,8).map(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);return`<div class="h-c"><div class="h-ico perda">${m.subtipo==='vencimento'?'📅':'⚠️'}</div><div class="h-inf"><div class="h-n">${prod?prod.nome:'Produto'}</div><div class="h-d">${m.subtipo} · ${fmtN(m.quantidade)} ${prod?.unidade||'un'}</div></div><div class="h-r"><div class="h-q perda">-${fmtN(m.quantidade)}</div></div></div>`;}).join('');}else{elP.innerHTML=`<div style="background:var(--gn2);border:1.5px solid var(--gn3);border-radius:13px;padding:16px;text-align:center;">
+    if(elP){const perdas=movs.filter(m=>m.subtipo==='perda'||m.subtipo==='vencimento');if(perdas.length){
+  const totalPerdido=perdas.reduce((a,m)=>{const prod=todosProds.find(p=>p.id===m.produto_id);return a+(prod?.preco_custo||0)*m.quantidade;},0);
+  elP.innerHTML=`<div style="background:var(--rd2);border:1px solid var(--rd3);border-radius:11px;padding:11px 13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:12px;font-weight:700;color:var(--rd);">💸 Total perdido no mês</span>
+    <span style="font-size:16px;font-weight:900;color:var(--rd);">${fmt(totalPerdido)}</span>
+  </div>`+perdas.slice(0,8).map(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);const val=(prod?.preco_custo||0)*m.quantidade;const dt=new Date(m.created_at).toLocaleDateString('pt-BR');return`<div class="h-c"><div class="h-ico perda">${m.subtipo==='vencimento'?'📅':'⚠️'}</div><div class="h-inf"><div class="h-n">${prod?prod.nome:'Produto'}</div><div class="h-d">${m.subtipo==='vencimento'?'Vencido':'Perda/Desperdício'} · ${fmtN(m.quantidade)} ${prod?.unidade||'un'} · ${dt}</div>${val>0?`<div style="font-size:11px;color:var(--rd);font-weight:700;">💸 ${fmt(val)}</div>`:''}</div><div class="h-r"><div class="h-q perda">-${fmtN(m.quantidade)}</div></div></div>`;}).join('');}else{elP.innerHTML=`<div style="background:var(--gn2);border:1.5px solid var(--gn3);border-radius:13px;padding:16px;text-align:center;">
   <div style="font-size:28px;margin-bottom:8px;">🏆</div>
   <div style="font-size:14px;font-weight:800;color:var(--gn);margin-bottom:6px;">Parabéns! Nenhuma perda este mês!</div>
   <div style="font-size:12px;color:var(--t2);line-height:1.7;">Seu estoque está sendo gerenciado com excelência.<br>Continue assim — cada produto aproveitado é lucro no bolso! 💰</div>
@@ -1186,7 +1204,7 @@ const TUTORIAIS={
   insights:[
     hi('📊','Resumo do Mês','Mostra entradas, saídas e perdas do mês atual. Compare os números e identifique tendências no seu negócio.'),
     hi('📈','Comparativo por Categoria','Barras mostram o consumo de cada categoria. Quanto maior a barra, mais saiu naquele período. Ótimo para planejar compras.'),
-    hi('⚠️','Relatório de Perdas','Lista todas as perdas e vencimentos do mês com quantidade. Use para identificar o que mais desperdiça e tomar ação.'),
+    hi('⚠️','Relatório de Perdas','Lista todas as perdas e vencimentos do mês com <strong>quantidade e valor em R$</strong>. Mostra o total perdido no mês. Use para identificar o que mais desperdiça e tomar ação para reduzir prejuízo.'),
     hi('🛒','Lista de Compras por Fornecedor','O sistema monta a lista separada por fornecedor. Cada fornecedor tem seu próprio <strong>card com os produtos</strong> e um botão <strong>📲 Enviar Pedido</strong> independente. Ajuste as quantidades com − e + ou digitando. Envie para cada fornecedor na hora que quiser, na ordem que preferir.'),
   ],
   config:[
