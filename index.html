@@ -703,7 +703,10 @@ async function validarPin(){try{const rp=await sb(`ge_restaurantes?id=eq.${REST_
 function trocarEst(){if(confirm('Sair e trocar de estabelecimento?')){REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;localStorage.removeItem('ge_rest_id');limparSessao();mostrarTela('tela1Acesso');}}
 
 // ENTRAR NO APP
-async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_NOME||'Gerencion Estoque';$('topUser').textContent=FUNC_ROLE==='proprietario'?'👑 '+FUNC_NOME:'👤 '+FUNC_NOME;const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();}
+async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_NOME||'Gerencion Estoque';$('topUser').textContent=FUNC_ROLE==='proprietario'?'👑 '+FUNC_NOME:'👤 '+FUNC_NOME;
+  const logoSalva=REST_ID?localStorage.getItem('ge_logo_'+REST_ID):null;
+  const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
+  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();}
 function sair(){if(confirm('Deseja sair?')){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;pinDigitos='';mostrarTela('tela1Acesso');}}
 
 // PÁGINAS
@@ -886,8 +889,37 @@ async function limparHist(){if(!confirm('Limpar todo o histórico?'))return;try{
 function abrirAjuda(){$('helpTi').textContent='❓ Como usar';$('helpCnt').innerHTML=`<div class="help-it"><div class="help-ic">📦</div><div><div class="help-nt">Cadastrar Produtos</div><div class="help-ns">Toque no <strong>+</strong> para adicionar. Use emojis para identificar visualmente. Defina estoque mínimo para alertas.</div></div></div><div class="help-it"><div class="help-ic">📅</div><div><div class="help-nt">Fabricação + Validade</div><div class="help-ns">Informe ambas as datas para evitar alertas falsos. O status aparece em tempo real no modal.</div></div></div><div class="help-it"><div class="help-ic">📥</div><div><div class="help-nt">Entradas e Saídas</div><div class="help-ns">Use os botões rápidos no Início. Classifique saídas como perda ou vencimento para relatórios precisos.</div></div></div><div class="help-it"><div class="help-ic">🔗</div><div><div class="help-nt">Link para Funcionários</div><div class="help-ns">Em Config → envie o link pelo WhatsApp. O funcionário abre, cria o PIN e instala o app automaticamente.</div></div></div>`;abrirModal('ovHelp');}
 
 // LOGO
-function previewLogo(){const file=$('logoFile')&&$('logoFile').files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{$('logoImg').src=e.target.result;$('logoImg').style.display='block';$('logoPh').style.display='none';};reader.readAsDataURL(file);}
-function removerLogo(){$('logoImg').style.display='none';$('logoPh').style.display='flex';$('logoFile').value='';}
+function previewLogo(){
+  const file=$('logoFile')&&$('logoFile').files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    // Redimensionar para 400x400 máximo antes de salvar
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const max=400;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const data=canvas.toDataURL('image/jpeg',0.8);
+      // Mostrar na tela
+      $('logoImg').src=data;$('logoImg').style.display='block';$('logoPh').style.display='none';
+      // Mostrar no topbar
+      const ico=$('topIco');if(ico)ico.innerHTML='<img src="'+data+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';
+      // Salvar no localStorage
+      try{if(REST_ID)localStorage.setItem('ge_logo_'+REST_ID,data);}catch(err){toast('Imagem muito grande, use uma menor','warn');}
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removerLogo(){
+  $('logoImg').style.display='none';$('logoPh').style.display='flex';$('logoFile').value='';
+  const ico=$('topIco');if(ico)ico.textContent='GE';
+  if(REST_ID)localStorage.removeItem('ge_logo_'+REST_ID);
+}
 
 // Fechar sugestões ao clicar fora
 document.addEventListener('click',e=>{['tipoSugsS','tipoSugsC'].forEach(id=>{const el=$(id);if(el&&el.style.display==='block'){const inp=el.previousElementSibling;if(inp&&!inp.contains(e.target)&&!el.contains(e.target))el.style.display='none';}});if($('emojiPicker')&&$('emojiPicker').style.display==='block'){const ep=$('emojiPicker');if(!ep.contains(e.target)&&e.target.id!=='emjBtn'&&e.target.id!=='mpEmojiBtn')ep.style.display='none';}});
