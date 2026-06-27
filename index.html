@@ -645,6 +645,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   </div>
 </div>
 
+<!-- MODAL REVISÃO LISTA DE COMPRAS -->
+<div class="overlay" id="ovListaCompras">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div class="mt">🛒 Revisar Lista de Compras</div>
+    <div class="ms">Ajuste as quantidades antes de enviar. A lista será separada por fornecedor automaticamente.</div>
+    <div id="listaComprasItens"></div>
+    <div class="mb">
+      <button class="mb-s" onclick="fM('ovListaCompras')">Cancelar</button>
+      <button class="mb-p" onclick="confirmarEnvioLista()">📲 Enviar ao Fornecedor</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL LISTA PINS -->
 <div class="overlay" id="ovPins">
   <div class="modal" onclick="event.stopPropagation()">
@@ -1044,31 +1058,72 @@ function abrirFornec(id){const f=todosFornecs.find(x=>x.id===id);if(!f)return;$(
 async function salvarFornec(){const nome=$('mfnNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const wppRaw=($('mfnWpp').value||'').replace(/\D/g,'');const dados={restaurante_id:REST_ID,nome,whatsapp:wppRaw?'55'+wppRaw:null};try{const id=$('mfnId').value;if(id)await sb(`ge_fornecedores?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({nome,whatsapp:wppRaw?'55'+wppRaw:null})});else await sb('ge_fornecedores',{method:'POST',body:JSON.stringify(dados)});toast('✅ Fornecedor salvo!');fM('ovFornec');await carregarFornecs();renderFornecs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirFornec(){if(!confirm('Remover fornecedor?'))return;try{await sb(`ge_fornecedores?id=eq.${$('mfnId').value}`,{method:'DELETE'});toast('Fornecedor removido');fM('ovFornec');await carregarFornecs();renderFornecs();}catch(e){toast('Erro','err');}}
 
-async function enviarListaCompras(){
+function enviarListaCompras(){
   const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);
   if(!baixos.length)return toast('Nenhum produto com estoque baixo','info');
+  // Abrir modal de revisão
+  const el=$('listaComprasItens');
+  if(!el)return;
+  el.innerHTML=baixos.map(p=>{
+    const fornec=todosFornecs.find(f=>f.id===p.fornecedor_id);
+    const sugerido=Math.max(0,(p.estoque_minimo||0)-(p.quantidade||0));
+    return`<div style="background:var(--s2);border:1px solid var(--b);border-radius:11px;padding:12px 13px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div><div style="font-size:13px;font-weight:700;">${p.emoji||'📦'} ${p.nome}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px;">🚚 ${fornec?fornec.nome:'Sem fornecedor'} · Atual: ${numFmt(p.quantidade||0)} ${p.unidade||'un'}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--t2);white-space:nowrap;">Pedir:</span>
+        <div style="display:flex;align-items:center;background:var(--s3);border:1px solid var(--b);border-radius:9px;overflow:hidden;flex:1;">
+          <button onclick="ajLista('${p.id}',-1)" style="width:38px;height:38px;border:none;background:none;font-size:20px;font-weight:700;color:var(--t);cursor:pointer;">−</button>
+          <input type="number" id="lista-qty-${p.id}" value="${sugerido}" min="0" step="1" inputmode="numeric"
+            style="flex:1;text-align:center;border:none;background:transparent;color:var(--t);font-size:16px;font-weight:800;outline:none;font-family:Inter,sans-serif;" onfocus="this.select()">
+          <button onclick="ajLista('${p.id}',1)" style="width:38px;height:38px;border:none;background:none;font-size:20px;font-weight:700;color:var(--t);cursor:pointer;">+</button>
+        </div>
+        <span style="font-size:11px;color:var(--t2);white-space:nowrap;">${p.unidade||'un'}</span>
+      </div>
+    </div>`;
+  }).join('');
+  // Guardar referência dos produtos baixos
+  window._listaComprasBaixos=baixos;
+  abrirModal('ovListaCompras');
+}
+
+function ajLista(pid,d){
+  const el=document.getElementById('lista-qty-'+pid);
+  if(!el)return;
+  el.value=Math.max(0,(parseFloat(el.value)||0)+d);
+}
+
+async function confirmarEnvioLista(){
+  const baixos=window._listaComprasBaixos||[];
+  if(!baixos.length)return;
   const data=new Date().toLocaleDateString('pt-BR');
-  // Agrupar por fornecedor
+  // Agrupar por fornecedor com quantidades editadas
   const grupos={};
   baixos.forEach(p=>{
+    const qty=parseFloat(document.getElementById('lista-qty-'+p.id)?.value||0);
+    if(qty<=0)return; // pular se quantidade for 0
     const fid=p.fornecedor_id||'__geral__';
     if(!grupos[fid])grupos[fid]=[];
-    grupos[fid].push(p);
+    grupos[fid].push({...p,qtdPedido:qty});
   });
+  if(!Object.keys(grupos).length)return toast('Nenhuma quantidade informada','warn');
+  fM('ovListaCompras');
   let enviados=0;
   for(const [fid,prods] of Object.entries(grupos)){
     const fornec=todosFornecs.find(f=>f.id===fid);
     const wpp=fornec?.whatsapp||'';
-    const linhas=prods.map(p=>`• ${p.emoji||'📦'} ${p.nome}: ${numFmt(p.quantidade||0)} ${p.unidade||'un'} (mín: ${numFmt(p.estoque_minimo||0)})`).join('\n');
+    const linhas=prods.map(p=>`• ${p.emoji||'📦'} ${p.nome}: *${numFmt(p.qtdPedido)} ${p.unidade||'un'}*`).join('\n');
     const dest=fornec?fornec.nome:'Lista Geral';
-    const msg=encodeURIComponent(`🛒 *Lista de Compras — ${dest}*\n${data}\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);
+    const msg=encodeURIComponent(`🛒 *Pedido de Compras — ${dest}*\n${data}\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);
     if(wpp){window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');enviados++;}
-    else{// Sem WhatsApp — perguntar para onde enviar
-      const num=prompt(`Fornecedor "${dest}" sem WhatsApp cadastrado.\nDigite o número (55+DDD+número) ou cancele:`);
+    else{
+      const num=prompt(`Fornecedor "${dest}" sem WhatsApp.\nDigite o número (55+DDD+número):`);
       if(num){window.open(`https://wa.me/${num.replace(/\D/g,'')}?text=${msg}`,'_blank');enviados++;}
     }
   }
-  if(enviados>0)toast(`✅ ${enviados} lista${enviados>1?'s':''} enviada${enviados>1?'s':''}!`);
+  if(enviados>0)toast(`✅ ${enviados} pedido${enviados>1?'s':''} enviado${enviados>1?'s':''}!`);
 }
 
 // RELATÓRIOS
