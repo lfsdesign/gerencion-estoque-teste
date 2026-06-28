@@ -397,6 +397,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div id="pg-insights" class="pg">
       <div class="sec">📊 Resumo do Mês</div>
       <div id="insMes"></div>
+      <div class="sec">🏆 Top 5 Produtos Mais Consumidos</div>
+      <div id="insTop5"></div>
+      <div class="sec">📅 Consumo por Dia da Semana</div>
+      <canvas id="graficoSemana" style="width:100%;max-height:200px;margin-bottom:12px;border-radius:12px;"></canvas>
+      <div class="sec">🥧 Distribuição do Estoque por Categoria</div>
+      <canvas id="graficoPizza" style="width:100%;max-height:260px;margin-bottom:12px;"></canvas>
       <div class="sec">📈 Comparativo de Consumo por Categoria</div>
       <div id="insCat"></div>
       <div class="sec">⚠️ Relatório de Perdas</div>
@@ -1004,6 +1010,175 @@ async function renderHist(){const busca=($('shist')&&$('shist').value||'').toLow
 function setHF(f,btn){histFiltro=f;document.querySelectorAll('#pg-hist .cat').forEach(b=>b.classList.remove('on'));btn&&btn.classList.add('on');renderHist();}
 
 // INSIGHTS
+// ===== GRÁFICOS =====
+function desenharBarras(canvasId, labels, valores, cores, titulo){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||350;
+  const H=200;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+  // Fundo
+  ctx.fillStyle='#111C2E';
+  ctx.roundRect(0,0,W,H,12);
+  ctx.fill();
+  if(!valores.length||Math.max(...valores)===0){
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.font='13px Inter,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('Sem dados ainda',W/2,H/2);
+    return;
+  }
+  const max=Math.max(...valores);
+  const pad={t:20,b:40,l:10,r:10};
+  const bW=Math.floor((W-pad.l-pad.r)/labels.length);
+  const gap=Math.max(4,Math.floor(bW*0.2));
+  const bWReal=bW-gap;
+  const hArea=H-pad.t-pad.b;
+  labels.forEach((lbl,i)=>{
+    const v=valores[i]||0;
+    const bH=max>0?Math.floor((v/max)*hArea):0;
+    const x=pad.l+i*bW+gap/2;
+    const y=pad.t+hArea-bH;
+    // Barra
+    ctx.fillStyle=cores[i%cores.length];
+    ctx.beginPath();
+    ctx.roundRect(x,y,bWReal,bH,4);
+    ctx.fill();
+    // Valor
+    if(v>0){
+      ctx.fillStyle='rgba(255,255,255,0.9)';
+      ctx.font='bold 11px Inter,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(v%1===0?v:v.toFixed(1),x+bWReal/2,y-5);
+    }
+    // Label
+    ctx.fillStyle='rgba(255,255,255,0.6)';
+    ctx.font='10px Inter,sans-serif';
+    ctx.textAlign='center';
+    const shortLbl=lbl.length>5?lbl.slice(0,5):lbl;
+    ctx.fillText(shortLbl,x+bWReal/2,H-pad.b+14);
+  });
+}
+
+function desenharPizza(canvasId, labels, valores, cores){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||350;
+  const H=260;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#111C2E';
+  ctx.roundRect(0,0,W,H,12);
+  ctx.fill();
+  const total=valores.reduce((a,b)=>a+b,0);
+  if(!total){
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.font='13px Inter,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('Sem dados ainda',W/2,H/2);
+    return;
+  }
+  const cx=W/2, cy=120, r=90;
+  let angulo=-Math.PI/2;
+  valores.forEach((v,i)=>{
+    const fatia=(v/total)*2*Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angulo,angulo+fatia);
+    ctx.closePath();
+    ctx.fillStyle=cores[i%cores.length];
+    ctx.fill();
+    ctx.strokeStyle='#111C2E';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    // Label na fatia
+    const midAng=angulo+fatia/2;
+    const lx=cx+Math.cos(midAng)*(r*0.65);
+    const ly=cy+Math.sin(midAng)*(r*0.65);
+    const pct=Math.round((v/total)*100);
+    if(pct>5){
+      ctx.fillStyle='#fff';
+      ctx.font='bold 11px Inter,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(pct+'%',lx,ly+4);
+    }
+    angulo+=fatia;
+  });
+  // Legenda
+  const leY=cy+r+15;
+  const itemW=Math.min(120,W/Math.ceil(labels.length/2));
+  labels.forEach((lbl,i)=>{
+    const col=i%Math.ceil(labels.length/2);
+    const row=Math.floor(i/Math.ceil(labels.length/2));
+    const lx2=col*itemW+10;
+    const ly2=leY+row*18;
+    ctx.fillStyle=cores[i%cores.length];
+    ctx.fillRect(lx2,ly2,10,10);
+    ctx.fillStyle='rgba(255,255,255,0.8)';
+    ctx.font='10px Inter,sans-serif';
+    ctx.textAlign='left';
+    const shortLbl=lbl.length>12?lbl.slice(0,12)+'...':lbl;
+    ctx.fillText(shortLbl,lx2+14,ly2+9);
+  });
+}
+
+const CORES_GRAFICOS=['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#06B6D4','#EC4899','#14B8A6'];
+
+async function renderGraficos(movs){
+  // 1. TOP 5 produtos mais consumidos
+  const el5=document.getElementById('insTop5');
+  if(el5){
+    const rankMap={};
+    movs.filter(m=>m.tipo==='saida'&&m.subtipo!=='perda'&&m.subtipo!=='vencimento').forEach(m=>{
+      const prod=todosProds.find(p=>p.id===m.produto_id);
+      if(!prod)return;
+      if(!rankMap[prod.nome])rankMap[prod.nome]={qty:0,un:prod.unidade||'un',emoji:prod.emoji||'📦'};
+      rankMap[prod.nome].qty+=m.quantidade;
+    });
+    const top5=Object.entries(rankMap).sort((a,b)=>b[1].qty-a[1].qty).slice(0,5);
+    if(!top5.length){el5.innerHTML='<div style="color:var(--t2);font-size:12px;padding:12px">Sem saídas registradas este mês</div>';}
+    else{
+      const maxQ=top5[0][1].qty;
+      el5.innerHTML=top5.map(([nome,d],i)=>{
+        const pct=Math.round((d.qty/maxQ)*100);
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        return`<div style="background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:11px 13px;margin-bottom:7px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:12px;font-weight:700;">${medal} ${d.emoji} ${nome}</span>
+            <span style="font-size:12px;color:var(--t2);">${fmtN(d.qty)} ${d.un}</span>
+          </div>
+          <div style="height:6px;background:var(--s3);border-radius:20px;">
+            <div style="height:100%;border-radius:20px;background:${CORES_GRAFICOS[i]};width:${pct}%;transition:width .6s;"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // 2. Consumo por dia da semana
+  const diasNomes=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const diasQtd=[0,0,0,0,0,0,0];
+  movs.filter(m=>m.tipo==='saida').forEach(m=>{
+    const d=new Date(m.created_at).getDay();
+    diasQtd[d]+=m.quantidade;
+  });
+  setTimeout(()=>desenharBarras('graficoSemana',diasNomes,diasQtd,CORES_GRAFICOS,'Consumo por dia'),100);
+
+  // 3. Pizza — distribuição do valor do estoque por categoria
+  const catValMap={};
+  todosProds.forEach(p=>{
+    const cat=p.categoria||'Sem categoria';
+    const val=(p.preco_custo||0)*(p.quantidade||0);
+    if(!catValMap[cat])catValMap[cat]=0;
+    catValMap[cat]+=val;
+  });
+  const catEntries=Object.entries(catValMap).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  setTimeout(()=>desenharPizza('graficoPizza',catEntries.map(([k])=>k),catEntries.map(([,v])=>v),CORES_GRAFICOS),150);
+}
+
 async function renderInsights(){
   // Resumo do mês
   const el=$('insMes');
@@ -1014,6 +1189,7 @@ async function renderInsights(){
     const nPerdas=movs.filter(m=>m.subtipo==='perda'||m.subtipo==='vencimento').length;
     el.innerHTML=`<div class="stats"><div class="stat"><div class="stat-n" style="color:var(--gn)">${fmtN(entradas)}</div><div class="stat-l">Entradas</div></div><div class="stat"><div class="stat-n" style="color:var(--bl)">${fmtN(saidas)}</div><div class="stat-l">Saídas</div></div><div class="stat"><div class="stat-n" style="color:var(--rd)">${nPerdas}</div><div class="stat-l">Perdas</div></div></div>`;
     // Comparativo por categoria
+    await renderGraficos(movs);
     const elC=$('insCat');
     if(elC){const catMap={};movs.filter(m=>m.tipo==='saida').forEach(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);const cat=prod?.categoria||'Sem categoria';catMap[cat]=(catMap[cat]||0)+m.quantidade;});const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,6);const max=cats[0]?cats[0][1]:1;if(cats.length){elC.innerHTML=cats.map(([cat,qty])=>{
   const prodsCat={};movs.filter(m=>m.tipo==='saida').forEach(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);if(!prod||prod.categoria!==cat)return;if(!prodsCat[prod.nome])prodsCat[prod.nome]={qty:0,un:prod.unidade||'un'};prodsCat[prod.nome].qty+=m.quantidade;});
@@ -1247,6 +1423,10 @@ const TUTORIAIS={
     hi('⚠️','Perdas e Vencimentos — linha amarela','Saídas registradas como perda ou produto vencido. Use para acompanhar desperdícios e tomar ação para reduzir prejuízo.'),
   ],
   insights:[
+    hi('📊','Como ler o Resumo do Mês','Três números: <strong>Entradas</strong> (verde) = total que entrou no estoque. <strong>Saídas</strong> (azul) = total consumido ou vendido. <strong>Perdas</strong> (vermelho) = total desperdiçado ou vencido. Quanto menor as perdas, melhor a gestão!'),
+    hi('🏆','Como ler o Top 5 Mais Consumidos','Ranking dos produtos que mais saíram este mês. As barras mostram proporção — quanto maior, mais saiu. 🥇 é o campeão de saídas. Use para planejar compras prioritárias.'),
+    hi('📅','Como ler o Consumo por Dia da Semana','Barras por dia: qual dia da semana tem mais saídas? Se sexta tem barra maior, seu negócio consome mais às sextas. Ajuste suas compras para chegar antes dos dias de pico.'),
+    hi('🥧','Como ler a Pizza de Distribuição','Cada fatia é uma categoria. O tamanho mostra quanto % do valor total do estoque está naquela categoria. Se Carnes ocupa 60% da pizza, 60% do seu capital está em carnes. Use para equilibrar o investimento.'),
     hi('📊','Resumo do Mês','Mostra as entradas, saídas e perdas do mês atual em números. Acompanhe a evolução do seu estoque mês a mês.'),
     hi('📈','Comparativo de Consumo por Categoria','Barras mostram quanto saiu de cada categoria este mês. Abaixo de cada categoria aparecem os produtos individuais com a quantidade. Ótimo para planejar compras.'),
     hi('⚠️','Relatório de Perdas — impacto financeiro','Lista todas as perdas e vencimentos do mês com quantidade e <strong>valor em R$</strong>. No topo aparece o <strong>total perdido em dinheiro</strong>. Use para identificar o que mais desperdiça e agir para reduzir prejuízo.'),
