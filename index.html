@@ -272,6 +272,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
       <input class="inp" id="sPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••" style="letter-spacing:8px;font-size:22px;text-align:center;">
       <div class="ftip">🔐 GUARDE BEM! Este é o PIN do proprietário.</div>
     </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;background:var(--s2);border-radius:10px;padding:10px 12px;">
+      <input type="checkbox" id="chkTermos" style="width:18px;height:18px;accent-color:var(--gn);margin-top:2px;flex-shrink:0;cursor:pointer;">
+      <label for="chkTermos" style="font-size:11px;color:var(--t2);line-height:1.6;cursor:pointer;">
+        Li e concordo com os <span onclick="abrirModal('ovTermos')" style="color:var(--gn);text-decoration:underline;font-weight:700;">Termos de Uso</span> do Gerencion Estoque.
+      </label>
+    </div>
     <button class="btn-p" onclick="criarEstabelecimento()">Criar Meu Sistema ✅</button>
     <button class="btn-o" onclick="mostrarTela('tela1Acesso')">← Voltar</button>
   </div>
@@ -520,6 +526,46 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <button class="nav-btn" onclick="irPg('hist',this)"><span>📋</span>Histórico</button>
     <button class="nav-btn" onclick="irPg('insights',this)"><span>📊</span>Insights</button>
     <button class="nav-btn" id="navCfg" onclick="irPg('config',this)"><span>⚙️</span>Config</button>
+  </div>
+</div>
+
+<!-- MODAL TERMOS DE USO -->
+<div class="overlay" id="ovTermos">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div class="mt">📄 Termos de Uso</div>
+    <div style="font-size:11px;color:var(--t2);line-height:1.8;max-height:60vh;overflow-y:auto;padding-right:4px;">
+      <p style="font-weight:700;color:var(--t);margin-bottom:8px;">GERENCION ESTOQUE — TERMOS DE USO</p>
+      <p style="color:var(--t3);margin-bottom:12px;">Última atualização: junho de 2026</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">1. O QUE É O GERENCION ESTOQUE</p>
+      <p style="margin-bottom:12px;">O Gerencion Estoque é um sistema de controle de estoque em formato SaaS (Software como Serviço), desenvolvido e comercializado por Leandro Felipe da Silva, Iguaba Grande/RJ, doravante denominado "Desenvolvedor".</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">2. ACEITAÇÃO DOS TERMOS</p>
+      <p style="margin-bottom:12px;">Ao criar uma conta e utilizar o sistema, o usuário declara ter lido, compreendido e concordado com estes Termos de Uso.</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">3. LICENÇA DE USO</p>
+      <p style="margin-bottom:12px;">O Desenvolvedor concede ao usuário uma licença limitada, não exclusiva e intransferível para usar o sistema durante o período de assinatura ativa. É proibido copiar, modificar, distribuir ou revender o sistema.</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">4. PAGAMENTO E ASSINATURA</p>
+      <p style="margin-bottom:12px;">• O acesso é concedido mediante pagamento mensal conforme plano contratado.<br>• O não pagamento na data acordada suspende o acesso automaticamente.<br>• Não há reembolso de mensalidades já pagas.</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">5. DADOS E PRIVACIDADE</p>
+      <p style="margin-bottom:12px;">• Os dados cadastrados pertencem ao usuário.<br>• O Desenvolvedor não compartilha dados com terceiros.<br>• Os dados são armazenados em servidores seguros na nuvem.</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">6. RESPONSABILIDADES</p>
+      <p style="margin-bottom:12px;">• O usuário é responsável pelo uso correto do sistema.<br>• O Desenvolvedor não se responsabiliza por perdas causadas por uso incorreto.<br>• O sistema é fornecido "como está", podendo sofrer atualizações e melhorias.</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">7. SUSPENSÃO E CANCELAMENTO</p>
+      <p style="margin-bottom:12px;">O acesso pode ser suspenso em caso de inadimplência, uso indevido ou violação destes Termos.</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">8. PROPRIEDADE INTELECTUAL</p>
+      <p style="margin-bottom:12px;">O sistema, seu código, design e funcionalidades são propriedade exclusiva do Desenvolvedor, protegidos pela Lei 9.609/98 (Lei do Software) e Lei 9.610/98 (Lei de Direitos Autorais).</p>
+
+      <p style="font-weight:700;color:var(--am);margin-bottom:4px;">9. FORO</p>
+      <p style="margin-bottom:16px;">Fica eleito o foro da comarca de Iguaba Grande/RJ para dirimir quaisquer dúvidas oriundas destes Termos.</p>
+    </div>
+    <button class="mb-p" onclick="fM('ovTermos')" style="margin-top:12px;">✅ Entendi e Aceito</button>
   </div>
 </div>
 
@@ -884,7 +930,7 @@ async function calcularPrevisao(prodId, qtdAtual, unidade){
 function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;const dtVal=$('mpVal')&&$('mpVal').value;const dtFab=$('mpFab')&&$('mpFab').value;if(!dtVal){el.style.display='none';return;}const s=labelVal({data_validade:dtVal,data_fabricacao:dtFab||null});el.textContent=s.ico+' '+s.txt;el.style.display='block';el.style.background=s.cls==='venc'?'var(--rd2)':s.cls==='warn'?'var(--am2)':'var(--gn2)';el.style.color=s.cls==='venc'?'var(--rd)':s.cls==='warn'?'var(--am)':'var(--gn)';el.style.border=`1px solid ${s.cls==='venc'?'var(--rd3)':s.cls==='warn'?'var(--am3)':'var(--gn3)'}`;}
 
 // SETUP
-async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!$('chkTermos')||!$('chkTermos').checked)return toast('Você precisa aceitar os Termos de Uso para continuar','warn',3000);if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 
 // CÓDIGO FUNCIONÁRIO
 async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperCase();if(cod.length<4)return toast('Código inválido','err');try{const r=await sb(`ge_restaurantes?codigo_acesso=eq.${cod}&select=*`);if(!r.length)return toast('Código não encontrado','err');REST_ID=r[0].id;REST_NOME=r[0].nome;localStorage.setItem('ge_rest_id',REST_ID);$('loginNome').textContent=r[0].nome;$('loginTipo').textContent=r[0].tipo_negocio||'';$('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';mostrarTela('telaLogin');pinDigitos='';renderPin();}catch(e){toast('Erro: '+e.message,'err');}}
