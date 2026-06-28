@@ -239,8 +239,96 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   <div class="card-form">
     <div class="card-title">Bem-vindo! 👋</div>
     <div class="card-desc">Primeira vez aqui? Cadastre seu estabelecimento. Já tem cadastro? Entre com o link ou código que o proprietário enviou.</div>
-    <button class="btn-p" onclick="mostrarTela('telaSetup')">🏪 Criar Meu Estabelecimento</button>
+    <button class="btn-p" onclick="mostrarTela('telaPlanos')">🏪 Criar Meu Estabelecimento</button>
     <button class="btn-o" onclick="mostrarTela('telaCodigoFunc')">🔑 Entrar com Código de Acesso</button>
+  </div>
+</div>
+
+<!-- TELA PLANOS -->
+<div id="telaPlanos" class="tela">
+  <div style="min-height:100vh;background:var(--bg);padding:28px 18px 40px;display:flex;flex-direction:column;align-items:center;">
+    <div class="ge-logo">GE</div>
+    <div class="ge-brand">Gerencion Estoque</div>
+    <div class="ge-sub">Escolha o plano ideal para o seu negócio</div>
+
+    <!-- CARD BÁSICO -->
+    <div style="width:100%;max-width:420px;background:var(--s1);border:1.5px solid var(--b);border-radius:20px;padding:20px 18px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--t);">📦 Básico</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px;">Perfeito para começar</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px;font-weight:900;color:var(--t);line-height:1;">R$97</div>
+          <div style="font-size:10px;color:var(--t3);">/mês</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 50 produtos cadastrados</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 2 funcionários</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 2 fornecedores</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Alertas de estoque e validade</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Gráficos e insights</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Relatórios PDF/CSV</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Lista de compras por fornecedor</div>
+      </div>
+      <button onclick="mostrarTela('telaSetup')" style="width:100%;padding:13px;background:var(--s2);border:1.5px solid var(--b2);border-radius:13px;color:var(--t2);font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">Começar com Básico</button>
+    </div>
+
+    <!-- CARD PROFISSIONAL -->
+    <div style="width:100%;max-width:420px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(11,17,32,0.95));border:2px solid var(--bl3);border-radius:20px;padding:20px 18px;margin-bottom:12px;position:relative;">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--bl);color:#fff;font-size:10px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:1px;">⭐ MAIS POPULAR</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--t);">⭐ Profissional</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px;">Para negócios em crescimento</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px;font-weight:900;color:var(--bl);line-height:1;">R$147</div>
+          <div style="font-size:10px;color:var(--t3);">/mês</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 150 produtos cadastrados</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 8 funcionários</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 8 fornecedores</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Alertas de estoque e validade</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Gráficos e insights completos</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Relatórios PDF e CSV</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Lista de compras por fornecedor</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Suporte prioritário</div>
+      </div>
+      <button onclick="mostrarTela('telaSetup')" style="width:100%;padding:13px;background:var(--bl);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;box-shadow:0 4px 14px rgba(59,130,246,.4);">Começar com Profissional ⭐</button>
+    </div>
+
+    <!-- CARD EMPRESARIAL -->
+    <div style="width:100%;max-width:420px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(11,17,32,0.95));border:1.5px solid var(--am3);border-radius:20px;padding:20px 18px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--t);">🏆 Empresarial</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px;">Para operações completas</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px;font-weight:900;color:var(--am);line-height:1;">R$197</div>
+          <div style="font-size:10px;color:var(--t3);">/mês</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Produtos <strong style="color:var(--am);">ilimitados</strong></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Funcionários <strong style="color:var(--am);">ilimitados</strong></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Fornecedores <strong style="color:var(--am);">ilimitados</strong></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Tudo do Profissional incluído</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Suporte VIP via WhatsApp</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Atualizações antecipadas</div>
+      </div>
+      <button onclick="mostrarTela('telaSetup')" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--am),#D97706);border:none;border-radius:13px;color:#0B1120;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;box-shadow:0 4px 14px rgba(245,158,11,.3);">Começar com Empresarial 🏆</button>
+    </div>
+
+    <div style="font-size:11px;color:var(--t3);text-align:center;line-height:1.7;">
+      🔒 Seus dados protegidos na nuvem<br>
+      📱 Funciona no celular como app<br>
+      ❌ Sem contrato — cancele quando quiser
+    </div>
   </div>
 </div>
 
@@ -279,7 +367,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
       </label>
     </div>
     <button class="btn-p" onclick="criarEstabelecimento()">Criar Meu Sistema ✅</button>
-    <button class="btn-o" onclick="mostrarTela('tela1Acesso')">← Voltar</button>
+    <button class="btn-o" onclick="mostrarTela('telaPlanos')">← Voltar</button>
   </div>
 </div>
 
@@ -780,6 +868,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   </div>
 </div>
 
+<!-- MODAL UPGRADE -->
+<div class="overlay" id="ovUpgrade">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div id="upgradeConteudo"></div>
+    <button class="mb-s" onclick="fM('ovUpgrade')" style="width:100%;margin-top:4px;">Fechar</button>
+  </div>
+</div>
+
 <!-- EMOJI PICKERS FIXOS -->
 <div id="emojiPicker" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s2);border-top:2px solid var(--gn3);border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.5);display:none;flex-direction:column;max-height:60vh;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;flex-shrink:0;">
@@ -811,8 +908,90 @@ const sb=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB
 // EMOJI CATS (1952 emojis, 22 categorias comerciais)
 const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','🥚','🍳','🥓','🌭','🍔','🍕','🌮','🌯','🥙','🧆','🥪','🫔','🥗','🥨','🥐','🥖','🍞','🥯','🧇','🥞','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🍥','🥘','🫕','🍢','🥣','🍡','🍧','🍦','🧀','🥛','🧈','🍯','🫙','🥫','🫚','🫒','🧂','🍰','🎂','🧁','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🥜','🌰','🫘','🧃','🍶','☕','🫖','🥤','🌶️','🧄','🧅','🍴','🔪','🥄','🫙','🏪','🛒','🏬','🥡','🧊','🫗','🥢','🍽️','🎁','🥚','🧋','🍵','🥛','🧉']},{tab:'🥦',nome:'Hortifruti',emojis:['🥦','🥬','🥒','🌽','🍅','🍆','🥑','🧄','🧅','🥕','🌶️','🫑','🥔','🍠','🫛','🌿','🌾','🍃','🌱','🍀','🍄','🫘','🍋','🍊','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🍌','🍎','🍏','🍐','🍉','🥝','🌺','🌸','🌹','🌷','💐','🪷','🌻','🌼','🫒','🥜','🌰','🫙','🎃','🌲','🌳','🌴','🪴','🥗','🥣','🌾','🌿','☘️','🍀','🎍','🎋','🪸','🫑','🫛','🥬','🥦','🌽','🌰','🍄','🧅','🧄','🥔','🍠','🫘','🧴','🌱','🍃']},{tab:'🥤',nome:'Bebidas',emojis:['🥤','🧃','☕','🍵','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾','🫖','🥛','🧊','🫗','🧴','🫙','💧','🌊','🌿','🍫','🍬','🍭','🍮','🧁','🍰','🎂','🍩','🍪','🧂','🪣','🛢️','⛽','💊','🌡️','🧪','⚗️','🔬']},{tab:'💊',nome:'Saúde & Farmácia',emojis:['💊','💉','🩺','🩹','🩻','🏥','🧬','🔬','🩼','🧪','🩸','🫀','🫁','🧠','🦷','🦴','💪','🚑','⚖️','🧴','🧼','🫧','🪥','🌡️','⚗️','🦺','🧘','🏋️','🦽','🦾','🫙','🪒','🛁','🚿','💆','🧖','🏊','🤸','🧗','🚴','⛹️','🏄','🤽','🥊','🥋','⛷️','🏂','🎿','🛷','⛸️','🏒','🥅','🍎','🥦','🥕','🌿','🌱','🍵','💧','🌊','☀️','🌙','⭐']},{tab:'👗',nome:'Vestuário & Moda',emojis:['👗','👘','🥻','👙','👚','👛','👜','👝','🎒','🧳','👒','🎩','🧢','⛑️','👔','👕','👖','🧤','🧣','🧥','🥾','👞','👟','🥿','👠','👡','👢','🩴','🩱','🩲','🩳','🧦','🪖','💍','💎','👑','💄','🪮','🧵','🪡','🧶','🪢','🎀','🕶️','🥽','🦺','🥼','📿','🪬','🧿','🔮','💠','🪩','🎭','🎪','🏷️','🛍️','💼','🗃️','✂️','🧷','📌']},{tab:'🚗',nome:'Automotivo',emojis:['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍️','🛵','🛺','🚲','🛴','🛹','🚦','🚧','⛽','🛞','🔧','🪛','🔩','⚙️','🪝','🧰','🛢️','⚡','🔋','🪫','🔌','🪜','🚨','🔦','💡','🗺️','🧭','🔑','🗝️','🅿️','🚥','🔨','⚒️','🛠️','⛏️','🪚','🔗','⛓️','🧲','🔐','🔒','🛡️','⚓','⛵','🚢','✈️','🚁','🛸','🚀','🛶','⛴️','🚤','🛥️','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚞','🚝','🚋','🏗️','🧱','🪵','⛺','🛖','🏕️']},{tab:'🔧',nome:'Ferramentas & Serviços',emojis:['🔧','🪛','🔩','⚙️','🔨','⚒️','🛠️','⛏️','🪚','🔗','⛓️','🧲','🪝','🔑','🗝️','🔐','🔒','🔓','💡','🔦','🕯️','🪔','🧰','🗜️','⚖️','🪤','🪣','🪜','📐','📏','✂️','🗃️','🗄️','📦','⚗️','🧫','🪓','🗺️','🧭','📡','🛰️','🔋','🪫','🔌','⚡','🔥','💧','🌊','🌡️','☀️','🌙','⛅','🌤️','🌬️','🌪️','🌈','❄️','⛄','💨','💦','🫧','🧱','🪵','⛺','🛖','🏕️','🖊️','🖋️','✒️','🖌️','🖍️','📌','📍','🗂️','📁','📂','🗑️']},{tab:'🏠',nome:'Casa & Decoração',emojis:['🏠','🏡','🏘️','🛋️','🪑','🪞','🪟','🛏️','🛁','🚿','🪠','🧹','🧺','🧻','🪣','🧼','🫧','🧴','🪥','🔑','🚪','🪤','🧱','🪵','⚙️','💡','🔌','🪫','🧯','🪜','🛢️','🖼️','🪴','🌡️','⏰','📺','📻','🖥️','🛒','🪝','🔐','🔒','🏺','🫙','🕯️','🪔','💎','🌸','🌺','🌹','🌷','💐','🪷','🌻','🌼','🎨','🛋️','🪑','🛏️','🛁','🚿','🪠','🚽','🚰','🍳','🥘','🍲','🫕','🔪','🥄','🍴','🥢','🫙','🧊','🥗','🫗','🧹','🧺','🧻','🪣','🧼','🫧','🧴','🪥','🪒','✂️','🧷','📌','📺','📻','🖥️','📱','💻','⌨️','🖱️','🔋','🔌','💡','🔦','🕯️']},{tab:'💄',nome:'Beleza & Estética',emojis:['💄','💅','💆','💇','🪮','🧴','🧼','🪥','🪒','✂️','💈','🛁','🚿','🌸','🌺','🌹','🌷','💐','🪷','🫧','💎','💍','👑','💋','🎀','🪞','👜','🛍️','🧣','🧤','🧢','👒','🕶️','🥽','🌟','✨','💫','🧖','🌼','🌻','💮','🏵️','🌿','🫙','🧴','🪔','🕯️','🌡️','⚗️','🧪','🔬','💊','🩺','🩹','🌸','🌺','🌹','🌷','💐','🪷','🌻','🌼','💮','🏵️','🎀','💄','💅','👄','💋','💍','💎','👑','📿','🪬','🧿','🫧','🧴','🧼','🪥','🪒','✂️','💈','🪮','🧖','💆','💇','🛁','🚿','🪠','🚰','🌡️','🌿','🌱','🌾','🍃','☘️']},{tab:'📱',nome:'Tecnologia',emojis:['📱','💻','🖥️','🖨️','⌨️','🖱️','🖲️','💽','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏰','⌚','📡','🔋','🪫','🔌','💡','🔦','🕹️','🎮','🤖','🔬','🔭','🛰️','🧮','🔐','💼','📲','🤳','🎙️','🎚️','🎛️','📼','💽','💾','💿','📀','🗜️','🗃️','🗄️','📦','🧰','🔧','🪛','🔩','⚙️','🔑','🔐','🔒','🔓','🔗','⛓️','🧲','⚡','🔋','🪫','🔌','💡','🔦','🕯️','🪔','📡','🛰️','🚀','🛸','🤖','🧬']},{tab:'🐾',nome:'Pet Shop',emojis:['🐾','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🐢','🐍','🦎','🐠','🐟','🐡','🐬','🐳','🦈','🦭','🐙','🦑','🦐','🦞','🦀','🐚','🪺','🪹','🦮','🐕','🐈','🐇','🐿️','🦔','🦴','🎾','🧴','🛁','🚿','🪮','✂️','💊','💉','🩺','🩹','🏥','🏠','🐾','🌿','🌾','🥣','🦴','🏷️','🛒','📦','🧰','🪣','🧹','🦜','🐓','🦃','🦢','🦩','🦚','🦤','🪶','🐦‍⬛','🐕‍🦺','🐩','🦮','🐈‍⬛','🐇','🦔','🦦','🦥','🦙','🦘','🦬','🐄','🐖','🐏','🐑','🐐','🦌','🐓','🐁','🐀']},{tab:'📚',nome:'Papelaria & Escritório',emojis:['📚','📖','📝','✏️','🖊️','🖋️','✒️','🖌️','🖍️','📌','📍','✂️','🗃️','🗄️','🗑️','📋','📁','📂','🗂️','📓','📔','📒','📕','📗','📘','📙','📄','📃','📑','🗒️','🗓️','📅','📆','📇','📊','📈','📉','🗺️','📏','📐','🔒','🔓','🔏','🔐','💼','🧾','🖇️','📎','🔖','🏷️','🖥️','🖨️','⌨️','🖱️','📮','📬','📭','📪','📫','📩','📨','📧','📤','📥','📦','📯','📢','📣','🔔','🔕','📵','🔇','🔈','🔉','🔊','📡','🔭','🔬','🧪','⚗️','🏫','🏢','🏬','🏪','💼','👔','🗂️','📋','📊','📈','📉']},{tab:'⚽',nome:'Esporte & Lazer',emojis:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🥍','🏑','🏏','🪃','🥅','⛳','🪁','🎣','🤿','🎽','🎿','🛷','🥌','🎯','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎟️','🎫','🥊','🥋','🤺','⛷️','🏂','🏄','🚣','🧗','🚵','🚴','🎭','🎨','🎬','🎤','🎧','🎸','🎺','🎻','🥁','🪘','🎷','🎹','🪗','🎵','🎶','🎙️','🎚️','🎛️','🎮','🕹️','🃏','🀄','🎲','♟️','🎪','🎠','🎡','🎢','⛹️','🏋️','🤸','🤼','🤽','🤾','🏊','🏇','🪂','🎰','🎳','🏹','🛹','🛼','🛷']},{tab:'🍽️',nome:'Restaurante & Bar',emojis:['🍽️','🥄','🍴','🔪','🥢','🫙','🍳','🥘','🍲','🫕','🥗','🥣','🍖','🥩','🍗','🌮','🌯','🥙','🧆','🥪','🫔','🌭','🍔','🍕','🍝','🍜','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🍥','🥂','🍾','🍷','🥃','🍸','🍹','🍺','🍻','🧉','☕','🫖','🍵','🧁','🎂','🍰','🍮','🍩','🍪','🍫','🍬','🍭','🍿','🧇','🥞','🏪','🏬','🏩','🏨','🏦','🏥','🏤','🏣','🏢','🏛️','🏰','🏯','⏰','📅','📆','🗓️']},{tab:'🏗️',nome:'Construção & Reforma',emojis:['🏗️','🧱','🪵','⚒️','🛠️','⛏️','🔨','🪚','🔧','🪛','🔩','⚙️','🪝','🧰','📐','📏','🗜️','🪜','🧲','💡','🔦','🕯️','🔌','🔋','🛢️','⛽','🪣','🚪','🛋️','🪑','🛏️','🏠','🏡','🏘️','🏚️','🏛️','🏟️','🏗️','🏢','🏬','🌉','🌁','🗺️','🔑','⛓️','🔗','🪤','🏁','🚧','⚠️','⛺','🛖','🪟','🪞','🛁','🚿','🪠','🚰','🚽','🪣','🧹','🧺','🧻','🧼','🫧','🚪','🏠','🏡','🏘️','🏚️','🏛️','🏟️','🏗️','🏢','🏬','🏭','🔥','💧','🌊','💨','🌬️','⚡','🔋','🪫','🔌','💡','🔦','🕯️','🪔']},{tab:'🌿',nome:'Orgânicos & Naturais',emojis:['🌿','🌱','🌾','🍀','🍃','☘️','🌲','🌳','🌴','🌵','🪸','🪨','🪵','🌊','💧','🌞','🌟','⭐','🌈','❄️','🫙','🧴','🌻','🌸','🌺','🌹','🌷','💐','🪷','🫚','🫒','🥦','🥬','🥒','🧅','🧄','🥕','🍋','🌶️','🥝','🍅','🍏','🥑','🌽','🫛','🫘','🌰','🥜','🍄','🌾','⚗️','🧪','🫙','🌡️','☀️','🌙','⭐','🌟','💫','✨','🌈','🌊','💧','🔥','💨','🌬️','🌏','🌍','🌎','🌐','⛰️','🏔️','🗻','🏕️','🌅','🌄','🌠','🌃','🪴','🌱','🌿','🍃','🍀','☘️','🌾','🌵','🌲','🌳','🌴','🪸']},{tab:'🏥',nome:'Clínica & Estética Médica',emojis:['🏥','🚑','💊','💉','🩺','🩹','🩻','🧬','🔬','🧪','⚗️','🫀','🫁','🧠','🦷','🦴','🩼','🦽','🦾','💪','🩸','🌡️','⚖️','🧴','🧼','🫧','🪥','🏋️','🧘','🏊','🤸','🚴','⛹️','🏄','🤽','🧗','🚵','🤺','🌿','🌱','🍵','💧','🍎','🥦','🥕','🧃','🌾','🫙','🧴','🔬','⚕️','🏥','🏨','🏩','🏪','🏬','🏢','🏛️','⚖️','📋','📝','📊']},{tab:'🏨',nome:'Hotelaria & Turismo',emojis:['🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','🗼','🗽','🧳','🎫','🎟️','🚢','✈️','🚂','🚁','🛶','⛵','🪂','🏕️','🌅','🌇','🌆','🌃','🌉','🌄','🌠','🎇','🎆','🏮','🪔','🛎️','🔑','🛏️','🛁','🛋️','🪑','🍽️','🥂','🍾','🎊','🎉','🎈','🎁','🎀','🏊','🛀','⛩️','🗺️','🧭','🌏','🌍','🌎','⛰️','🏔️','🗻','🌋','🏝️','🏖️','🏜️','🌅','🌄','🌠','🌃','🌆','🌇','🌉','🌁','🎑','🏞️','🎠','🎡','🎢','🎪','🎭','🎨','🎬','🎤','🎵']},{tab:'🏦',nome:'Finanças & Negócios',emojis:['🏦','💰','💵','💴','💶','💷','💳','💸','🪙','💹','📊','📈','📉','💼','🗂️','📋','📁','📂','📝','✏️','🖊️','🖋️','✒️','📌','📍','📎','🖇️','🔖','🏷️','🧾','📄','📃','📑','🗒️','🗓️','📅','📆','📇','🔐','🔒','🔓','🔑','🗝️','🔏','🛡️','⚖️','📜','📋','📊','📈','🏪','🏬','🏢','🏛️','🏦','🏩','🏨','🏫','🏭','🏗️','💡','🎯','🏆','🥇','🎖️','🏅','🎗️','🎀','⭐','🌟','💫']},{tab:'🎓',nome:'Educação & Cursos',emojis:['🎓','📚','📖','📝','✏️','🖊️','🖋️','✒️','🖌️','🖍️','📌','📍','📐','📏','📓','📔','📒','📕','📗','📘','📙','📚','🗂️','📁','📂','📋','📊','📈','🏫','🏛️','🏢','🏬','💻','🖥️','📱','⌨️','🖱️','🖨️','📡','🔭','🔬','🧪','⚗️','🧬','🧮','💡','🔦','📢','📣','🔔','🎤','🎧','🎵','🎶','🎭','🎨','🎬','🎞️','📽️','📺','📻','🎙️','🎚️','🎛️','🧩','🎮','🕹️','🎲','♟️','🃏','🀄','🏆','🥇','🎖️','🏅','🎗️']},{tab:'🎁',nome:'Presentes & Eventos',emojis:['🎁','🎀','🎊','🎉','🎈','🎏','🎐','🎑','🧧','🎆','🎇','🎋','🎍','🎎','🎃','🎄','🎠','🎡','🎢','🎪','🎭','🎨','🖼️','🎬','🎤','🎧','🎵','🎶','🎸','🎺','🎻','🥁','🪘','🎷','🎹','🪗','🎙️','🎚️','🎛️','📻','📺','🕯️','🪔','🏮','🧨','✨','💫','⭐','🌟','💥','🔥','🌈','❄️','☃️','🎂','🍰','🧁','🍭','🍬','🍫','🍿','🥂','🍾','🥃','🍸','🍹','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎟️','🎫','🎀','🎁']}];
 
+
+// LIMITES POR PLANO
+const PLANOS={
+  basico:{produtos:50,funcionarios:2,fornecedores:2,relatorios:false,lista:false,label:'📦 Básico',preco:'R$ 97/mês'},
+  profissional:{produtos:150,funcionarios:8,fornecedores:8,relatorios:true,lista:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
+  empresarial:{produtos:99999,funcionarios:99999,fornecedores:99999,relatorios:true,lista:true,label:'🏆 Empresarial',preco:'R$ 197/mês'}
+};
+function getLimite(){return PLANOS[PLANO_ATUAL]||PLANOS.basico;}
+function verificarLimite(tipo){
+  const lim=getLimite();
+  if(tipo==='produto'&&todosProds.length>=lim.produtos){mostrarUpgrade('produtos',lim.produtos);return false;}
+  if(tipo==='funcionario'&&todosFuncs.length>=lim.funcionarios){mostrarUpgrade('funcionários',lim.funcionarios);return false;}
+  if(tipo==='fornecedor'&&todosFornecs.length>=lim.fornecedores){mostrarUpgrade('fornecedores',lim.fornecedores);return false;}
+  if(tipo==='relatorio'&&!lim.relatorios){mostrarUpgrade('relatórios',0);return false;}
+  if(tipo==='lista'&&!lim.lista){mostrarUpgrade('lista de compras',0);return false;}
+  return true;
+}
+function mostrarUpgrade(recurso,limite){
+  abrirModal('ovUpgrade');
+  const lim=getLimite();
+  const proximo=PLANO_ATUAL==='basico'?PLANOS.profissional:PLANOS.empresarial;
+  const proximoNome=PLANO_ATUAL==='basico'?'Profissional':'Empresarial';
+  const el=$('upgradeConteudo');
+  if(el)el.innerHTML=
+    '<div style="text-align:center;margin-bottom:16px;">'+
+      '<div style="font-size:40px;margin-bottom:8px;">🚀</div>'+
+      '<div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:6px;">Limite do plano atingido!</div>'+
+      '<div style="font-size:12px;color:var(--t2);line-height:1.7;">Você atingiu o limite de '+(limite>0?'<strong>'+limite+' '+recurso+'</strong>':' <strong>'+recurso+'</strong>')+' do plano <strong>'+lim.label+'</strong>.<br>Faça upgrade e continue crescendo!</div>'+
+    '</div>'+
+    '<div style="background:var(--s2);border-radius:13px;overflow:hidden;margin-bottom:14px;">'+
+      '<div style="padding:10px 14px;background:var(--pu2);border-bottom:1px solid var(--b);font-size:11px;font-weight:700;color:var(--pu);">📊 Comparativo de Planos</div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:11px;">'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">Recurso</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--t2);">📦 Básico<br><span style="color:var(--t3);">R$97</span></td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">⭐ Prof.<br><span style="color:var(--t3);">R$147</span></td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">🏆 Emp.<br><span style="color:var(--t3);">R$197</span></td>'+
+        '</tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">Produtos</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;">50</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">150</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
+        '</tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">Funcionários</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;">2</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">8</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
+        '</tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">Fornecedores</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;">2</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">8</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
+        '</tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">Insights</td>'+
+          '<td style="padding:8px 10px;text-align:center;">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
+        '</tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">Relatórios PDF/CSV</td>'+
+          '<td style="padding:8px 10px;text-align:center;">❌</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
+        '</tr>'+
+        '<tr>'+
+          '<td style="padding:8px 10px;color:var(--t2);">Lista de Compras</td>'+
+          '<td style="padding:8px 10px;text-align:center;">❌</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
+        '</tr>'+
+      '</table>'+
+    '</div>'+
+    '<div style="background:var(--pu2);border:1.5px solid var(--pu3);border-radius:12px;padding:12px 14px;text-align:center;">'+
+      '<div style="font-size:12px;font-weight:700;color:var(--pu);margin-bottom:4px;">💬 Quer fazer upgrade?</div>'+
+      '<div style="font-size:11px;color:var(--t2);">Entre em contato com o suporte pelo WhatsApp para upgrade imediato!</div>'+
+    '</div>';
+}
+
 // Estado
-let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null,FUNC_PERMS={};
+let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null,FUNC_PERMS={},PLANO_ATUAL='basico';
 let todosFornecs=[];
 let prodAtual=null,funcAtual=null;
 let todosProds=[],todosFuncs=[],todasCats=[],todasUnits=[];
@@ -833,7 +1012,7 @@ const diasParaVencer=dt=>{
 };
 
 // TELAS
-const TELAS=['tela1Acesso','telaSetup','telaCodigoFunc','telaLogin','telaApp'];
+const TELAS=['tela1Acesso','telaPlanos','telaSetup','telaCodigoFunc','telaLogin','telaApp'];
 function mostrarTela(id){TELAS.forEach(t=>{const el=$(t);if(!el)return;if(t===id)el.classList.add('on');else el.classList.remove('on');});}
 
 // MODAIS — abre/fecha com classe .on
@@ -941,9 +1120,10 @@ function pinDel(){if(pinDigitos.length>0){pinDigitos=pinDigitos.slice(0,-1);rend
 function renderPin(){for(let i=0;i<4;i++){const el=$('pd'+i);if(el)el.classList.toggle('filled',i<pinDigitos.length);}const err=$('pinErro');if(err)err.textContent='';}
 async function validarPin(){try{
   // Verificar se licença está ativa
-  const lic=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=ativo,validade_ate`);
+  const lic=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=ativo,validade_ate,plano`);
   if(lic.length){
     const r=lic[0];
+    if(r.plano)PLANO_ATUAL=r.plano;
     if(r.ativo===false){
       pinDigitos='';renderPin();
       $('pinErro').textContent='';
@@ -1023,6 +1203,7 @@ function filtroCat(cat,btn){document.querySelectorAll('#catPills .cat').forEach(
 
 function abrirProd(id){
   if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.produtos)return toast('Sem permissão para cadastrar produtos','warn');
+  if(!id&&!verificarLimite('produto'))return;
   prodAtual=id?(todosProds.find(p=>p.id===id)||null):null;
   const p=prodAtual;
   $('mpTit').textContent=p?'Editar Produto':'Novo Produto';
@@ -1401,7 +1582,7 @@ async function verificarPinConf(){
 function liberarTudo(){['permHist','permInsights','permProdutos','permValor','permEstornar'].forEach(id=>{const el=$(id);if(el)el.checked=true;});}
 async function carregarFuncs(){try{todosFuncs=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosFuncs=[];}}
 function renderFuncs(){const el=$('listaFuncs');if(!el)return;if(!todosFuncs.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3);font-size:12px;">Nenhum funcionário cadastrado</div>';return;}el.innerHTML=todosFuncs.map(f=>`<div class="f-c" onclick="abrirFunc('${f.id}')"><div style="font-size:22px;width:36px;height:36px;border-radius:50%;background:var(--gn2);display:flex;align-items:center;justify-content:center;">${f.nome[0]||'?'}</div><div class="f-inf"><div class="f-n">${f.nome}</div><div class="f-s">Funcionário(a) · PIN: ••••</div></div><div style="color:var(--t3);">›</div></div>`).join('');}
-function abrirNovoFunc(){funcAtual=null;$('mfTit').textContent='Novo Funcionário';$('mfId').value='';$('mfNome').value='';$('mfPin').value='';$('mfExc').style.display='none';$('mfPerms').style.display='none';abrirModal('ovFunc');}
+function abrirNovoFunc(){if(!verificarLimite('funcionario'))return;funcAtual=null;$('mfTit').textContent='Novo Funcionário';$('mfId').value='';$('mfNome').value='';$('mfPin').value='';$('mfExc').style.display='none';$('mfPerms').style.display='none';abrirModal('ovFunc');}
 function abrirFunc(id){funcAtual=todosFuncs.find(f=>f.id===id)||null;const f=funcAtual;
   $('mfTit').textContent='Editar Funcionário';$('mfId').value=f?f.id:'';$('mfNome').value=f?f.nome:'';$('mfPin').value='';$('mfExc').style.display='block';
   $('mfPerms').style.display='block';
@@ -1466,12 +1647,12 @@ function renderFornecs(){
   if(!todosFornecs.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3);font-size:12px;">Nenhum fornecedor cadastrado</div>';return;}
   el.innerHTML=todosFornecs.map(f=>`<div class="f-c" onclick="abrirFornec('${f.id}')"><div style="font-size:22px;width:36px;height:36px;border-radius:50%;background:var(--bl2);display:flex;align-items:center;justify-content:center;">🚚</div><div class="f-inf"><div class="f-n">${f.nome}</div><div class="f-s">${f.whatsapp?'📱 '+f.whatsapp:'Sem WhatsApp'}</div></div><div style="color:var(--t3);">›</div></div>`).join('');
 }
-function abrirNovoFornec(){$('mfnTit').textContent='Novo Fornecedor';$('mfnId').value='';$('mfnNome').value='';$('mfnWpp').value='';$('mfnExc').style.display='none';abrirModal('ovFornec');}
+function abrirNovoFornec(){if(!verificarLimite('fornecedor'))return;$('mfnTit').textContent='Novo Fornecedor';$('mfnId').value='';$('mfnNome').value='';$('mfnWpp').value='';$('mfnExc').style.display='none';abrirModal('ovFornec');}
 function abrirFornec(id){const f=todosFornecs.find(x=>x.id===id);if(!f)return;$('mfnTit').textContent='Editar Fornecedor';$('mfnId').value=f.id;$('mfnNome').value=f.nome;$('mfnWpp').value=(f.whatsapp||'').replace(/^55/,'');maskWpp($('mfnWpp'));$('mfnExc').style.display='block';abrirModal('ovFornec');}
 async function salvarFornec(){const nome=$('mfnNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const wppRaw=($('mfnWpp').value||'').replace(/\D/g,'');const dados={restaurante_id:REST_ID,nome,whatsapp:wppRaw?'55'+wppRaw:null};try{const id=$('mfnId').value;if(id)await sb(`ge_fornecedores?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({nome,whatsapp:wppRaw?'55'+wppRaw:null})});else await sb('ge_fornecedores',{method:'POST',body:JSON.stringify(dados)});toast('✅ Fornecedor salvo!');fM('ovFornec');await carregarFornecs();renderFornecs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirFornec(){if(!confirm('Remover fornecedor?'))return;try{await sb(`ge_fornecedores?id=eq.${$('mfnId').value}`,{method:'DELETE'});toast('Fornecedor removido');fM('ovFornec');await carregarFornecs();renderFornecs();}catch(e){toast('Erro','err');}}
 
-function enviarListaCompras(){
+function enviarListaCompras(){if(!verificarLimite('lista'))return;
   const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);
   if(!baixos.length)return toast('Nenhum produto com estoque baixo','info');
 
@@ -1562,10 +1743,10 @@ function confirmarEnvioLista(){
 }
 
 // RELATÓRIOS
-function relWpp(){const raw=($('cfgWpp').value||'').replace(/\D/g,'');if(!raw)return toast('Configure o WhatsApp','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('\n');const msg=encodeURIComponent(`📦 *Relatório de Estoque*\n${new Date().toLocaleDateString('pt-BR')}\n\n${linhas}`);window.open(`https://wa.me/55${raw}?text=${msg}`,'_blank');}
-function relEmail(){const email=$('cfgEmail')&&$('cfgEmail').value;if(!email)return toast('Digite um e-mail','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('%0A');const sub=encodeURIComponent('Relatório de Estoque - '+new Date().toLocaleDateString('pt-BR'));window.open(`mailto:${email}?subject=${sub}&body=${linhas}`,'_blank');}
-function relPDF(){if(!todosProds.length)return toast('Sem produtos','warn');const w=window.open('','_blank');const linhas=todosProds.map(p=>`<tr><td>${p.emoji||'📦'} ${p.nome}</td><td>${p.categoria||'-'}</td><td>${fmtN(p.quantidade||0)}</td><td>${p.unidade||'un'}</td><td>${fmtN(p.estoque_minimo||0)}</td><td>R$ ${fmtN(p.preco_custo||0)}</td><td>${p.data_validade||'-'}</td><td>${p.data_fabricacao||'-'}</td></tr>`).join('');w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estoque</title><style>body{font-family:Arial,sans-serif;padding:20px;}h2{color:#22C55E;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;font-size:12px;}th{background:#22C55E;color:#fff;}tr:nth-child(even){background:#f9f9f9;}</style></head><body><h2>📦 Relatório de Estoque</h2><p>${new Date().toLocaleDateString('pt-BR')}</p><table><thead><tr><th>Produto</th><th>Categoria</th><th>Qtd</th><th>Un</th><th>Mín</th><th>Custo</th><th>Validade</th><th>Fabricação</th></tr></thead><tbody>${linhas}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),500);}
-function relCSV(){if(!todosProds.length)return toast('Sem produtos','warn');const rows=[['Nome','Categoria','Emoji','Qtd','Unidade','Mín','Custo','Validade','Fabricação'],...todosProds.map(p=>[p.nome,p.categoria||'',p.emoji||'',p.quantidade||0,p.unidade||'',p.estoque_minimo||0,p.preco_custo||0,p.data_validade||'',p.data_fabricacao||''])];const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='estoque.csv';a.click();toast('✅ CSV baixado!');}
+function relWpp(){if(!verificarLimite('relatorio'))return;const raw=($('cfgWpp').value||'').replace(/\D/g,'');if(!raw)return toast('Configure o WhatsApp','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('\n');const msg=encodeURIComponent(`📦 *Relatório de Estoque*\n${new Date().toLocaleDateString('pt-BR')}\n\n${linhas}`);window.open(`https://wa.me/55${raw}?text=${msg}`,'_blank');}
+function relEmail(){if(!verificarLimite('relatorio'))return;const email=$('cfgEmail')&&$('cfgEmail').value;if(!email)return toast('Digite um e-mail','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('%0A');const sub=encodeURIComponent('Relatório de Estoque - '+new Date().toLocaleDateString('pt-BR'));window.open(`mailto:${email}?subject=${sub}&body=${linhas}`,'_blank');}
+function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)return toast('Sem produtos','warn');const w=window.open('','_blank');const linhas=todosProds.map(p=>`<tr><td>${p.emoji||'📦'} ${p.nome}</td><td>${p.categoria||'-'}</td><td>${fmtN(p.quantidade||0)}</td><td>${p.unidade||'un'}</td><td>${fmtN(p.estoque_minimo||0)}</td><td>R$ ${fmtN(p.preco_custo||0)}</td><td>${p.data_validade||'-'}</td><td>${p.data_fabricacao||'-'}</td></tr>`).join('');w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estoque</title><style>body{font-family:Arial,sans-serif;padding:20px;}h2{color:#22C55E;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;font-size:12px;}th{background:#22C55E;color:#fff;}tr:nth-child(even){background:#f9f9f9;}</style></head><body><h2>📦 Relatório de Estoque</h2><p>${new Date().toLocaleDateString('pt-BR')}</p><table><thead><tr><th>Produto</th><th>Categoria</th><th>Qtd</th><th>Un</th><th>Mín</th><th>Custo</th><th>Validade</th><th>Fabricação</th></tr></thead><tbody>${linhas}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),500);}
+function relCSV(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)return toast('Sem produtos','warn');const rows=[['Nome','Categoria','Emoji','Qtd','Unidade','Mín','Custo','Validade','Fabricação'],...todosProds.map(p=>[p.nome,p.categoria||'',p.emoji||'',p.quantidade||0,p.unidade||'',p.estoque_minimo||0,p.preco_custo||0,p.data_validade||'',p.data_fabricacao||''])];const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='estoque.csv';a.click();toast('✅ CSV baixado!');}
 
 
 
