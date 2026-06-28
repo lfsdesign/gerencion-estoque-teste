@@ -251,7 +251,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div class="ge-sub">Escolha o plano ideal para o seu negócio</div>
 
     <!-- CARD BÁSICO -->
-    <div style="width:100%;max-width:420px;background:var(--s1);border:1.5px solid var(--b);border-radius:20px;padding:20px 18px;margin-bottom:12px;">
+    <div style="width:100%;max-width:420px;background:var(--s1);border:1.5px solid var(--gn3);border-radius:20px;padding:20px 18px;margin-bottom:12px;position:relative;">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gn);color:#0B1120;font-size:10px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:1px;white-space:nowrap;">🎁 1º MÊS COM RECURSOS EMPRESARIAIS</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
           <div style="font-size:13px;font-weight:800;color:var(--t);">📦 Básico</div>
@@ -269,14 +270,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Alertas de estoque e validade</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Gráficos e insights</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Relatórios PDF/CSV</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Lista de compras por fornecedor</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Lista de compras por fornecedor</div>
       </div>
-      <button onclick="mostrarTela('telaSetup')" style="width:100%;padding:13px;background:var(--s2);border:1.5px solid var(--b2);border-radius:13px;color:var(--t2);font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">Começar com Básico</button>
+      <button onclick="abrirAceitePromo('basico')" style="width:100%;padding:13px;background:var(--s2);border:1.5px solid var(--b2);border-radius:13px;color:var(--t2);font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">Começar com Básico</button>
     </div>
 
     <!-- CARD PROFISSIONAL -->
     <div style="width:100%;max-width:420px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(11,17,32,0.95));border:2px solid var(--bl3);border-radius:20px;padding:20px 18px;margin-bottom:12px;position:relative;">
-      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--bl);color:#fff;font-size:10px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:1px;">⭐ MAIS POPULAR</div>
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--bl);color:#fff;font-size:10px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:1px;white-space:nowrap;">⭐ MAIS POPULAR · 🎁 1º MÊS EMPRESARIAL</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
           <div style="font-size:13px;font-weight:800;color:var(--t);">⭐ Profissional</div>
@@ -297,7 +298,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Lista de compras por fornecedor</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Suporte prioritário</div>
       </div>
-      <button onclick="mostrarTela('telaSetup')" style="width:100%;padding:13px;background:var(--bl);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;box-shadow:0 4px 14px rgba(59,130,246,.4);">Começar com Profissional ⭐</button>
+      <button onclick="abrirAceitePromo('profissional')" style="width:100%;padding:13px;background:var(--bl);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;box-shadow:0 4px 14px rgba(59,130,246,.4);">Começar com Profissional ⭐</button>
     </div>
 
     <!-- CARD EMPRESARIAL -->
@@ -508,6 +509,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <!-- CONFIG -->
     <div id="pg-config" class="pg">
       <div class="sec">⚙️ Configurações</div>
+      <div id="cfgPlanoBadge" style="background:var(--s1);border:1.5px solid var(--b);border-radius:15px;padding:14px 17px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;">Seu Plano Atual</div>
+          <div id="cfgPlanoLabel" style="font-size:16px;font-weight:900;color:var(--gn);">📦 Básico</div>
+          <div id="cfgPlanoDesc" style="font-size:11px;color:var(--t2);margin-top:3px;">50 produtos · 2 funcionários · 5 fornecedores</div>
+        </div>
+        <div style="text-align:right;">
+          <div id="cfgPlanoPreco" style="font-size:18px;font-weight:900;color:var(--t);">R$97</div>
+          <div style="font-size:10px;color:var(--t3);">/mês</div>
+        </div>
+      </div>
       <div class="cfg-c">
         <div class="cfg-t">🔗 Acesso para Funcionários</div>
         <div class="cfg-s">Envie o link para seus funcionários. Ao abrir, o sistema já reconhece o estabelecimento.</div>
@@ -613,6 +625,41 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <button class="nav-btn" onclick="irPg('hist',this)"><span>📋</span>Histórico</button>
     <button class="nav-btn" onclick="irPg('insights',this)"><span>📊</span>Insights</button>
     <button class="nav-btn" id="navCfg" onclick="irPg('config',this)"><span>⚙️</span>Config</button>
+  </div>
+</div>
+
+<!-- MODAL ACEITE PROMOCIONAL -->
+<div class="overlay" id="ovAceitePromo">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:36px;margin-bottom:6px;">🎁</div>
+      <div style="font-size:16px;font-weight:900;color:var(--gn);">Oferta Especial de Boas-vindas!</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:4px;line-height:1.6;">Seu primeiro mês com todos os recursos do plano <strong style="color:var(--am);">🏆 Empresarial</strong> desbloqueados!</div>
+    </div>
+    <div style="background:var(--gn2);border:1.5px solid var(--gn3);border-radius:13px;padding:13px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:8px;">✅ O QUE VOCÊ TEM NOS PRIMEIROS 30 DIAS:</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.9;">
+        ♾️ Produtos ilimitados<br>
+        ♾️ Funcionários ilimitados<br>
+        ♾️ Fornecedores ilimitados<br>
+        ✅ Relatórios PDF e CSV<br>
+        ✅ Lista de compras por fornecedor<br>
+        ✅ Todos os gráficos e insights
+      </div>
+    </div>
+    <div style="background:var(--am2);border:1.5px solid var(--am3);border-radius:13px;padding:13px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--am);margin-bottom:8px;">⚠️ IMPORTANTE — LEIA COM ATENÇÃO:</div>
+      <div id="promoPlanoDesc" style="font-size:12px;color:var(--t2);line-height:1.9;"></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;background:var(--s2);border-radius:10px;padding:12px;">
+      <input type="checkbox" id="chkAceitePromo" style="width:18px;height:18px;accent-color:var(--gn);margin-top:2px;flex-shrink:0;cursor:pointer;">
+      <label for="chkAceitePromo" id="chkAceitePromoLabel" style="font-size:11px;color:var(--t2);line-height:1.7;cursor:pointer;">
+        Li e entendi que após 30 dias meu plano será ajustado automaticamente.
+      </label>
+    </div>
+    <button onclick="confirmarAceitePromo()" style="width:100%;padding:14px;background:var(--gn);border:none;border-radius:13px;color:#0B1120;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;min-height:50px;touch-action:manipulation;">🚀 Aceitar e Criar Minha Conta</button>
+    <button onclick="fM('ovAceitePromo')" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--b2);border-radius:13px;color:var(--t2);font-weight:700;font-size:13px;cursor:pointer;font-family:Inter,sans-serif;margin-top:8px;min-height:46px;touch-action:manipulation;">← Voltar</button>
   </div>
 </div>
 
@@ -910,7 +957,7 @@ const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','
 
 // LIMITES POR PLANO
 const PLANOS={
-  basico:{produtos:50,funcionarios:2,fornecedores:5,relatorios:false,lista:false,label:'📦 Básico',preco:'R$ 97/mês'},
+  basico:{produtos:50,funcionarios:2,fornecedores:5,relatorios:false,lista:true,label:'📦 Básico',preco:'R$ 97/mês'},
   profissional:{produtos:150,funcionarios:8,fornecedores:10,relatorios:true,lista:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
   empresarial:{produtos:99999,funcionarios:99999,fornecedores:99999,relatorios:true,lista:true,label:'🏆 Empresarial',preco:'R$ 197/mês'}
 };
@@ -959,8 +1006,8 @@ function mostrarUpgrade(recurso,limite){
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Fornecedores</td>'+
-          '<td style="padding:8px 10px;text-align:center;font-weight:700;">2</td>'+
-          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">8</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;">5</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">10</td>'+
           '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
@@ -977,7 +1024,7 @@ function mostrarUpgrade(recurso,limite){
         '</tr>'+
         '<tr>'+
           '<td style="padding:8px 10px;color:var(--t2);">Lista de Compras</td>'+
-          '<td style="padding:8px 10px;text-align:center;">❌</td>'+
+          '<td style="padding:8px 10px;text-align:center;">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
         '</tr>'+
@@ -1167,6 +1214,18 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
   setTimeout(verificarBackupAutomatico,5000);
   // Registrar service worker
   registrarSW();
+  // Verificar trial promocional
+  if(FUNC_ROLE==='proprietario'){
+    const trialAtivo=verificarTrialAtivo();
+    if(trialAtivo){
+      PLANO_ATUAL='empresarial';
+      const restantes=diasRestantesTrial();
+      // Mostrar badge trial no topbar
+      const tr=$('topUser');
+      if(tr)tr.textContent='👑 '+FUNC_NOME+' · Proprietário(a) · 🎁 Trial '+restantes+'d';
+    }
+    verificarAvisaTrial();
+  }
 }
 function sair(){
   const el=document.getElementById('toast');
@@ -1175,13 +1234,103 @@ function sair(){
   el.style.pointerEvents='all';
   clearTimeout(el._t);el._t=setTimeout(function(){el.className='';el.innerHTML='';el.style.pointerEvents='';},5000);
 }
+function atualizarBadgePlano(){
+  const plano=PLANO_ATUAL||'basico';
+  const p=PLANOS[plano]||PLANOS.basico;
+  const label=$('cfgPlanoLabel');const desc=$('cfgPlanoDesc');const preco=$('cfgPlanoPreco');
+  const badge=$('cfgPlanoBadge');
+  if(!label)return;
+  // Mostrar info do trial se ativo
+  const trialAtivo=verificarTrialAtivo();
+  const restantes=diasRestantesTrial();
+  if(trialAtivo){
+    const planoBase=localStorage.getItem('ge_plano_escolhido')||'basico';
+    const pb=PLANOS[planoBase]||PLANOS.basico;
+    label.textContent='🎁 Trial Empresarial';
+    label.style.color='var(--gn)';
+    if(badge)badge.style.borderColor='var(--gn)';
+    if(desc)desc.textContent='Você tem '+restantes+' dias restantes do período promocional. Após isso: '+pb.label;
+    if(preco)preco.textContent='Grátis';
+    return;
+  }
+  label.textContent=p.label;
+  const cor=plano==='empresarial'?'var(--am)':plano==='profissional'?'var(--bl)':'var(--gn)';
+  label.style.color=cor;
+  if(badge)badge.style.borderColor=cor;
+  const fDesc=plano==='empresarial'?'Produtos, funcionários e fornecedores ilimitados':
+    `${p.produtos} produtos · ${p.funcionarios} funcionários · ${p.fornecedores} fornecedores`;
+  if(desc)desc.textContent=fDesc;
+  if(preco)preco.textContent=p.preco.replace('/mês','');
+}
+// PROMOÇÃO 30 DIAS
+let planoEscolhido='basico';
+function abrirAceitePromo(plano){
+  planoEscolhido=plano;
+  const p=PLANOS[plano]||PLANOS.basico;
+  const desc=$('promoPlanoDesc');
+  const label=$('chkAceitePromoLabel');
+  if(desc)desc.innerHTML=
+    'Após 30 dias, seu plano voltará para <strong style="color:var(--am);">'+p.label+'</strong> ('+p.preco+') com:<br>'+
+    '📦 Até '+p.produtos+' produtos<br>'+
+    '👥 Até '+p.funcionarios+' funcionários<br>'+
+    '🚚 Até '+p.fornecedores+' fornecedores<br>'+
+    (p.relatorios?'✅ Relatórios PDF/CSV':'❌ Sem relatórios PDF/CSV')+'<br>'+
+    (p.lista?'✅ Lista de compras por fornecedor':'❌ Lista de compras apenas geral');
+  if(label)label.innerHTML='Li e <strong>entendi</strong> que após 30 dias experimentando o plano Empresarial, meu plano será ajustado automaticamente para <strong>'+p.label+'</strong> ('+p.preco+').';
+  $('chkAceitePromo').checked=false;
+  abrirModal('ovAceitePromo');
+}
+function confirmarAceitePromo(){
+  if(!$('chkAceitePromo').checked)return toast('Você precisa confirmar que leu e entendeu a promoção','warn',3000);
+  fM('ovAceitePromo');
+  // Salvar plano escolhido e data de início do trial
+  localStorage.setItem('ge_plano_escolhido',planoEscolhido);
+  localStorage.setItem('ge_trial_inicio',Date.now().toString());
+  mostrarTela('telaSetup');
+}
+function verificarTrialAtivo(){
+  const inicio=localStorage.getItem('ge_trial_inicio');
+  if(!inicio)return false;
+  const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
+  return dias<30;
+}
+function diasRestantesTrial(){
+  const inicio=localStorage.getItem('ge_trial_inicio');
+  if(!inicio)return 0;
+  const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
+  return Math.max(0,30-dias);
+}
+function verificarAvisaTrial(){
+  if(FUNC_ROLE!=='proprietario')return;
+  const inicio=localStorage.getItem('ge_trial_inicio');
+  if(!inicio)return;
+  const restantes=diasRestantesTrial();
+  const planoBase=localStorage.getItem('ge_plano_escolhido')||'basico';
+  const p=PLANOS[planoBase]||PLANOS.basico;
+  if(restantes<=0){
+    // Trial acabou — mostrar aviso
+    PLANO_ATUAL=planoBase;
+    toast('⚠️ Seu período promocional encerrou. Agora você está no plano '+p.label,'warn',6000);
+    localStorage.removeItem('ge_trial_inicio');
+  }else if(restantes<=7){
+    // Avisar que está acabando
+    setTimeout(()=>{
+      const el=$('toast');
+      el.innerHTML='🎁 Seu período Empresarial encerra em <strong>'+restantes+' dias</strong>! Após isso você terá o plano '+p.label+'.';
+      el.className='show warn';
+      el.style.pointerEvents='all';
+      clearTimeout(el._t);
+      el._t=setTimeout(()=>{el.className='';el.innerHTML='';el.style.pointerEvents='';},8000);
+    },3000);
+  }
+}
 function fecharToast(){const el=$('toast');el.className='';el.innerHTML='';clearTimeout(el._t);}
 function confirmarSair(){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;FUNC_PERMS={};pinDigitos='';mostrarTela('tela1Acesso');}
 
 // PÁGINAS
 let pgAtual='dash';
 function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
-  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario')carregarConfig();else toast('Acesso restrito','warn');}}
+  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}}
 
 // PRODUTOS
 async function carregarProds(){try{todosProds=await sb(`ge_produtos?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosProds=[];toast('Erro ao carregar produtos','err');}}
@@ -1793,6 +1942,8 @@ const TUTORIAIS={
     hi('🛒','Lista de Compras por Fornecedor — PASSO A PASSO','<strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
   ],
   config:[
+    hi('🎁','Promoção de Boas-vindas — 30 dias Empresarial','Ao criar sua conta no plano Básico ou Profissional, você ganha <strong>30 dias com todos os recursos do Empresarial desbloqueados</strong>: produtos ilimitados, todos os relatórios, lista de compras por fornecedor. Após 30 dias, seu plano volta automaticamente para o que você escolheu. Você é avisado 7 dias antes!'),
+    hi('🏷️','Seu Plano Atual','No topo das configurações você vê <strong>qual plano está ativo</strong>, os limites de produtos, funcionários e fornecedores, e o valor mensal. Se precisar de mais recursos, entre em contato pelo WhatsApp para fazer upgrade!'),
     hi('🔗','Enviar acesso para Funcionário — PASSO A PASSO','<strong>1.</strong> Vá em <strong>👥 Funcionários</strong> e cadastre o funcionário com nome e PIN<br><strong>2.</strong> Volte em <strong>🔗 Acesso para Funcionários</strong><br><strong>3.</strong> Toque em <strong>📲 Enviar Link pelo WhatsApp</strong><br><strong>4.</strong> O funcionário abre o link no celular<br><strong>5.</strong> Digita o PIN que você criou para ele<br><strong>6.</strong> Instala o app na tela inicial<br>Pronto! Ele já pode registrar entradas e saídas.'),
     hi('🔐','Permissões do Funcionário','Por padrão o funcionário só pode registrar entradas e saídas. Para liberar mais acesso:<br><strong>1.</strong> Toque no nome do funcionário na lista<br><strong>2.</strong> Aparece a seção 🔐 Permissões<br><strong>3.</strong> Ative o que quiser liberar:<br>• 📋 Ver Histórico<br>• 📊 Ver Insights<br>• 📦 Cadastrar Produtos<br>• 💰 Ver Valor do Estoque<br>• ↩️ Estornar Movimentos<br><strong>4.</strong> Ou toque em ✅ Liberar Tudo de uma vez'),
     hi('🔐','Ver PINs dos Funcionários','Esqueceu o PIN de um funcionário? Toque em <strong>🔐 Ver PINs dos Funcionários</strong>, confirme seu PIN de proprietário e a lista aparece com todos os nomes e PINs.'),
