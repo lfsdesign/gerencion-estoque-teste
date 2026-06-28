@@ -390,6 +390,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <button class="cat" onclick="setHF('entrada',this)">📥 Entradas</button>
         <button class="cat" onclick="setHF('saida',this)">📤 Saídas</button>
         <button class="cat" onclick="setHF('perda',this)">⚠️ Perdas</button>
+        <button class="cat" onclick="setHF('vencimento',this)">📅 Vencidos</button>
       </div>
       <div id="histList"></div>
     </div>
@@ -538,18 +539,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
       <div class="fg"><label class="fl">Unidade</label><select class="inp" id="mpUnit"></select></div>
     </div>
     <div class="g2">
-      <div class="fg"><label class="fl">Quantidade atual</label><input class="inp" type="number" id="mpQty" placeholder="0" min="0" step="0.01"></div>
-      <div class="fg"><label class="fl">Estoque mínimo</label><input class="inp" type="number" id="mpMin" placeholder="0" min="0" step="0.01"></div>
+      <div class="fg"><label class="fl">Quantidade atual</label><input class="inp" type="number" id="mpQty" placeholder="Digite a quantidade" min="0" step="0.01" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value==='')this.value='0'"></div>
+      <div class="fg"><label class="fl">Estoque mínimo</label><input class="inp" type="number" id="mpMin" placeholder="Digite o mínimo" min="0" step="0.01" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value==='')this.value='0'"></div>
     </div>
-    <div class="fg"><label class="fl">Custo unitário R$</label><input class="inp" type="number" id="mpCusto" placeholder="0.00" min="0" step="0.01"></div>
+    <div class="fg"><label class="fl">Custo unitário R$</label><input class="inp" type="number" id="mpCusto" placeholder="Digite o custo" min="0" step="0.01" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value==='')this.value='0'"></div>
     <div class="g2">
       <div class="fg">
         <label class="fl">Fabricação <span class="fl-hint">— opcional</span></label>
-        <input class="inp" type="date" id="mpFab" oninput="atualizarStatusVal()">
+        <input class="inp" type="date" id="mpFab" oninput="atualizarStatusVal()" onkeydown="this.type='text'" onblur="this.type='date'" placeholder="DD/MM/AAAA">
       </div>
       <div class="fg">
         <label class="fl">Validade <span class="fl-hint">— opcional</span></label>
-        <input class="inp" type="date" id="mpVal" oninput="atualizarStatusVal()">
+        <input class="inp" type="text" id="mpVal" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this);atualizarStatusVal()">
       </div>
     </div>
     <div class="fg" style="margin-top:4px;">
@@ -585,6 +586,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <button class="tipo-b p" id="tbV" onclick="setSt('vencimento')">📅 Produto vencido</button>
         <button class="tipo-b" id="tbA" onclick="setSt('ajuste')">🔧 Ajuste de estoque</button>
       </div>
+      <div id="stConf" style="display:none;"></div>
     </div>
     <div class="fg"><label class="fl">Produto</label><select class="inp" id="mmProd" onchange="updEst()"><option value="">Selecione um produto...</option></select></div>
     <div id="mmEstBox" style="display:none;background:var(--s2);border-radius:9px;padding:9px 13px;margin-bottom:11px;font-size:12px;color:var(--t2);">
@@ -781,6 +783,20 @@ const limparSessao=()=>{localStorage.removeItem('ge_sess_uid_'+REST_ID);localSto
 const capturarCodigoDaURL=()=>{const p=new URLSearchParams(window.location.search);const cod=p.get('cod');if(cod){localStorage.setItem('ge_cod_pendente',cod);window.history.replaceState({},'',window.location.pathname);return cod;}return localStorage.getItem('ge_cod_pendente');};
 
 // WHATSAPP +55
+function mascaraData(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>8)v=v.slice(0,8);
+  if(v.length>4)v=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  else if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
+  el.value=v;
+  // Converter para formato ISO quando completo (para funcionar com atualizarStatusVal)
+  if(v.length===10){
+    const [d,m,a]=v.split('/');
+    el.dataset.isoDate=`${a}-${m}-${d}`;
+  }else{
+    el.dataset.isoDate='';
+  }
+}
 function maskWpp(el){let v=el.value.replace(/\D/g,'');if(v.length>11)v=v.slice(0,11);if(v.length>10)v=`(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;else if(v.length>6)v=`(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;else if(v.length>2)v=`(${v.slice(0,2)}) ${v.slice(2)}`;el.value=v;}
 
 // TIPO NEGÓCIO
@@ -810,7 +826,10 @@ async function calcularPrevisao(prodId, qtdAtual, unidade){
   }catch(e){return null;}
 }
 
-function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;const dtVal=$('mpVal')&&$('mpVal').value;const dtFab=$('mpFab')&&$('mpFab').value;if(!dtVal){el.style.display='none';return;}const s=labelVal({data_validade:dtVal,data_fabricacao:dtFab||null});el.textContent=s.ico+' '+s.txt;el.style.display='block';el.style.background=s.cls==='venc'?'var(--rd2)':s.cls==='warn'?'var(--am2)':'var(--gn2)';el.style.color=s.cls==='venc'?'var(--rd)':s.cls==='warn'?'var(--am)':'var(--gn)';el.style.border=`1px solid ${s.cls==='venc'?'var(--rd3)':s.cls==='warn'?'var(--am3)':'var(--gn3)'}`;}
+function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;
+  const mpValEl=$('mpVal');const mpFabEl=$('mpFab');
+  const dtVal=mpValEl?(mpValEl.dataset.isoDate||mpValEl.value):'';
+  const dtFab=mpFabEl?(mpFabEl.dataset.isoDate||mpFabEl.value):'';if(!dtVal){el.style.display='none';return;}const s=labelVal({data_validade:dtVal,data_fabricacao:dtFab||null});el.textContent=s.ico+' '+s.txt;el.style.display='block';el.style.background=s.cls==='venc'?'var(--rd2)':s.cls==='warn'?'var(--am2)':'var(--gn2)';el.style.color=s.cls==='venc'?'var(--rd)':s.cls==='warn'?'var(--am)':'var(--gn)';el.style.border=`1px solid ${s.cls==='venc'?'var(--rd3)':s.cls==='warn'?'var(--am3)':'var(--gn3)'}`;}
 
 // SETUP
 async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
@@ -913,15 +932,21 @@ function abrirProd(id){
   $('mpNome').value=p?p.nome:'';
   const catSel=$('mpCat');
   if(catSel)catSel.innerHTML='<option value="">Sem categoria</option>'+todasCats.map(c=>`<option value="${c.nome}" ${p&&p.categoria===c.nome?'selected':''}>${c.emoji||''} ${c.nome}</option>`).join('');
-  const UNITS_PAD=['un','kg','g','l','ml','cx','pc','frd','pç','bd','pt'];
+  const UNITS_PAD_BASE=['un','kg','g','l','ml','cx','pc','frd','pç','bd','pt'];
+  const exclKey='ge_units_excl_'+REST_ID;
+  const exclList=JSON.parse(localStorage.getItem(exclKey)||'[]');
+  const UNITS_PAD=UNITS_PAD_BASE.filter(u=>!exclList.includes(u));
   const allUnits=[...UNITS_PAD,...todasUnits.map(u=>u.nome||u)];
   const unitSel=$('mpUnit');
   if(unitSel)unitSel.innerHTML=allUnits.map(u=>`<option value="${u}" ${p&&p.unidade===u?'selected':''}>${u}</option>`).join('');
   $('mpQty').value=p?(p.quantidade||0):0;
   $('mpMin').value=p?(p.estoque_minimo||0):0;
   $('mpCusto').value=p?(p.preco_custo||0):0;
-  $('mpFab').value=p?(p.data_fabricacao||''):'';
-  $('mpVal').value=p?(p.data_validade||''):'';
+  // Mostrar datas no formato DD/MM/AAAA
+  const toDisplay=iso=>{if(!iso)return'';const [a,m,d]=iso.split('-');return`${d}/${m}/${a}`;};
+  const fabEl=$('mpFab');const valEl=$('mpVal');
+  if(fabEl){fabEl.value=p?toDisplay(p.data_fabricacao):'';fabEl.dataset.isoDate=p?(p.data_fabricacao||''):'';}
+  if(valEl){valEl.value=p?toDisplay(p.data_validade):'';valEl.dataset.isoDate=p?(p.data_validade||''):'';}
   const fornSel=$('mpFornec');
   if(fornSel){fornSel.innerHTML='<option value="">Sem fornecedor vinculado</option>'+todosFornecs.map(f=>`<option value="${f.id}" ${p&&p.fornecedor_id===f.id?'selected':''}>${f.nome}</option>`).join('');}
   // Botão emoji do produto
@@ -975,38 +1000,49 @@ function abrirProd(id){
   }
   abrirModal('ovProd');
 }
-async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const dados={restaurante_id:REST_ID,nome,categoria:$('mpCat').value||null,emoji:($('mpEmoji')&&$('mpEmoji').value)||($('mpEmojiBtn')&&$('mpEmojiBtn').textContent)||'📦',unidade:$('mpUnit').value||'un',quantidade:parseFloat($('mpQty').value)||0,estoque_minimo:parseFloat($('mpMin').value)||0,preco_custo:parseFloat($('mpCusto').value)||0,data_fabricacao:$('mpFab').value||null,data_validade:$('mpVal').value||null,fornecedor_id:$('mpFornec').value||null,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()};try{const id=$('mpId').value;if(id)await sb(`ge_produtos?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_produtos',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Produto atualizado!':'✅ Produto criado!');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const dados={restaurante_id:REST_ID,nome,categoria:$('mpCat').value||null,emoji:($('mpEmoji')&&$('mpEmoji').value)||($('mpEmojiBtn')&&$('mpEmojiBtn').textContent)||'📦',unidade:$('mpUnit').value||'un',quantidade:parseFloat($('mpQty').value)||0,estoque_minimo:parseFloat($('mpMin').value)||0,preco_custo:parseFloat($('mpCusto').value)||0,data_fabricacao:($('mpFab').dataset.isoDate||$('mpFab').value)||null,data_validade:($('mpVal').dataset.isoDate||$('mpVal').value)||null,fornecedor_id:$('mpFornec').value||null,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()};try{const id=$('mpId').value;if(id)await sb(`ge_produtos?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_produtos',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Produto atualizado!':'✅ Produto criado!');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirProd(){if(!confirm('Excluir produto?'))return;try{await sb(`ge_produtos?id=eq.${$('mpId').value}`,{method:'DELETE'});toast('Produto removido');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro ao excluir','err');}}
 
 // MOVIMENTOS
 function abrirMov(tipo){movQty=1;subtipoSaida='normal';$('mmTit').textContent=tipo==='entrada'?'📥 Registrar Entrada':'📤 Registrar Saída';$('mmSub').textContent=tipo==='entrada'?'Compra, recebimento ou ajuste':'Consumo, venda, perda ou vencimento';$('mmTipo').value=tipo;$('mmStWrap').style.display=tipo==='saida'?'block':'none';$('mmEstBox').style.display='none';movQty=1;const qv=$('qpV');if(qv)qv.value=1;$('mmObs').value='';const sel=$('mmProd');sel.innerHTML='<option value="">Selecione um produto...</option>'+todosProds.map(p=>`<option value="${p.id}">${p.emoji||'📦'} ${p.nome} (${fmtN(p.quantidade||0)} ${p.unidade||'un'})</option>`).join('');['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});$('tbN')&&$('tbN').classList.add('on');abrirModal('ovMov');}
 function setSt(sub){
   if(sub==='perda'||sub==='vencimento'){
-    // Toast de confirmação elegante
     const msg=sub==='perda'
-      ?'⚠️ Registrar como PERDA? (produto estragou ou foi desperdiçado)'
-      :'📅 Registrar como VENCIDO? (produto passou da validade)';
-    const el=$('toast');
-    const btnSim=`<span onclick="confirmarSt('${sub}')" style="text-decoration:underline;cursor:pointer;margin-left:8px;font-weight:900;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:6px;">✓ Sim</span>`;
-    const btnNao=`<span onclick="cancelarSt()" style="cursor:pointer;margin-left:4px;font-weight:900;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:6px;">✗ Não</span>`;
-    el.innerHTML=msg+' '+btnSim+' '+btnNao;
-    el.className='show warn';
-    clearTimeout(el._t);
-    el._t=setTimeout(()=>{el.className='';el.textContent='';},6000);
+      ?'⚠️ Este produto estragou ou foi desperdiçado?'
+      :'📅 Este produto passou da validade?';
+    // Mostrar confirmação inline no modal
+    const conf=document.getElementById('stConf');
+    if(conf){
+      conf.style.display='block';
+      conf.innerHTML=`<div style="background:var(--am2);border:1.5px solid var(--am3);border-radius:11px;padding:11px 13px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:12px;font-weight:700;color:var(--am);">${msg}</span>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="confirmarSt('${sub}')" style="padding:6px 12px;background:var(--am);border:none;border-radius:8px;color:#0B1120;font-weight:800;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">✓ Sim</button>
+          <button onclick="cancelarSt()" style="padding:6px 10px;background:var(--s3);border:1px solid var(--b);border-radius:8px;color:var(--t2);font-weight:700;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">✗ Não</button>
+        </div>
+      </div>`;
+    }
     return;
   }
-  subtipoSaida=sub;['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
+  subtipoSaida=sub;
+  ['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});
+  const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};
+  const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
+  const conf=document.getElementById('stConf');if(conf)conf.style.display='none';
 }
 function confirmarSt(sub){
-  const el=$('toast');el.className='';el.textContent='';
-  subtipoSaida=sub;['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
-  toast(sub==='perda'?'⚠️ Tipo: Perda selecionado':'📅 Tipo: Vencido selecionado','warn');
+  subtipoSaida=sub;
+  ['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});
+  const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};
+  const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
+  const conf=document.getElementById('stConf');if(conf)conf.style.display='none';
+  toast(sub==='perda'?'⚠️ Perda selecionada':'📅 Vencido selecionado','warn');
 }
 function cancelarSt(){
-  const el=$('toast');el.className='';el.textContent='';
-  // Volta para normal
-  subtipoSaida='normal';['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});$('tbN')&&$('tbN').classList.add('on');
-  toast('Mantido como Consumo Normal','info');
+  subtipoSaida='normal';
+  ['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});
+  $('tbN')&&$('tbN').classList.add('on');
+  const conf=document.getElementById('stConf');if(conf)conf.style.display='none';
 }
 function updEst(){const id=$('mmProd').value;const p=todosProds.find(x=>x.id===id);$('mmEstBox').style.display=p?'block':'none';if(p){$('mmEstV').textContent=fmtN(p.quantidade||0)+' '+(p.unidade||'un');$('mmEstV').style.color=(p.quantidade||0)<=(p.estoque_minimo||0)?'var(--rd)':'var(--gn)';updPrev();}}
 function ajQ(d){
@@ -1023,11 +1059,14 @@ async function registrarMov(){const pid=$('mmProd').value;const tipo=$('mmTipo')
 
 // DASHBOARD
 function renderDash(){const h=new Date().getHours();const saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';$('dGreet')&&($('dGreet').textContent=saud+' '+(FUNC_NOME||'').split(' ')[0]+' 👋');$('dDate')&&($('dDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}));$('stTot')&&($('stTot').textContent=todosProds.length);const baixos=todosProds.filter(p=>(p.quantidade||0)<=(p.estoque_minimo||0)&&(p.estoque_minimo||0)>0);const criticos=todosProds.filter(p=>(p.quantidade||0)===0&&(p.estoque_minimo||0)>0);$('stBx')&&($('stBx').textContent=baixos.length);$('stCr')&&($('stCr').textContent=criticos.length);const badge=$('alertBadge');if(badge){$('alertCnt').textContent=baixos.length;badge.style.display=baixos.length?'flex':'none';}if(FUNC_ROLE==='proprietario'||(FUNC_PERMS&&FUNC_PERMS.valor)){const total=todosProds.reduce((a,p)=>a+(p.preco_custo||0)*(p.quantidade||0),0);const vb=$('veBox');if(vb)vb.style.display='flex';$('veVal')&&($('veVal').textContent=fmt(total));}else{const vb=$('veBox');if(vb)vb.style.display='none';}const secA=$('secA'),dAlerts=$('dAlerts');if(dAlerts){if(baixos.length){secA&&(secA.style.display='block');dAlerts.innerHTML=baixos.slice(0,5).map(p=>`<div class="alert-c ${(p.quantidade||0)===0?'a-rd':'a-am'}"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty">${fmtN(p.quantidade||0)} ${p.unidade||'un'} · Mín: ${fmtN(p.estoque_minimo||0)}</div></div><button class="a-btn" onclick="abrirMov('entrada')">+ Repor</button></div>`).join('');}else{secA&&(secA.style.display='none');dAlerts.innerHTML='';}}const vencendo=todosProds.filter(p=>{const d=diasParaVencer(p.data_validade);return d!==null&&d>=0&&d<=30;});const secV=$('secV'),dValid=$('dValid');if(dValid){if(vencendo.length){secV&&(secV.style.display='block');dValid.innerHTML=vencendo.map(p=>{const sv=labelVal(p);return`<div class="alert-c a-cy"><div class="a-ico">${p.emoji||'📦'}</div><div class="a-info"><div class="a-nome">${p.nome}</div><div class="a-qty" style="color:${sv.cls==='venc'?'var(--rd)':'var(--am)'}">${sv.ico} ${sv.txt}</div></div></div>`;}).join('');}else{secV&&(secV.style.display='none');dValid.innerHTML='';}}renderMovsRecentes();}
-async function recarregarEAtualizar(){await carregarProds();renderDash();setTimeout(verificarENotificar,500);}
+async function recarregarEAtualizar(){toast('🔄 Atualizando...','info',1500);await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);renderDash();setTimeout(verificarENotificar,500);toast('✅ Dados atualizados!');}
 async function renderMovsRecentes(){const el=$('dMovs');if(!el)return;try{const movs=await sb(`ge_movimentacoes?restaurante_id=eq.${REST_ID}&select=*&order=created_at.desc&limit=8`);if(!movs.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px;">Nenhum movimento ainda</div>';return;}el.innerHTML=movs.map(m=>{const dt=new Date(m.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const cor=m.tipo==='entrada'?'var(--gn)':'var(--rd)';const prod=todosProds.find(p=>p.id===m.produto_id);return`<div class="mov-c"><div class="mov-dot" style="background:${cor}"></div><div class="mov-inf"><div class="mov-n">${prod?prod.nome:'Produto'}</div><div class="mov-d">${m.funcionario_nome||''} ${m.observacao?'· '+m.observacao:''}</div></div><div class="mov-r"><div class="mov-q" style="color:${cor}">${m.tipo==='entrada'?'+':'-'}${fmtN(m.quantidade)}</div><div class="mov-t">${dt}</div></div></div>`;}).join('');}catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px;">Nenhum movimento ainda</div>';}}
 
 // HISTÓRICO
-async function renderHist(){const busca=($('shist')&&$('shist').value||'').toLowerCase();const el=$('histList');if(!el)return;el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">Carregando...</div>';try{let url=`ge_movimentacoes?restaurante_id=eq.${REST_ID}&select=*&order=created_at.desc&limit=100`;if(histFiltro)url+=`&tipo=eq.${histFiltro}`;let movs=await sb(url);if(busca)movs=movs.filter(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);return(prod&&prod.nome.toLowerCase().includes(busca))||(m.funcionario_nome||'').toLowerCase().includes(busca)||(m.observacao||'').toLowerCase().includes(busca);});if(!movs.length){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--t3)">Nenhum movimento encontrado</div>';return;}el.innerHTML=movs.map(m=>{const dt=new Date(m.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const prod=todosProds.find(p=>p.id===m.produto_id);const ico=m.tipo==='entrada'?'📥':m.subtipo==='perda'?'⚠️':m.subtipo==='vencimento'?'📅':'📤';const cor=m.tipo==='entrada'?'var(--gn)':'var(--rd)';return`<div class="h-c"><div class="h-ico ${m.tipo==='entrada'?'entrada':m.subtipo==='perda'?'perda':'saida'}">${ico}</div><div class="h-inf"><div class="h-n">${prod?prod.nome:'Produto'}</div><div class="h-d">${m.funcionario_nome||''} ${m.subtipo?'· '+m.subtipo:''} ${m.observacao?'· '+m.observacao:''}</div><div class="h-d">${dt}</div></div><div class="h-r"><div class="h-q ${m.tipo==='entrada'?'entrada':m.subtipo==='perda'?'perda':'saida'}">${m.tipo==='entrada'?'+':'-'}${fmtN(m.quantidade)}</div></div></div>`;}).join('');}catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">Sem movimentos registrados</div>';}}
+async function renderHist(){const busca=($('shist')&&$('shist').value||'').toLowerCase();const el=$('histList');if(!el)return;el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">Carregando...</div>';try{let url=`ge_movimentacoes?restaurante_id=eq.${REST_ID}&select=*&order=created_at.desc&limit=100`;
+  if(histFiltro==='vencimento')url+=`&subtipo=eq.vencimento`;
+  else if(histFiltro==='perda')url+=`&subtipo=eq.perda`;
+  else if(histFiltro)url+=`&tipo=eq.${histFiltro}`;let movs=await sb(url);if(busca)movs=movs.filter(m=>{const prod=todosProds.find(p=>p.id===m.produto_id);return(prod&&prod.nome.toLowerCase().includes(busca))||(m.funcionario_nome||'').toLowerCase().includes(busca)||(m.observacao||'').toLowerCase().includes(busca);});if(!movs.length){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--t3)">Nenhum movimento encontrado</div>';return;}el.innerHTML=movs.map(m=>{const dt=new Date(m.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const prod=todosProds.find(p=>p.id===m.produto_id);const ico=m.tipo==='entrada'?'📥':m.subtipo==='perda'?'⚠️':m.subtipo==='vencimento'?'📅':'📤';const cor=m.tipo==='entrada'?'var(--gn)':'var(--rd)';return`<div class="h-c"><div class="h-ico ${m.tipo==='entrada'?'entrada':m.subtipo==='perda'?'perda':'saida'}">${ico}</div><div class="h-inf"><div class="h-n">${prod?prod.nome:'Produto'}</div><div class="h-d">${m.funcionario_nome||''} ${m.subtipo?'· '+m.subtipo:''} ${m.observacao?'· '+m.observacao:''}</div><div class="h-d">${dt}</div></div><div class="h-r"><div class="h-q ${m.tipo==='entrada'?'entrada':m.subtipo==='perda'?'perda':'saida'}">${m.tipo==='entrada'?'+':'-'}${fmtN(m.quantidade)}</div></div></div>`;}).join('');}catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">Sem movimentos registrados</div>';}}
 function setHF(f,btn){histFiltro=f;document.querySelectorAll('#pg-hist .cat').forEach(b=>b.classList.remove('on'));btn&&btn.classList.add('on');renderHist();}
 
 // INSIGHTS
@@ -1278,7 +1317,17 @@ function abrirFunc(id){funcAtual=todosFuncs.find(f=>f.id===id)||null;const f=fun
   $('permValor').checked=f?.perm_valor_estoque||false;
   $('permEstornar').checked=f?.perm_estornar||false;
   abrirModal('ovFunc');}
-async function salvarFunc(){const nome=$('mfNome').value.trim();const pin=$('mfPin').value;if(!nome)return toast('Nome obrigatório','err');if(!funcAtual&&(!pin||pin.length!==4||isNaN(pin)))return toast('PIN deve ter 4 números','err');const perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked}:{};
+async function salvarFunc(){const nome=$('mfNome').value.trim();const pin=$('mfPin').value;if(!nome)return toast('Nome obrigatório','err');if(!funcAtual&&(!pin||pin.length!==4||isNaN(pin)))return toast('PIN deve ter 4 números','err');
+  // Bloquear PIN igual ao do proprietário
+  if(pin){
+    try{
+      const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pin}&select=id`);
+      if(rp.length)return toast('⚠️ Este PIN é igual ao do proprietário! Use um PIN diferente.','err',4000);
+    }catch(e){}
+    // Bloquear PIN igual a outro funcionário (exceto ele mesmo)
+    const pinExiste=todosFuncs.find(f=>f.pin===pin&&f.id!==($('mfId').value||''));
+    if(pinExiste)return toast('⚠️ Este PIN já está em uso por '+pinExiste.nome+'!','err',4000);
+  }const perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked}:{};
   const dados={restaurante_id:REST_ID,nome,...(pin?{pin}:{}),...perms};try{const id=$('mfId').value;if(id)await sb(`ge_funcionarios?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_funcionarios',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Funcionário atualizado!':'✅ Funcionário criado!');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirFunc(){if(!confirm('Remover funcionário?'))return;try{await sb(`ge_funcionarios?id=eq.${$('mfId').value}`,{method:'DELETE'});toast('Funcionário removido');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro ao remover','err');}}
 
@@ -1294,7 +1343,28 @@ async function carregarUnits(){try{todasUnits=await sb(`ge_unidades?restaurante_
 function renderCats(){const el=$('listaCats');if(!el)return;if(!todasCats.length){el.innerHTML='<div style="color:var(--t3);font-size:12px;padding:8px">Nenhuma categoria criada ainda</div>';return;}el.innerHTML=todasCats.map(c=>`<div style="display:flex;align-items:center;gap:9px;padding:8px;background:var(--s2);border-radius:9px;margin-bottom:6px;"><span style="font-size:20px;">${c.emoji||'🏷️'}</span><span style="flex:1;font-size:13px;font-weight:600;">${c.nome}</span><button onclick="excluirCat('${c.id}')" style="background:var(--rd2);border:none;border-radius:7px;color:var(--rd);padding:4px 8px;font-size:11px;cursor:pointer;">✕</button></div>`).join('');}
 async function addCat(){const nome=$('novaCatNome').value.trim();const ico=$('novaCatIco').value||'🏷️';if(!nome)return toast('Nome da categoria obrigatório','err');try{await sb('ge_categorias',{method:'POST',body:JSON.stringify({restaurante_id:REST_ID,nome,emoji:ico})});toast('✅ Categoria criada!');$('novaCatNome').value='';$('novaCatIco').value='🏷️';$('emjBtn').textContent='🏷️';await carregarCats();renderCats();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirCat(id){if(!confirm('Excluir categoria?'))return;try{await sb(`ge_categorias?id=eq.${id}`,{method:'DELETE'});await carregarCats();renderCats();}catch(e){toast('Erro','err');}}
-function renderUnits(){const UNITS_PAD=['un','kg','g','l','ml','cx','pc','frd','pç','bd','pt'];const el=$('listaUnits');if(!el)return;el.innerHTML=[...UNITS_PAD.map(u=>`<span style="display:inline-block;margin:3px 4px;padding:5px 10px;background:var(--s3);border-radius:7px;font-size:12px;color:var(--t2);">${u}</span>`),...todasUnits.map(u=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:3px 4px;padding:5px 10px;background:var(--gn2);border:1px solid var(--gn3);border-radius:7px;font-size:12px;color:var(--gn);">${u.nome||u} <button onclick="excluirUnit('${u.id||u}')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:11px;padding:0;">✕</button></span>`)].join('');}
+function renderUnits(){
+  const exclKeyP='ge_units_excl_'+REST_ID;const exclListP=JSON.parse(localStorage.getItem(exclKeyP)||'[]');const UNITS_PAD=['un','kg','g','l','ml','cx','pc','frd','pç','bd','pt'].filter(u=>!exclListP.includes(u));
+  const el=$('listaUnits');if(!el)return;
+  // Todas as unidades são editáveis — padrão e customizadas juntas
+  const todas=[
+    ...UNITS_PAD.map(u=>({id:'pad_'+u,nome:u,padrao:true})),
+    ...todasUnits.map(u=>({id:u.id,nome:u.nome||u,padrao:false}))
+  ];
+  el.innerHTML=todas.map(u=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:3px 4px;padding:5px 10px;background:${u.padrao?'var(--s3)':'var(--gn2)'};border:1px solid ${u.padrao?'var(--b)':'var(--gn3)'};border-radius:7px;font-size:12px;color:${u.padrao?'var(--t2)':'var(--gn)'};">${u.nome} <button onclick="excluirUnitAny('${u.id}','${u.nome}',${u.padrao})" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:11px;padding:0;line-height:1;">✕</button></span>`).join('');
+}
+async function excluirUnitAny(id, nome, padrao){
+  if(padrao){
+    // Unidade padrão — salvar exclusão no localStorage
+    const key='ge_units_excl_'+REST_ID;
+    const excl=JSON.parse(localStorage.getItem(key)||'[]');
+    if(!excl.includes(nome)){excl.push(nome);localStorage.setItem(key,JSON.stringify(excl));}
+    toast('Unidade "'+nome+'" removida da lista');
+    await carregarUnits();renderUnits();
+  }else{
+    try{await sb('ge_unidades?id=eq.'+id,{method:'DELETE'});await carregarUnits();renderUnits();}catch(e){toast('Erro','err');}
+  }
+}
 async function addUnit(){const nome=$('novaUnit').value.trim().toLowerCase();if(!nome)return toast('Nome da unidade obrigatório','err');try{await sb('ge_unidades',{method:'POST',body:JSON.stringify({restaurante_id:REST_ID,nome})});toast('✅ Unidade criada!');$('novaUnit').value='';await carregarUnits();renderUnits();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirUnit(id){try{await sb(`ge_unidades?id=eq.${id}`,{method:'DELETE'});await carregarUnits();renderUnits();}catch(e){toast('Erro','err');}}
 
@@ -1424,21 +1494,21 @@ const TUTORIAIS={
     hi('📥','Registrar Entrada — use sempre!','Chegou mercadoria? Registre aqui na hora. Selecione o produto e a quantidade recebida. O estoque sobe automaticamente e fica no histórico.'),
     hi('⚠️','Alertas de Estoque Baixo','Quando um produto fica abaixo do mínimo, aparece aqui automaticamente em vermelho ou amarelo. Toque em <strong>+ Repor</strong> para registrar a entrada na hora.'),
     hi('📅','Alertas de Validade','Produtos vencendo em até 30 dias aparecem aqui. <strong>Vence HOJE</strong> = amarelo. <strong>VENCIDO</strong> = vermelho. Cadastre as datas de validade nos produtos para ativar este alerta.'),
-    hi('🔄','Botão Atualizar','Se um funcionário registrou algo no celular dele e não apareceu aqui, toque em <strong>🔄 Atualizar dados</strong> para recarregar tudo do servidor.'),
+    hi('🔄','Botão Atualizar','Se um funcionário registrou algo e não apareceu aqui, toque em <strong>🔄 Atualizar dados</strong>. Ele recarrega produtos, funcionários, categorias e fornecedores do servidor em tempo real.'),
   ],
   produtos:[
     hi('+','Como cadastrar um produto — PASSO A PASSO','<strong>1.</strong> Toque no botão verde <strong>+</strong> no canto inferior direito<br><strong>2.</strong> Escolha um emoji para identificar o produto<br><strong>3.</strong> Digite o nome completo<br><strong>4.</strong> Escolha a categoria e a unidade (cx, kg, un...)<br><strong>5.</strong> Digite a quantidade atual no estoque<br><strong>6.</strong> Digite o estoque mínimo — abaixo disso o sistema alerta<br><strong>7.</strong> Digite o custo unitário para calcular o valor do estoque<br><strong>8.</strong> Se quiser, adicione fabricação, validade e fornecedor<br><strong>9.</strong> Toque em Salvar Produto ✅'),
     hi('🏷️','Emoji do Produto','Toque no botão de emoji ao lado do nome. São mais de <strong>1.900 ícones comerciais</strong> organizados em 22 categorias: alimentos, bebidas, carnes, pet shop, automotivo e muito mais. Facilita identificar o produto de longe.'),
     hi('📦','Estoque Mínimo — muito importante!','É a quantidade mínima que você quer ter sempre em estoque. Quando o produto ficar abaixo desse número, o sistema alerta automaticamente. Pense: <em>qual é o mínimo que não posso ficar sem?</em>'),
     hi('💰','Custo Unitário','Quanto você pagou por cada unidade? O sistema multiplica pelo estoque e mostra o <strong>valor total investido</strong> no painel inicial. Essencial para saber o capital parado.'),
-    hi('📅','Fabricação + Validade','Preencha as duas datas para controle preciso:<br>• <strong>Fabricação</strong>: evita alertas falsos em produtos novos<br>• <strong>Validade</strong>: o sistema avisa quando está perto de vencer<br>O status aparece em tempo real: ✅ Válido · ⚠️ Vence em Xd · 🔴 VENCIDO'),
+    hi('📅','Fabricação + Validade','Preencha as duas datas para controle preciso:<br>• <strong>Fabricação</strong>: evita alertas falsos em produtos novos<br>• <strong>Validade</strong>: o sistema avisa quando está perto de vencer<br>Digite a data no formato <strong>DD/MM/AAAA</strong> ou toque no campo para usar o teclado. O status aparece em tempo real: ✅ Válido · ⚠️ Vence em Xd · 🔴 VENCIDO'),
     hi('🚚','Vincular ao Fornecedor','Selecione qual fornecedor vende este produto. Quando gerar a lista de compras, cada fornecedor recebe <strong>somente os seus produtos</strong> pelo WhatsApp. Muito mais organizado!'),
     hi('⏱️','Previsão de Quando Acaba','Com base nas saídas dos últimos 30 dias, o sistema calcula em quantos dias o produto vai acabar. Aparece embaixo de cada produto: 🔴 urgente ou ⚠️ atenção.'),
     hi('🔍','Busca e Filtros','Use a barra de busca para encontrar pelo nome. Use os botões de categoria para filtrar. Produtos críticos aparecem sempre no topo da lista.'),
   ],
   hist:[
     hi('📋','O que é o Histórico?','Aqui fica registrado tudo que aconteceu no estoque: entradas, saídas, perdas e vencimentos. Com data, hora e o nome de quem registrou. Nada se perde!'),
-    hi('🔍','Como buscar e filtrar','• Use a barra de busca para encontrar por produto, funcionário ou observação<br>• Toque em <strong>📥 Entradas</strong> para ver só as compras<br>• Toque em <strong>📤 Saídas</strong> para ver só os consumos<br>• Toque em <strong>⚠️ Perdas</strong> para ver só os desperdícios<br>• Toque em <strong>Todos</strong> para voltar ao geral'),
+    hi('🔍','Como buscar e filtrar','• Use a barra de busca para encontrar por produto, funcionário ou observação<br>• Toque em <strong>📥 Entradas</strong> para ver só as compras<br>• Toque em <strong>📤 Saídas</strong> para ver só os consumos<br>• Toque em <strong>⚠️ Perdas</strong> para ver só os desperdícios<br>• Toque em <strong>📅 Vencidos</strong> para ver só produtos vencidos retirados<br>• Toque em <strong>Todos</strong> para voltar ao geral'),
     hi('📥','Entradas — linha verde','Cada linha verde é uma entrada de mercadoria: produto, quem registrou, quantidade e horário.'),
     hi('📤','Saídas — linha vermelha','Cada linha vermelha é uma saída: consumo, venda ou ajuste. Mostra quem fez, quando e qualquer observação adicionada.'),
     hi('⚠️','Perdas e Vencimentos — linha amarela','Saídas registradas como perda ou produto vencido. Use para acompanhar desperdícios e tomar ação para reduzir prejuízo.'),
@@ -1460,7 +1530,7 @@ const TUTORIAIS={
     hi('🚚','Cadastrar Fornecedores — PASSO A PASSO','<strong>1.</strong> Toque em <strong>+ Adicionar Fornecedor</strong><br><strong>2.</strong> Digite o nome e o WhatsApp com DDD<br><strong>3.</strong> Salve<br><strong>4.</strong> Vá em Produtos → edite cada produto → escolha o fornecedor<br><strong>5.</strong> Em Insights → Lista de Compras → cada fornecedor recebe só os seus produtos pelo WhatsApp!'),
     hi('🏪','Identidade do Estabelecimento','<strong>Nome</strong>: aparece no topo do app para todos os usuários.<br><strong>Tipo de negócio</strong>: classifica o seu estabelecimento.<br><strong>Logo</strong>: faça upload de uma foto quadrada (400×400px). Aparece no topo substituindo o "GE".'),
     hi('🏷️','Categorias de Produtos','Crie as categorias do seu negócio (ex: Carnes, Bebidas, Limpeza). Toque no emoji para escolher o ícone — mais de 1.900 opções. Facilita busca e relatórios.'),
-    hi('📏','Unidades de Medida','Além das padrão (kg, g, l, ml, cx...) adicione unidades do seu negócio: porção, bandeja, ampola, rolo, envelope...'),
+    hi('📏','Unidades de Medida','<strong>Todas</strong> as unidades são editáveis — padrão (kg, g, l, ml...) e as que você criar. Toque no ✕ para remover qualquer uma. Adicione unidades específicas do seu negócio: porção, bandeja, ampola, rolo, envelope...'),
     hi('📊','Relatórios completos','Envie o estoque completo por <strong>WhatsApp</strong> ou <strong>E-mail</strong>. Baixe em <strong>PDF</strong> (imprima pelo navegador) ou <strong>CSV</strong> para abrir no Excel. Inclui todos os produtos, quantidades, custos e valor total.'),
     hi('🔔','Notificações Automáticas','O sistema pede permissão para enviar notificações ao seu celular. Quando ativado, você recebe alertas de:<br>• 🔴 Estoque crítico (zerado)<br>• ⚠️ Estoque baixo (abaixo do mínimo)<br>• 📅 Produtos vencidos ou vencendo em 3 dias<br><strong>Dica:</strong> as confirmações de ações importantes aparecem como mensagens coloridas no app — toque em ✓ Sim ou ✗ Não diretamente nelas.'),
     hi('💾','Backup Automático','A cada 30 dias o sistema lembra de fazer um backup em CSV do seu estoque. Guarde o arquivo no computador ou no Google Drive como segurança.'),
