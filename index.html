@@ -48,13 +48,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 .inp::placeholder{color:var(--t3);}
 .ftip{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.6;display:none;}
 .inp:focus~.ftip{display:block;}
-.btn-p{width:100%;padding:15px;background:var(--gn);border:none;border-radius:14px;color:#0B1120;font-weight:800;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;}
-.btn-o{width:100%;padding:13px;background:transparent;border:1.5px solid var(--b2);border-radius:14px;color:var(--t2);font-weight:700;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:10px;}
+.btn-p{width:100%;padding:15px;background:var(--gn);border:none;border-radius:14px;color:#0B1120;font-weight:800;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;min-height:52px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+.btn-o{width:100%;padding:13px;background:transparent;border:1.5px solid var(--b2);border-radius:14px;color:var(--t2);font-weight:700;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:10px;min-height:50px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0);}
 .pin-display{display:flex;gap:14px;justify-content:center;margin-bottom:26px;}
 .pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--t3);transition:all .2s;}
 .pin-dot.filled{background:var(--gn);border-color:var(--gn);}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;}
-.pin-btn{background:var(--s1);border:1px solid var(--b);border-radius:14px;padding:18px;font-size:22px;font-weight:700;color:var(--t);cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s;}
+.pin-btn{background:var(--s1);border:1px solid var(--b);border-radius:14px;padding:18px;font-size:22px;font-weight:700;color:var(--t);cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s;touch-action:manipulation;min-height:64px;}
 .pin-btn:active{background:var(--s2);transform:scale(.95);}
 .pin-btn.zero{grid-column:2;}
 .pin-erro{font-size:12px;color:var(--rd);text-align:center;margin-top:12px;min-height:18px;}
@@ -72,7 +72,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 #alertBadge{background:var(--rd);color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700;display:none;}
 .top-sair{padding:5px 10px;background:var(--rd2);border:1px solid var(--rd3);border-radius:8px;color:var(--rd);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
 #nav{background:var(--s1);border-top:1px solid var(--b);position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
-.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;gap:3px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;border-top:2px solid transparent;transition:all .15s;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;gap:3px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;border-top:2px solid transparent;transition:all .15s;touch-action:manipulation;min-height:52px;}
 .nav-btn.on{color:var(--gn);border-top-color:var(--gn);}
 .nav-btn span{font-size:19px;line-height:1;}
 #main{padding:14px 14px 88px;max-width:600px;margin:0 auto;}
@@ -143,7 +143,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 .cfg-c{background:var(--s1);border:1px solid var(--b);border-radius:15px;padding:17px;margin-bottom:11px;}
 .cfg-t{font-size:14px;font-weight:700;color:var(--t);margin-bottom:3px;}
 .cfg-s{font-size:11px;color:var(--t2);margin-bottom:11px;line-height:1.7;}
-.btn-c{width:100%;padding:12px;border:none;border-radius:11px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:7px;}
+.btn-c{width:100%;padding:12px;border:none;border-radius:11px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:7px;min-height:46px;touch-action:manipulation;}
 .btn-c:last-child{margin-bottom:0;}
 .b-gn{background:var(--gn);color:#0B1120;}
 .b-bl{background:var(--bl2);color:var(--bl);border:1px solid var(--bl3);}
@@ -167,9 +167,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 .mt{font-size:16px;font-weight:800;color:var(--t);margin-bottom:3px;}
 .ms{font-size:11px;color:var(--t2);margin-bottom:14px;line-height:1.6;}
 .mb{display:flex;gap:8px;margin-top:15px;}
-.mb-p{flex:1;padding:14px;background:var(--gn);border:none;border-radius:13px;color:#0B1120;font-weight:800;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
-.mb-s{padding:14px 15px;background:var(--s2);border:1px solid var(--b);border-radius:13px;color:var(--t2);font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
-.mb-d{flex:1;padding:14px;background:var(--rd2);border:1px solid var(--rd3);border-radius:13px;color:var(--rd);font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
+.mb-p{flex:1;padding:14px;background:var(--gn);border:none;border-radius:13px;color:#0B1120;font-weight:800;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;min-height:50px;touch-action:manipulation;}
+.mb-s{padding:14px 15px;background:var(--s2);border:1px solid var(--b);border-radius:13px;color:var(--t2);font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;min-height:50px;touch-action:manipulation;}
+.mb-d{flex:1;padding:14px;background:var(--rd2);border:1px solid var(--rd3);border-radius:13px;color:var(--rd);font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;min-height:50px;touch-action:manipulation;}
 .qty-p{display:flex;align-items:center;background:var(--s2);border:1.5px solid var(--b);border-radius:13px;overflow:hidden;}
 .qp-b{width:50px;height:50px;border:none;background:none;font-size:23px;font-weight:700;cursor:pointer;color:var(--t);font-family:'Inter',sans-serif;}
 .qp-b:active{background:var(--b);}
@@ -265,7 +265,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 50 produtos cadastrados</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 2 funcionários</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 2 fornecedores</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 5 fornecedores</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Alertas de estoque e validade</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Gráficos e insights</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Relatórios PDF/CSV</div>
@@ -290,7 +290,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 150 produtos cadastrados</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 8 funcionários</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 8 fornecedores</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Até 10 fornecedores</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Alertas de estoque e validade</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Gráficos e insights completos</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Relatórios PDF e CSV</div>
@@ -676,7 +676,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div class="g2">
       <div class="fg">
         <label class="fl">Fabricação <span class="fl-hint">— opcional</span></label>
-        <input class="inp" type="date" id="mpFab" oninput="atualizarStatusVal()" onkeydown="this.type='text'" onblur="this.type='date'" placeholder="DD/MM/AAAA">
+        <input class="inp" type="date" id="mpFab" oninput="atualizarStatusVal()" onchange="atualizarStatusVal()">
       </div>
       <div class="fg">
         <label class="fl">Validade <span class="fl-hint">— opcional</span></label>
@@ -910,8 +910,8 @@ const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','
 
 // LIMITES POR PLANO
 const PLANOS={
-  basico:{produtos:50,funcionarios:2,fornecedores:2,relatorios:false,lista:false,label:'📦 Básico',preco:'R$ 97/mês'},
-  profissional:{produtos:150,funcionarios:8,fornecedores:8,relatorios:true,lista:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
+  basico:{produtos:50,funcionarios:2,fornecedores:5,relatorios:false,lista:false,label:'📦 Básico',preco:'R$ 97/mês'},
+  profissional:{produtos:150,funcionarios:8,fornecedores:10,relatorios:true,lista:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
   empresarial:{produtos:99999,funcionarios:99999,fornecedores:99999,relatorios:true,lista:true,label:'🏆 Empresarial',preco:'R$ 197/mês'}
 };
 function getLimite(){return PLANOS[PLANO_ATUAL]||PLANOS.basico;}
