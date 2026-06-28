@@ -1193,7 +1193,8 @@ function enviarParaFornecedor(fid){
   if(!linhas)return toast('Coloque pelo menos uma quantidade','warn');
   const dest=fornec?fornec.nome:'Lista Geral';
   const wpp=fornec?.whatsapp||'';
-  const cabecalho='\uD83C\uDFEA *'+(REST_NOME||'')+'*'+(FUNC_NOME?' \u00B7 '+FUNC_NOME:'')+'\n\uD83D\uDED2 Pedido de Compras \u2014 '+dest+'\n'+data+'\n\n'+linhas+'\n\n_Gerencion Estoque v1.0_';
+  const loja='*'+(REST_NOME||'')+'*'+(FUNC_NOME?' | '+FUNC_NOME:'');
+    const cabecalho=loja+'\n'+'Pedido de Compras: '+dest+'\n'+data+'\n\n'+linhas+'\n\nGerencion Estoque v1.0';
     const msg=encodeURIComponent(cabecalho);
   if(wpp){window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');}
   else{
