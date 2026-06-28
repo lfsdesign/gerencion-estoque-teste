@@ -822,7 +822,28 @@ async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperC
 function pinD(d){if(pinDigitos.length>=4)return;pinDigitos+=d;renderPin();if(pinDigitos.length===4)setTimeout(validarPin,120);}
 function pinDel(){if(pinDigitos.length>0){pinDigitos=pinDigitos.slice(0,-1);renderPin();}}
 function renderPin(){for(let i=0;i<4;i++){const el=$('pd'+i);if(el)el.classList.toggle('filled',i<pinDigitos.length);}const err=$('pinErro');if(err)err.textContent='';}
-async function validarPin(){try{const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinDigitos}&select=id,nome,nome_proprietario`);if(rp.length){FUNC_ID=null;FUNC_NOME=rp[0].nome_proprietario||rp[0].nome;REST_NOME=rp[0].nome;FUNC_ROLE='proprietario';salvarSessao('PROP');await entrarApp();return;}const rf=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*`);const rfF=rf.filter(f=>f.pin===pinDigitos);if(rfF&&rfF.length){FUNC_ID=rfF[0].id;FUNC_NOME=rfF[0].nome;FUNC_ROLE='funcionario';FUNC_PERMS={historico:rfF[0].perm_historico,insights:rfF[0].perm_insights,produtos:rfF[0].perm_produtos,valor:rfF[0].perm_valor_estoque,estornar:rfF[0].perm_estornar};salvarSessao(rfF[0].id);const rrest=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rrest.length?rrest[0].nome:'';await entrarApp();return;}pinDigitos='';renderPin();const err=$('pinErro');if(err){err.textContent='PIN incorreto. Tente novamente.';setTimeout(()=>err.textContent='',2000);}}catch(e){toast('Erro: '+e.message,'err');pinDigitos='';renderPin();}}
+async function validarPin(){try{
+  // Verificar se licença está ativa
+  const lic=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=ativo,validade_ate`);
+  if(lic.length){
+    const r=lic[0];
+    if(r.ativo===false){
+      pinDigitos='';renderPin();
+      $('pinErro').textContent='';
+      toast('⛔ Sistema inativo. Entre em contato com o suporte.','err',6000);
+      return;
+    }
+    if(r.validade_ate){
+      const hoje=new Date();hoje.setHours(0,0,0,0);
+      const val=new Date(r.validade_ate+'T00:00:00');
+      if(val<hoje){
+        pinDigitos='';renderPin();
+        toast('⚠️ Licença vencida. Renove para continuar.','warn',6000);
+        return;
+      }
+    }
+  }
+  const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinDigitos}&select=id,nome,nome_proprietario`);if(rp.length){FUNC_ID=null;FUNC_NOME=rp[0].nome_proprietario||rp[0].nome;REST_NOME=rp[0].nome;FUNC_ROLE='proprietario';salvarSessao('PROP');await entrarApp();return;}const rf=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*`);const rfF=rf.filter(f=>f.pin===pinDigitos);if(rfF&&rfF.length){FUNC_ID=rfF[0].id;FUNC_NOME=rfF[0].nome;FUNC_ROLE='funcionario';FUNC_PERMS={historico:rfF[0].perm_historico,insights:rfF[0].perm_insights,produtos:rfF[0].perm_produtos,valor:rfF[0].perm_valor_estoque,estornar:rfF[0].perm_estornar};salvarSessao(rfF[0].id);const rrest=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rrest.length?rrest[0].nome:'';await entrarApp();return;}pinDigitos='';renderPin();const err=$('pinErro');if(err){err.textContent='PIN incorreto. Tente novamente.';setTimeout(()=>err.textContent='',2000);}}catch(e){toast('Erro: '+e.message,'err');pinDigitos='';renderPin();}}
 function trocarEst(){
   const el=document.getElementById('toast');
   el.innerHTML='🔄 Trocar estabelecimento? <button onclick="confirmarTrocarEst()" style="margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-weight:900;cursor:pointer;">✓ Sim</button> <button onclick="fecharToast()" style="margin-left:4px;padding:2px 10px;background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;cursor:pointer;">✗ Não</button>';
