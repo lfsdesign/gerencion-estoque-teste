@@ -1193,7 +1193,8 @@ function enviarParaFornecedor(fid){
   if(!linhas)return toast('Coloque pelo menos uma quantidade','warn');
   const dest=fornec?fornec.nome:'Lista Geral';
   const wpp=fornec?.whatsapp||'';
-  const msg=encodeURIComponent(`🛒 *Pedido de Compras — ${dest}*\n🏪 ${REST_NOME||''}${FUNC_NOME?' · '+FUNC_NOME:''}\n${data}\n\n${linhas}\n\n_Gerencion Estoque v3.1_`);
+  const cabecalho='\uD83C\uDFEA *'+(REST_NOME||'')+'*'+(FUNC_NOME?' \u00B7 '+FUNC_NOME:'')+'\n\uD83D\uDED2 Pedido de Compras \u2014 '+dest+'\n'+data+'\n\n'+linhas+'\n\n_Gerencion Estoque v1.0_';
+    const msg=encodeURIComponent(cabecalho);
   if(wpp){window.open(`https://wa.me/${wpp}?text=${msg}`,'_blank');}
   else{
     const num=prompt(`Fornecedor "${dest}" sem WhatsApp.\nDigite o número (55+DDD+número):`);
