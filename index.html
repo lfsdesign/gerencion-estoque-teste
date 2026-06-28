@@ -270,7 +270,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Alertas de estoque e validade</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Gráficos e insights</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Relatórios PDF/CSV</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);"><span style="color:var(--gn);font-weight:700;">✅</span> Lista de compras por fornecedor</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);"><span style="color:var(--t3);">❌</span> Lista de compras por fornecedor</div>
       </div>
       <button onclick="abrirAceitePromo('basico')" style="width:100%;padding:13px;background:var(--s2);border:1.5px solid var(--b2);border-radius:13px;color:var(--t2);font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">Começar com Básico</button>
     </div>
@@ -957,7 +957,7 @@ const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','
 
 // LIMITES POR PLANO
 const PLANOS={
-  basico:{produtos:50,funcionarios:2,fornecedores:5,relatorios:false,lista:true,label:'📦 Básico',preco:'R$ 97/mês'},
+  basico:{produtos:50,funcionarios:2,fornecedores:5,relatorios:false,lista:false,label:'📦 Básico',preco:'R$ 97/mês'},
   profissional:{produtos:150,funcionarios:8,fornecedores:10,relatorios:true,lista:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
   empresarial:{produtos:99999,funcionarios:99999,fornecedores:99999,relatorios:true,lista:true,label:'🏆 Empresarial',preco:'R$ 197/mês'}
 };
@@ -1275,7 +1275,7 @@ function abrirAceitePromo(plano){
     '👥 Até '+p.funcionarios+' funcionários<br>'+
     '🚚 Até '+p.fornecedores+' fornecedores<br>'+
     (p.relatorios?'✅ Relatórios PDF/CSV':'❌ Sem relatórios PDF/CSV')+'<br>'+
-    (p.lista?'✅ Lista de compras por fornecedor':'❌ Lista de compras apenas geral');
+    (p.lista?'✅ Lista de compras por fornecedor com envio pelo WhatsApp':'❌ Lista de compras por fornecedor não disponível');
   if(label)label.innerHTML='Li e <strong>entendi</strong> que após 30 dias experimentando o plano Empresarial, meu plano será ajustado automaticamente para <strong>'+p.label+'</strong> ('+p.preco+').';
   $('chkAceitePromo').checked=false;
   abrirModal('ovAceitePromo');
@@ -1939,10 +1939,10 @@ const TUTORIAIS={
     hi('📊','Resumo do Mês','Mostra as entradas, saídas e perdas do mês atual em números. Acompanhe a evolução do seu estoque mês a mês.'),
     hi('📈','Comparativo de Consumo por Categoria','Barras mostram quanto saiu de cada categoria este mês. Abaixo de cada categoria aparecem os produtos individuais com a quantidade. Ótimo para planejar compras.'),
     hi('⚠️','Relatório de Perdas — impacto financeiro','Lista todas as perdas e vencimentos do mês com quantidade e <strong>valor em R$</strong>. No topo aparece o <strong>total perdido em dinheiro</strong>. Use para identificar o que mais desperdiça e agir para reduzir prejuízo.'),
-    hi('🛒','Lista de Compras por Fornecedor — PASSO A PASSO','<strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
+    hi('🛒','Lista de Compras por Fornecedor','⭐ Disponível nos planos <strong>Profissional e Empresarial</strong>.<br><strong>Durante os 30 dias promocionais</strong> todos os clientes têm acesso!<br><br>Passo a passo:<br><strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
   ],
   config:[
-    hi('🎁','Promoção de Boas-vindas — 30 dias Empresarial','Ao criar sua conta no plano Básico ou Profissional, você ganha <strong>30 dias com todos os recursos do Empresarial desbloqueados</strong>: produtos ilimitados, todos os relatórios, lista de compras por fornecedor. Após 30 dias, seu plano volta automaticamente para o que você escolheu. Você é avisado 7 dias antes!'),
+    hi('🎁','Promoção de Boas-vindas — 30 dias Empresarial','Ao criar sua conta, você ganha <strong>30 dias com todos os recursos do Empresarial</strong>: produtos ilimitados, relatórios PDF/CSV e lista de compras por fornecedor. Após 30 dias, seu plano volta ao que você escolheu — no <strong>Básico</strong> a lista de compras por fornecedor e os relatórios não estarão disponíveis. Você é avisado <strong>7 dias antes</strong> do fim do período!'),
     hi('🏷️','Seu Plano Atual','No topo das configurações você vê <strong>qual plano está ativo</strong>, os limites de produtos, funcionários e fornecedores, e o valor mensal. Se precisar de mais recursos, entre em contato pelo WhatsApp para fazer upgrade!'),
     hi('🔗','Enviar acesso para Funcionário — PASSO A PASSO','<strong>1.</strong> Vá em <strong>👥 Funcionários</strong> e cadastre o funcionário com nome e PIN<br><strong>2.</strong> Volte em <strong>🔗 Acesso para Funcionários</strong><br><strong>3.</strong> Toque em <strong>📲 Enviar Link pelo WhatsApp</strong><br><strong>4.</strong> O funcionário abre o link no celular<br><strong>5.</strong> Digita o PIN que você criou para ele<br><strong>6.</strong> Instala o app na tela inicial<br>Pronto! Ele já pode registrar entradas e saídas.'),
     hi('🔐','Permissões do Funcionário','Por padrão o funcionário só pode registrar entradas e saídas. Para liberar mais acesso:<br><strong>1.</strong> Toque no nome do funcionário na lista<br><strong>2.</strong> Aparece a seção 🔐 Permissões<br><strong>3.</strong> Ative o que quiser liberar:<br>• 📋 Ver Histórico<br>• 📊 Ver Insights<br>• 📦 Cadastrar Produtos<br>• 💰 Ver Valor do Estoque<br>• ↩️ Estornar Movimentos<br><strong>4.</strong> Ou toque em ✅ Liberar Tudo de uma vez'),
