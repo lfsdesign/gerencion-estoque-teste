@@ -735,24 +735,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 </div>
 
 <!-- EMOJI PICKERS FIXOS -->
-<div id="emojiPicker" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s2);border-top:2px solid var(--gn3);border-radius:16px 16px 0 0;max-height:60vh;overflow:hidden;box-shadow:0 -4px 20px rgba(0,0,0,0.5);">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0;">
+<div id="emojiPicker" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s2);border-top:2px solid var(--gn3);border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.5);display:none;flex-direction:column;max-height:60vh;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;flex-shrink:0;">
     <span style="font-size:12px;font-weight:700;color:var(--gn);">Escolha um emoji para a categoria</span>
     <button onclick="document.getElementById('emojiPicker').style.display='none'" style="background:var(--rd2);border:1px solid var(--rd3);border-radius:8px;color:var(--rd);padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">✕ Fechar</button>
   </div>
-  <div class="emoji-tabs" id="emojiTabs" style="margin-top:6px;"></div>
-  <div class="emoji-content" style="max-height:calc(60vh - 80px);overflow-y:auto;padding:8px;">
+  <div class="emoji-tabs" id="emojiTabs" style="flex-shrink:0;"></div>
+  <div style="overflow-y:auto;flex:1;padding:8px;">
     <div class="emoji-g" id="emojiGrid"></div>
   </div>
 </div>
 
-<div id="emojiPickerProd" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s2);border-top:2px solid var(--gn3);border-radius:16px 16px 0 0;max-height:60vh;overflow:hidden;box-shadow:0 -4px 20px rgba(0,0,0,0.5);">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0;">
+<div id="emojiPickerProd" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s2);border-top:2px solid var(--gn3);border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.5);flex-direction:column;max-height:60vh;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;flex-shrink:0;">
     <span style="font-size:12px;font-weight:700;color:var(--gn);">Escolha um emoji</span>
     <button onclick="document.getElementById('emojiPickerProd').style.display='none'" style="background:var(--rd2);border:1px solid var(--rd3);border-radius:8px;color:var(--rd);padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">✕ Fechar</button>
   </div>
-  <div class="emoji-tabs" id="emojiTabsProd" style="margin-top:6px;"></div>
-  <div class="emoji-content" style="max-height:calc(60vh - 80px);overflow-y:auto;padding:8px;">
+  <div class="emoji-tabs" id="emojiTabsProd" style="flex-shrink:0;"></div>
+  <div style="overflow-y:auto;flex:1;padding:8px;">
     <div class="emoji-g" id="emojiGridProd"></div>
   </div>
 </div>
@@ -825,7 +825,7 @@ function mostrarSugsTipo(val,sufx){const el=$('tipoSugs'+sufx);if(!el)return;if(
 function escolherTipo(sufx,val){const inp=sufx==='S'?$('sTipo'):$('cfgTipo');if(inp)inp.value=val;const s=$('tipoSugs'+sufx);if(s)s.style.display='none';}
 
 // EMOJI PICKER
-function toggleEmoji(){const el=$('emojiPicker');if(!el)return;if(el.style.display==='block'){el.style.display='none';return;}emojiTarget='cat';emojiTabSel=0;renderEmojiAba(0);el.style.display='block';}
+function toggleEmoji(){const el=$('emojiPicker');if(!el)return;if(el.style.display==='block'){el.style.display='none';return;}emojiTarget='cat';emojiTabSel=0;renderEmojiAba(0);el.style.display='flex';}
 function renderEmojiAbaProd(idx){
   emojiTabSel=idx;
   var tabs=$('emojiTabsProd');var grid=$('emojiGridProd');
@@ -1012,7 +1012,7 @@ function abrirProd(id){
         btn.textContent=p?(p.emoji||'📦'):'📦';
         btn.type='button';
         btn.style.cssText='width:46px;height:46px;flex-shrink:0;background:var(--s2);border:1.5px solid var(--b);border-radius:11px;font-size:21px;cursor:pointer;';
-        btn.onclick=()=>{const picker=$('emojiPickerProd');if(picker){renderEmojiAbaProd(0);picker.style.display=picker.style.display==='block'?'none':'block';}};
+        btn.onclick=()=>{const picker=$('emojiPickerProd');if(picker){renderEmojiAbaProd(0);picker.style.display=(picker.style.display==='none'||picker.style.display==='')?'flex':'none';}};
         wrap.appendChild(btn);
       }
     }
