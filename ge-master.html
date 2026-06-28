@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerencion Estoque — Painel Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0B1120;--s1:#111C2E;--s2:#172238;--s3:#1E2D45;
+  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.14);
+  --gn:#22C55E;--gn2:rgba(34,197,94,0.12);--gn3:rgba(34,197,94,0.25);
+  --am:#F59E0B;--am2:rgba(245,158,11,0.12);--am3:rgba(245,158,11,0.25);
+  --rd:#EF4444;--rd2:rgba(239,68,68,0.12);--rd3:rgba(239,68,68,0.25);
+  --bl:#3B82F6;--bl2:rgba(59,130,246,0.12);--bl3:rgba(59,130,246,0.25);
+  --pu:#8B5CF6;--pu2:rgba(139,92,246,0.12);--pu3:rgba(139,92,246,0.25);
+  --t:#F0F9FF;--t2:rgba(255,255,255,0.70);--t3:rgba(255,255,255,0.45);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s1);border:1px solid var(--gn3);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--gn);z-index:9999;opacity:0;transition:all .3s;pointer-events:none;max-width:92vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.err{border-color:var(--rd3);color:var(--rd);}
+#toast.warn{border-color:var(--am3);color:var(--am);}
+
+/* LOGIN MASTER */
+#telaLogin{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.logo{width:72px;height:72px;background:linear-gradient(135deg,var(--pu),#6D28D9);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;margin-bottom:12px;}
+.brand{font-size:18px;font-weight:900;color:var(--pu);margin-bottom:4px;}
+.sub{font-size:12px;color:var(--t2);margin-bottom:28px;}
+.card{background:var(--s1);border:1px solid var(--b);border-radius:20px;padding:24px 20px;width:100%;max-width:400px;}
+.card h2{font-size:15px;font-weight:800;margin-bottom:16px;}
+.inp{width:100%;padding:12px 14px;background:var(--s2);border:1.5px solid var(--b);border-radius:11px;color:var(--t);font-family:'Inter',sans-serif;font-size:14px;outline:none;margin-bottom:10px;}
+.inp:focus{border-color:var(--pu);}
+.inp::placeholder{color:var(--t3);}
+.btn{width:100%;padding:13px;background:var(--pu);border:none;border-radius:12px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* PAINEL */
+#telaApp{display:none;min-height:100vh;}
+header{background:var(--s1);border-bottom:1px solid var(--b);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hbrand{display:flex;align-items:center;gap:10px;}
+.hlogo{width:32px;height:32px;background:linear-gradient(135deg,var(--pu),#6D28D9);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;}
+.hname{font-size:13px;font-weight:800;}
+.hsub{font-size:10px;color:var(--t2);}
+.sair-btn{padding:5px 12px;background:var(--rd2);border:1px solid var(--rd3);border-radius:8px;color:var(--rd);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+main{padding:16px;max-width:800px;margin:0 auto;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.stat{background:var(--s1);border:1px solid var(--b);border-radius:13px;padding:13px;text-align:center;}
+.stat-n{font-size:26px;font-weight:900;line-height:1;}
+.stat-l{font-size:9px;font-weight:600;color:var(--t2);margin-top:3px;text-transform:uppercase;}
+
+/* FILTROS */
+.filtros{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
+.fbtn{padding:6px 14px;border-radius:20px;border:1px solid var(--b);background:var(--s1);color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.fbtn.on{background:var(--pu);color:#fff;border-color:var(--pu);}
+.sinp{width:100%;padding:10px 13px;background:var(--s1);border:1px solid var(--b);border-radius:10px;color:var(--t);font-family:'Inter',sans-serif;font-size:13px;outline:none;margin-bottom:10px;}
+.sinp:focus{border-color:var(--pu);}
+.sinp::placeholder{color:var(--t3);}
+
+/* CARDS CLIENTE */
+.cli-card{background:var(--s1);border:1px solid var(--b);border-radius:14px;padding:15px;margin-bottom:9px;}
+.cli-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.cli-nome{font-size:14px;font-weight:800;color:var(--t);}
+.cli-tipo{font-size:11px;color:var(--t2);margin-top:2px;}
+.cli-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.b-ativo{background:var(--gn2);color:var(--gn);border:1px solid var(--gn3);}
+.b-inativo{background:var(--rd2);color:var(--rd);border:1px solid var(--rd3);}
+.b-plano{background:var(--bl2);color:var(--bl);border:1px solid var(--bl3);}
+.b-venc{background:var(--am2);color:var(--am);border:1px solid var(--am3);}
+.cli-info{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.cli-inf-item{background:var(--s2);border-radius:8px;padding:7px 10px;}
+.cli-inf-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;}
+.cli-inf-v{font-size:12px;font-weight:700;color:var(--t);margin-top:2px;}
+.cli-acoes{display:flex;gap:6px;flex-wrap:wrap;}
+.acao-btn{padding:7px 13px;border:none;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.overlay.on{display:flex;}
+.modal{background:var(--s1);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.mh{width:36px;height:4px;background:var(--b2);border-radius:20px;margin:0 auto 14px;}
+.mt{font-size:15px;font-weight:800;margin-bottom:14px;}
+.fg{margin-bottom:12px;}
+.fl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t2);margin-bottom:5px;display:block;}
+select.inp{appearance:auto;}
+.mb{display:flex;gap:8px;margin-top:14px;}
+.mb-p{flex:1;padding:13px;background:var(--pu);border:none;border-radius:12px;color:#fff;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
+.mb-s{padding:13px 16px;background:var(--s2);border:1px solid var(--b);border-radius:12px;color:var(--t2);font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="telaLogin">
+  <div class="logo">M</div>
+  <div class="brand">Painel Master</div>
+  <div class="sub">Gerencion Estoque · Acesso restrito</div>
+  <div class="card">
+    <h2>🔐 Acesso Master</h2>
+    <input class="inp" type="password" id="masterPin" placeholder="Senha master" maxlength="20">
+    <button class="btn" onclick="loginMaster()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="telaApp">
+  <header>
+    <div class="hbrand">
+      <div class="hlogo">M</div>
+      <div>
+        <div class="hname">Painel Master</div>
+        <div class="hsub">Gerencion Estoque v1.0</div>
+      </div>
+    </div>
+    <button class="sair-btn" onclick="sairMaster()">Sair</button>
+  </header>
+  <main>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" style="color:var(--pu)" id="stTotal">0</div><div class="stat-l">Total Clientes</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--gn)" id="stAtivos">0</div><div class="stat-l">Ativos</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--rd)" id="stInativos">0</div><div class="stat-l">Inativos</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--am)" id="stVencendo">0</div><div class="stat-l">Vencendo</div></div>
+    </div>
+    <input class="sinp" id="busca" placeholder="🔍 Buscar por nome ou tipo..." oninput="renderClientes()">
+    <div class="filtros">
+      <button class="fbtn on" onclick="setFiltro('todos',this)">Todos</button>
+      <button class="fbtn" onclick="setFiltro('ativo',this)">✅ Ativos</button>
+      <button class="fbtn" onclick="setFiltro('inativo',this)">⛔ Inativos</button>
+      <button class="fbtn" onclick="setFiltro('vencendo',this)">⚠️ Vencendo</button>
+      <button class="fbtn" onclick="setFiltro('basico',this)">📦 Básico</button>
+      <button class="fbtn" onclick="setFiltro('profissional',this)">⭐ Profissional</button>
+      <button class="fbtn" onclick="setFiltro('empresarial',this)">🏆 Empresarial</button>
+    </div>
+    <div id="listaClientes"></div>
+  </main>
+</div>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="overlay" id="ovCliente">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh"></div>
+    <div class="mt" id="mcTit">Editar Cliente</div>
+    <input type="hidden" id="mcId">
+    <div class="fg"><label class="fl">Status</label>
+      <select class="inp" id="mcAtivo">
+        <option value="true">✅ Ativo</option>
+        <option value="false">⛔ Inativo</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Plano</label>
+      <select class="inp" id="mcPlano">
+        <option value="basico">📦 Básico — R$ 97/mês</option>
+        <option value="profissional">⭐ Profissional — R$ 147/mês</option>
+        <option value="empresarial">🏆 Empresarial — R$ 247/mês</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Validade até</label>
+      <input class="inp" type="date" id="mcValidade">
+    </div>
+    <div class="fg"><label class="fl">Máx. Funcionários</label>
+      <input class="inp" type="number" id="mcMaxFunc" placeholder="3" min="1" max="999">
+    </div>
+    <div class="fg"><label class="fl">Observação</label>
+      <input class="inp" id="mcObs" placeholder="Ex: Pagou via Pix, vence dia 5...">
+    </div>
+    <div class="mb">
+      <button class="mb-s" onclick="fecharModal()">Cancelar</button>
+      <button class="mb-p" onclick="salvarCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://vzsvdtlmxxbsqhpitfin.supabase.co';
+const SB_KEY='sb_publishable_rhwR4_UkK33FF3XX1c-oeA_lMKMCANN';
+const MASTER_PIN='GE2024MASTER';// ← TROQUE ESTA SENHA!
+
+const sb=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{
+  headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+  ...opts
+}).then(async r=>{const d=await r.json();if(!r.ok)throw d;return d;});
+
+const $=id=>document.getElementById(id);
+const toast=(m,t='ok',d=3000)=>{const el=$('toast');el.textContent=m;el.className='show'+(t==='err'?' err':t==='warn'?' warn':'');clearTimeout(el._t);el._t=setTimeout(()=>el.className='',d);};
+const fmt=v=>(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+let todosClientes=[];
+let filtroAtual='todos';
+
+// LOGIN
+function loginMaster(){
+  const pin=$('masterPin').value;
+  if(pin!==MASTER_PIN)return toast('Senha incorreta','err');
+  $('telaLogin').style.display='none';
+  $('telaApp').style.display='block';
+  carregarClientes();
+}
+function sairMaster(){$('telaApp').style.display='none';$('telaLogin').style.display='flex';$('masterPin').value='';}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('telaLogin').style.display!=='none')loginMaster();});
+
+// DADOS
+async function carregarClientes(){
+  try{
+    todosClientes=await sb('ge_restaurantes?select=*&order=criado_em.desc');
+    renderStats();
+    renderClientes();
+  }catch(e){toast('Erro ao carregar','err');}
+}
+
+function renderStats(){
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const em7dias=new Date(hoje);em7dias.setDate(hoje.getDate()+7);
+  const ativos=todosClientes.filter(c=>c.ativo!==false);
+  const inativos=todosClientes.filter(c=>c.ativo===false);
+  const vencendo=todosClientes.filter(c=>{
+    if(!c.validade_ate)return false;
+    const v=new Date(c.validade_ate+'T00:00:00');
+    return v>=hoje&&v<=em7dias;
+  });
+  $('stTotal').textContent=todosClientes.length;
+  $('stAtivos').textContent=ativos.length;
+  $('stInativos').textContent=inativos.length;
+  $('stVencendo').textContent=vencendo.length;
+}
+
+function setFiltro(f,btn){
+  filtroAtual=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn&&btn.classList.add('on');
+  renderClientes();
+}
+
+function renderClientes(){
+  const busca=($('busca')&&$('busca').value||'').toLowerCase();
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const em7=new Date(hoje);em7.setDate(hoje.getDate()+7);
+
+  let lista=todosClientes.filter(c=>{
+    if(busca&&!c.nome.toLowerCase().includes(busca)&&!(c.tipo_negocio||'').toLowerCase().includes(busca))return false;
+    if(filtroAtual==='ativo')return c.ativo!==false;
+    if(filtroAtual==='inativo')return c.ativo===false;
+    if(filtroAtual==='vencendo'){
+      if(!c.validade_ate)return false;
+      const v=new Date(c.validade_ate+'T00:00:00');
+      return v>=hoje&&v<=em7;
+    }
+    if(filtroAtual==='basico')return c.plano==='basico'||!c.plano;
+    if(filtroAtual==='profissional')return c.plano==='profissional';
+    if(filtroAtual==='empresarial')return c.plano==='empresarial';
+    return true;
+  });
+
+  const el=$('listaClientes');
+  if(!lista.length){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--t3);">Nenhum cliente encontrado</div>';return;}
+
+  el.innerHTML=lista.map(c=>{
+    const ativo=c.ativo!==false;
+    const plano=c.plano||'basico';
+    const planoLabel={'basico':'📦 Básico','profissional':'⭐ Profissional','empresarial':'🏆 Empresarial'}[plano]||plano;
+    const planoPreco={'basico':'R$ 97/mês','profissional':'R$ 147/mês','empresarial':'R$ 247/mês'}[plano]||'';
+
+    let valBadge='';
+    if(c.validade_ate){
+      const v=new Date(c.validade_ate+'T00:00:00');
+      const diff=Math.round((v-hoje)/86400000);
+      if(diff<0)valBadge=`<span class="badge b-inativo">⛔ Vencido há ${Math.abs(diff)}d</span>`;
+      else if(diff<=7)valBadge=`<span class="badge b-venc">⚠️ Vence em ${diff}d</span>`;
+      else valBadge=`<span class="badge" style="background:var(--gn2);color:var(--gn);border:1px solid var(--gn3);">✅ Válido até ${new Date(c.validade_ate+'T00:00:00').toLocaleDateString('pt-BR')}</span>`;
+    }else{
+      valBadge='<span class="badge" style="background:var(--s3);color:var(--t3);">Sem validade</span>';
+    }
+
+    const criado=c.criado_em?new Date(c.criado_em).toLocaleDateString('pt-BR'):'—';
+
+    return`<div class="cli-card">
+      <div class="cli-top">
+        <div>
+          <div class="cli-nome">${c.nome}</div>
+          <div class="cli-tipo">${c.tipo_negocio||'Sem tipo'} · ${c.nome_proprietario||'Proprietário'}</div>
+          <div class="cli-badges">
+            <span class="badge ${ativo?'b-ativo':'b-inativo'}">${ativo?'✅ Ativo':'⛔ Inativo'}</span>
+            <span class="badge b-plano">${planoLabel}</span>
+            ${valBadge}
+          </div>
+        </div>
+      </div>
+      <div class="cli-info">
+        <div class="cli-inf-item"><div class="cli-inf-l">Plano</div><div class="cli-inf-v">${planoPreco}</div></div>
+        <div class="cli-inf-item"><div class="cli-inf-l">Cadastrado</div><div class="cli-inf-v">${criado}</div></div>
+        <div class="cli-inf-item"><div class="cli-inf-l">Funcionários</div><div class="cli-inf-v">Máx: ${c.max_funcionarios||3}</div></div>
+        <div class="cli-inf-item"><div class="cli-inf-l">Código acesso</div><div class="cli-inf-v" style="letter-spacing:2px;color:var(--gn);">${c.codigo_acesso||'—'}</div></div>
+      </div>
+      <div class="cli-acoes">
+        <button class="acao-btn" onclick="editarCliente('${c.id}')"
+          style="background:var(--bl2);color:var(--bl);border:1px solid var(--bl3);">✏️ Editar</button>
+        <button class="acao-btn" onclick="toggleAtivo('${c.id}',${!ativo})"
+          style="background:${ativo?'var(--rd2)':'var(--gn2)'};color:${ativo?'var(--rd)':'var(--gn)'};border:1px solid ${ativo?'var(--rd3)':'var(--gn3)'};">
+          ${ativo?'⛔ Desativar':'✅ Ativar'}
+        </button>
+        <button class="acao-btn" onclick="renovar30('${c.id}')"
+          style="background:var(--am2);color:var(--am);border:1px solid var(--am3);">🔄 +30 dias</button>
+        <button class="acao-btn" onclick="copiarCodigo('${c.codigo_acesso||''}')"
+          style="background:var(--pu2);color:var(--pu);border:1px solid var(--pu3);">📋 Copiar código</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// AÇÕES RÁPIDAS
+async function toggleAtivo(id,novoStatus){
+  try{
+    await sb(`ge_restaurantes?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({ativo:novoStatus})});
+    toast(novoStatus?'✅ Cliente ativado!':'⛔ Cliente desativado!',novoStatus?'ok':'warn');
+    await carregarClientes();
+  }catch(e){toast('Erro','err');}
+}
+
+async function renovar30(id){
+  const c=todosClientes.find(x=>x.id===id);
+  if(!c)return;
+  const base=c.validade_ate&&new Date(c.validade_ate+'T00:00:00')>new Date()?new Date(c.validade_ate+'T00:00:00'):new Date();
+  base.setDate(base.getDate()+30);
+  const nova=base.toISOString().split('T')[0];
+  try{
+    await sb(`ge_restaurantes?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({ativo:true,validade_ate:nova})});
+    toast('✅ +30 dias aplicado! Válido até '+new Date(nova+'T00:00:00').toLocaleDateString('pt-BR'));
+    await carregarClientes();
+  }catch(e){toast('Erro','err');}
+}
+
+function copiarCodigo(cod){
+  if(!cod)return toast('Sem código','warn');
+  navigator.clipboard.writeText(cod).then(()=>toast('📋 Código copiado: '+cod));
+}
+
+// MODAL EDITAR
+let clienteAtual=null;
+function editarCliente(id){
+  clienteAtual=todosClientes.find(c=>c.id===id);
+  if(!clienteAtual)return;
+  $('mcTit').textContent='✏️ '+clienteAtual.nome;
+  $('mcId').value=clienteAtual.id;
+  $('mcAtivo').value=clienteAtual.ativo===false?'false':'true';
+  $('mcPlano').value=clienteAtual.plano||'basico';
+  $('mcValidade').value=clienteAtual.validade_ate||'';
+  $('mcMaxFunc').value=clienteAtual.max_funcionarios||3;
+  $('mcObs').value=clienteAtual.observacao||'';
+  $('ovCliente').classList.add('on');
+}
+
+async function salvarCliente(){
+  const id=$('mcId').value;
+  const dados={
+    ativo:$('mcAtivo').value==='true',
+    plano:$('mcPlano').value,
+    validade_ate:$('mcValidade').value||null,
+    max_funcionarios:parseInt($('mcMaxFunc').value)||3,
+    observacao:$('mcObs').value||null
+  };
+  try{
+    await sb(`ge_restaurantes?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});
+    toast('✅ Cliente atualizado!');
+    fecharModal();
+    await carregarClientes();
+  }catch(e){toast('Erro ao salvar','err');}
+}
+
+function fecharModal(){$('ovCliente').classList.remove('on');}
+$('ovCliente').addEventListener('click',e=>{if(e.target===$('ovCliente'))fecharModal();});
+</script>
+</body>
+</html>
