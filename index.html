@@ -830,18 +830,16 @@ function renderEmojiAbaProd(idx){
   emojiTabSel=idx;
   const tabs=$('emojiTabsProd');const grid=$('emojiGridProd');
   if(!tabs||!grid)return;
-  tabs.innerHTML=EMOJI_CATS.map((c,i)=>'<button class="emoji-tab'+(i===idx?' on':'')+'" data-pidx="'+i+'" title="'+c.nome+'">'+c.tab+'</button>').join('');
-  grid.innerHTML=EMOJI_CATS[idx].emojis.map(e=>'<button class="emoji-o" data-pemoji="'+e+'">'+e+'</button>').join('');
-  const newTabs=tabs.cloneNode(true);tabs.parentNode.replaceChild(newTabs,tabs);
-  const newGrid=grid.cloneNode(true);grid.parentNode.replaceChild(newGrid,grid);
-  $('emojiTabsProd').addEventListener('click',function(e){
-    const btn=e.target.closest('[data-pidx]');
-    if(btn)renderEmojiAbaProd(parseInt(btn.dataset.pidx));
+  let th='';
+  EMOJI_CATS.forEach(function(c,i){
+    th+='<button class="emoji-tab'+(i===idx?' on':'')+'" onclick="renderEmojiAbaProd('+i+')" title="'+c.nome+'">'+c.tab+'</button>';
   });
-  $('emojiGridProd').addEventListener('click',function(e){
-    const btn=e.target.closest('[data-pemoji]');
-    if(btn)selecionarEmojiProd(btn.dataset.pemoji);
+  tabs.innerHTML=th;
+  let gh='';
+  EMOJI_CATS[idx].emojis.forEach(function(e){
+    gh+='<button class="emoji-o" onclick="selecionarEmojiProd(this.textContent)">'+e+'</button>';
   });
+  grid.innerHTML=gh;
 }
 function selecionarEmojiProd(e){
   const mpE=$('mpEmojiBtn');
@@ -852,20 +850,16 @@ function renderEmojiAba(idx){
   emojiTabSel=idx;
   const tabs=$('emojiTabs');const grid=$('emojiGrid');
   if(!tabs||!grid)return;
-  // Usar data-idx em vez de onclick inline para evitar problemas com z-index
-  tabs.innerHTML=EMOJI_CATS.map((c,i)=>'<button class="emoji-tab'+(i===idx?' on':'')+'" data-idx="'+i+'" title="'+c.nome+'">'+c.tab+'</button>').join('');
-  grid.innerHTML=EMOJI_CATS[idx].emojis.map(e=>'<button class="emoji-o" data-emoji="'+e+'">'+e+'</button>').join('');
-  // Remover listeners antigos e adicionar novos
-  const newTabs=tabs.cloneNode(true);tabs.parentNode.replaceChild(newTabs,tabs);
-  const newGrid=grid.cloneNode(true);grid.parentNode.replaceChild(newGrid,grid);
-  $('emojiTabs').addEventListener('click',function(e){
-    const btn=e.target.closest('[data-idx]');
-    if(btn)renderEmojiAba(parseInt(btn.dataset.idx));
+  let th='';
+  EMOJI_CATS.forEach(function(c,i){
+    th+='<button class="emoji-tab'+(i===idx?' on':'')+'" onclick="renderEmojiAba('+i+')" title="'+c.nome+'">'+c.tab+'</button>';
   });
-  $('emojiGrid').addEventListener('click',function(e){
-    const btn=e.target.closest('[data-emoji]');
-    if(btn)selecionarEmoji(btn.dataset.emoji);
+  tabs.innerHTML=th;
+  let gh='';
+  EMOJI_CATS[idx].emojis.forEach(function(e){
+    gh+='<button class="emoji-o" onclick="selecionarEmoji(this.textContent)">'+e+'</button>';
   });
+  grid.innerHTML=gh;
 }
 function selecionarEmoji(e){if(emojiTarget==='cat'){$('emjBtn')&&($('emjBtn').textContent=e);$('novaCatIco')&&($('novaCatIco').value=e);}else if(emojiTarget==='prod'){const mpE=$('mpEmojiBtn');if(mpE){mpE.textContent=e;$('mpEmoji')&&($('mpEmoji').value=e);}}$('emojiPicker').style.display='none';}
 
