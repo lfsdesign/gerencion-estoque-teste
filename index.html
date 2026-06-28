@@ -561,6 +561,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     </div>
     <div class="val-status-box" id="mpValStatus"></div>
     <div class="val-status-box" id="mpPrevBox" style="display:none;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:600;margin-bottom:9px;line-height:1.5;"></div>
+    <div id="emojiPickerProd" class="emoji-pick" style="display:none;">
+      <div class="emoji-tabs" id="emojiTabsProd"></div>
+      <div class="emoji-content"><div class="emoji-g" id="emojiGridProd"></div></div>
+    </div>
     <div class="mb">
       <button class="mb-s" onclick="fM('ovProd')">Cancelar</button>
       <button class="mb-p" onclick="salvarProd()">Salvar Produto</button>
@@ -806,6 +810,19 @@ function escolherTipo(sufx,val){const inp=sufx==='S'?$('sTipo'):$('cfgTipo');if(
 
 // EMOJI PICKER
 function toggleEmoji(){const el=$('emojiPicker');if(!el)return;if(el.style.display==='block'){el.style.display='none';return;}emojiTarget='cat';renderEmojiAba(0);el.style.display='block';}
+function renderEmojiAbaProd(idx){
+  emojiTabSel=idx;
+  const tabs=$('emojiTabsProd');
+  const grid=$('emojiGridProd');
+  if(!tabs||!grid)return;
+  tabs.innerHTML=EMOJI_CATS.map((c,i)=>`<button class="emoji-tab ${i===idx?'on':''}" onclick="renderEmojiAbaProd(${i})" title="${c.nome}">${c.tab}</button>`).join('');
+  grid.innerHTML=EMOJI_CATS[idx].emojis.map(e=>`<button class="emoji-o" onclick="selecionarEmojiProd('${e}')">${e}</button>`).join('');
+}
+function selecionarEmojiProd(e){
+  const mpE=$('mpEmojiBtn');
+  if(mpE){mpE.textContent=e;$('mpEmoji')&&($('mpEmoji').value=e);}
+  $('emojiPickerProd').style.display='none';
+}
 function renderEmojiAba(idx){emojiTabSel=idx;const tabs=$('emojiTabs');const grid=$('emojiGrid');if(!tabs||!grid)return;tabs.innerHTML=EMOJI_CATS.map((c,i)=>`<button class="emoji-tab ${i===idx?'on':''}" onclick="renderEmojiAba(${i})" title="${c.nome}">${c.tab}</button>`).join('');grid.innerHTML=EMOJI_CATS[idx].emojis.map(e=>`<button class="emoji-o" onclick="selecionarEmoji('${e}')">${e}</button>`).join('');}
 function selecionarEmoji(e){if(emojiTarget==='cat'){$('emjBtn')&&($('emjBtn').textContent=e);$('novaCatIco')&&($('novaCatIco').value=e);}else if(emojiTarget==='prod'){const mpE=$('mpEmojiBtn');if(mpE){mpE.textContent=e;$('mpEmoji')&&($('mpEmoji').value=e);}}$('emojiPicker').style.display='none';}
 
@@ -1318,16 +1335,7 @@ function abrirFunc(id){funcAtual=todosFuncs.find(f=>f.id===id)||null;const f=fun
   $('permEstornar').checked=f?.perm_estornar||false;
   abrirModal('ovFunc');}
 async function salvarFunc(){const nome=$('mfNome').value.trim();const pin=$('mfPin').value;if(!nome)return toast('Nome obrigatório','err');if(!funcAtual&&(!pin||pin.length!==4||isNaN(pin)))return toast('PIN deve ter 4 números','err');
-  // Bloquear PIN igual ao do proprietário
-  if(pin){
-    try{
-      const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pin}&select=id`);
-      if(rp.length)return toast('⚠️ Este PIN é igual ao do proprietário! Use um PIN diferente.','err',4000);
-    }catch(e){}
-    // Bloquear PIN igual a outro funcionário (exceto ele mesmo)
-    const pinExiste=todosFuncs.find(f=>f.pin===pin&&f.id!==($('mfId').value||''));
-    if(pinExiste)return toast('⚠️ Este PIN já está em uso por '+pinExiste.nome+'!','err',4000);
-  }const perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked}:{};
+  // PIN pode ser igual ao do proprietário — o sistema distingue pelo contexto de loginconst perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked}:{};
   const dados={restaurante_id:REST_ID,nome,...(pin?{pin}:{}),...perms};try{const id=$('mfId').value;if(id)await sb(`ge_funcionarios?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_funcionarios',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Funcionário atualizado!':'✅ Funcionário criado!');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirFunc(){if(!confirm('Remover funcionário?'))return;try{await sb(`ge_funcionarios?id=eq.${$('mfId').value}`,{method:'DELETE'});toast('Funcionário removido');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro ao remover','err');}}
 
@@ -1651,7 +1659,7 @@ function verificarBackupAutomatico(){
 }
 
 // Fechar sugestões ao clicar fora
-document.addEventListener('click',e=>{['tipoSugsS','tipoSugsC'].forEach(id=>{const el=$(id);if(el&&el.style.display==='block'){const inp=el.previousElementSibling;if(inp&&!inp.contains(e.target)&&!el.contains(e.target))el.style.display='none';}});if($('emojiPicker')&&$('emojiPicker').style.display==='block'){const ep=$('emojiPicker');if(!ep.contains(e.target)&&e.target.id!=='emjBtn'&&e.target.id!=='mpEmojiBtn')ep.style.display='none';}});
+document.addEventListener('click',e=>{['tipoSugsS','tipoSugsC'].forEach(id=>{const el=$(id);if(el&&el.style.display==='block'){const inp=el.previousElementSibling;if(inp&&!inp.contains(e.target)&&!el.contains(e.target))el.style.display='none';}});if($('emojiPicker')&&$('emojiPicker').style.display==='block'){const ep=$('emojiPicker');if(!ep.contains(e.target)&&e.target.id!=='emjBtn')ep.style.display='none';}if($('emojiPickerProd')&&$('emojiPickerProd').style.display==='block'){const ep2=$('emojiPickerProd');if(!ep2.contains(e.target)&&e.target.id!=='mpEmojiBtn')ep2.style.display='none';}});
 
 // INIT
 document.addEventListener('DOMContentLoaded',async()=>{
