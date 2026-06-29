@@ -237,9 +237,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
   <div class="ge-sub">Controle inteligente para qualquer negócio</div>
   <div class="card-form">
     <div class="card-title">Bem-vindo! 👋</div>
-    <div class="card-desc">Primeira vez aqui? Cadastre seu estabelecimento. Já tem cadastro? Entre com o link ou código que o proprietário enviou.</div>
-    <button class="btn-p" onclick="mostrarTela('telaPlanos')">🏪 Criar Meu Estabelecimento</button>
-    <button class="btn-o" onclick="mostrarTela('telaCodigoFunc')">🔑 Entrar com Código de Acesso</button>
+    <div class="card-desc">Para acessar o sistema, use o link ou código enviado pelo seu consultor. Já é cliente? Entre com seu código abaixo.</div>
+    <button class="btn-p" onclick="mostrarTela('telaCodigoFunc')">🔑 Entrar com Código de Acesso</button>
+    <div style="margin-top:18px;padding:14px;background:var(--s2);border:1px solid var(--b);border-radius:13px;text-align:center;">
+      <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:6px;">Ainda não é cliente?</div>
+      <div style="font-size:11px;color:var(--t2);line-height:1.7;">Entre em contato com nosso consultor e assine um plano para receber seu código de acesso.</div>
+      <a href="https://wa.me/5521972163470" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:9px 18px;background:var(--gn);border-radius:10px;color:#0B1120;font-size:12px;font-weight:800;text-decoration:none;">💬 Falar com Consultor</a>
+    </div>
   </div>
 </div>
 
@@ -1905,7 +1909,7 @@ function relCSV(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)
 function hi(ico,t,s){return`<div class="help-it"><div class="help-ic">${ico}</div><div><div class="help-nt">${t}</div><div class="help-ns">${s}</div></div></div>`;}
 const TUTORIAIS={
   dash:[
-    hi('🏠','Bem-vindo ao Gerencion Estoque!','Este é o seu painel principal. Aqui você vê tudo de relance: quantos produtos tem, alertas de estoque baixo e os últimos movimentos. Explore as abas na parte de baixo da tela.'),
+    hi('🏠','Bem-vindo ao Gerencion Estoque!','Este é o seu painel principal. Aqui você vê tudo de relance: quantos produtos tem, alertas de estoque baixo e os últimos movimentos. Explore as abas na parte de baixo da tela. <strong>Para adicionar funcionários</strong>, vá em ⚙️ Config → Funcionários.'),
     hi('📊','Os 3 números do topo','<strong>Produtos</strong> = total cadastrado. <strong>Baixo ⚠️</strong> = estoque abaixo do mínimo que você definiu. <strong>Crítico 🔴</strong> = estoque zerado. Toque em qualquer número para ver a lista de produtos.'),
     hi('💰','Valor do Estoque','Mostra em reais quanto você tem investido em estoque agora. É calculado automaticamente: custo de cada produto × quantidade. Para aparecer, cadastre o custo unitário de cada produto.'),
     hi('📤','Registrar Saída — use sempre!','Toda vez que sair um produto — vendeu, usou, estragou — registre aqui. Escolha o produto, a quantidade e o motivo:<br><strong>📤 Consumo normal</strong> = vendeu ou usou<br><strong>⚠️ Perda</strong> = estragou ou desperdiçou<br><strong>📅 Vencido</strong> = passou da validade<br><strong>🔧 Ajuste</strong> = corrigir contagem'),
