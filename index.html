@@ -727,11 +727,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div class="g2">
       <div class="fg">
         <label class="fl">Fabricação <span class="fl-hint">— opcional</span></label>
-        <input class="inp" type="date" id="mpFab" oninput="atualizarStatusVal()" onchange="atualizarStatusVal()">
+        <input class="inp" id="mpFab" placeholder="DD/MM/AAAA ou use o calendário" oninput="mascaraDataCampo(this);atualizarStatusVal()" style="cursor:text;" onfocus="if(this.getAttribute('data-modo')!=='texto')this.setAttribute('data-modo','texto')">
       </div>
       <div class="fg">
         <label class="fl">Validade <span class="fl-hint">— opcional</span></label>
-        <input class="inp" type="date" id="mpVal" oninput="atualizarStatusVal()" onchange="atualizarStatusVal()">
+        <input class="inp" id="mpVal" placeholder="DD/MM/AAAA ou use o calendário" oninput="mascaraDataCampo(this);atualizarStatusVal()">
       </div>
     </div>
     <div class="fg" style="margin-top:4px;">
@@ -1078,6 +1078,21 @@ const limparSessao=()=>{localStorage.removeItem('ge_sess_uid_'+REST_ID);localSto
 const capturarCodigoDaURL=()=>{const p=new URLSearchParams(window.location.search);const cod=p.get('cod');if(cod){localStorage.setItem('ge_cod_pendente',cod);window.history.replaceState({},'',window.location.pathname);return cod;}return localStorage.getItem('ge_cod_pendente');};
 
 // WHATSAPP +55
+function mascaraDataCampo(el){
+  // Aceita digitação DD/MM/AAAA e armazena em dataset.isoDate
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>8)v=v.slice(0,8);
+  let display=v;
+  if(v.length>4)display=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  else if(v.length>2)display=v.slice(0,2)+'/'+v.slice(2);
+  // Só formatar se usuário está digitando (não colar data no formato ISO)
+  if(!el.value.includes('-')){el.value=display;}
+  // Converter para ISO quando completo
+  if(v.length===8){
+    const d=v.slice(0,2),m=v.slice(2,4),a=v.slice(4,8);
+    el.dataset.isoDate=a+'-'+m+'-'+d;
+  }else{el.dataset.isoDate='';}
+}
 function mascaraData(el){
   let v=el.value.replace(/\D/g,'');
   if(v.length>8)v=v.slice(0,8);
@@ -1156,7 +1171,7 @@ async function calcularPrevisao(prodId, qtdAtual, unidade){
   }catch(e){return null;}
 }
 
-function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;const dtVal=$('mpVal')&&$('mpVal').value;const dtFab=$('mpFab')&&$('mpFab').value;if(!dtVal){el.style.display='none';return;}const s=labelVal({data_validade:dtVal,data_fabricacao:dtFab||null});el.textContent=s.ico+' '+s.txt;el.style.display='block';el.style.background=s.cls==='venc'?'var(--rd2)':s.cls==='warn'?'var(--am2)':'var(--gn2)';el.style.color=s.cls==='venc'?'var(--rd)':s.cls==='warn'?'var(--am)':'var(--gn)';el.style.border=`1px solid ${s.cls==='venc'?'var(--rd3)':s.cls==='warn'?'var(--am3)':'var(--gn3)'}`;}
+function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;const dtVal=($('mpVal')&&($('mpVal').dataset.isoDate||($('mpVal').value&&$('mpVal').value.match(/^\d{4}-/)&&$('mpVal').value)))||'';const dtFab=($('mpFab')&&($('mpFab').dataset.isoDate||($('mpFab').value&&$('mpFab').value.match(/^\d{4}-/)&&$('mpFab').value)))||'';if(!dtVal){el.style.display='none';return;}const s=labelVal({data_validade:dtVal,data_fabricacao:dtFab||null});el.textContent=s.ico+' '+s.txt;el.style.display='block';el.style.background=s.cls==='venc'?'var(--rd2)':s.cls==='warn'?'var(--am2)':'var(--gn2)';el.style.color=s.cls==='venc'?'var(--rd)':s.cls==='warn'?'var(--am)':'var(--gn)';el.style.border=`1px solid ${s.cls==='venc'?'var(--rd3)':s.cls==='warn'?'var(--am3)':'var(--gn3)'}`;}
 
 // SETUP
 async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!$('chkTermos')||!$('chkTermos').checked)return toast('Você precisa aceitar os Termos de Uso para continuar','warn',3000);if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
@@ -1209,7 +1224,17 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
     if(navHist)navHist.style.display=FUNC_PERMS.historico?'flex':'none';
     if(navIns)navIns.style.display=FUNC_PERMS.insights?'flex':'none';
   }
-  const logoSalva=REST_ID?localStorage.getItem('ge_logo_'+REST_ID):null;
+  let logoSalva=REST_ID?localStorage.getItem('ge_logo_'+REST_ID):null;
+  // Se não tem no localStorage, buscar do Supabase
+  if(!logoSalva&&REST_ID){
+    try{
+      const rlogo=await sb('ge_restaurantes?id=eq.'+REST_ID+'&select=logo_base64');
+      if(rlogo.length&&rlogo[0].logo_base64){
+        logoSalva=rlogo[0].logo_base64;
+        localStorage.setItem('ge_logo_'+REST_ID,logoSalva);
+      }
+    }catch(e){}
+  }
   const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
   const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
   // Solicitar permissão de notificação e verificar alertas
@@ -1430,7 +1455,7 @@ function abrirProd(id){
   }
   abrirModal('ovProd');
 }
-async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const dados={restaurante_id:REST_ID,nome,categoria:$('mpCat').value||null,emoji:($('mpEmoji')&&$('mpEmoji').value)||($('mpEmojiBtn')&&$('mpEmojiBtn').textContent)||'📦',unidade:$('mpUnit').value||'un',quantidade:parseFloat($('mpQty').value)||0,estoque_minimo:parseFloat($('mpMin').value)||0,preco_custo:parseFloat($('mpCusto').value)||0,data_fabricacao:$('mpFab').value||null,data_validade:$('mpVal').value||null,fornecedor_id:$('mpFornec').value||null,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()};try{const id=$('mpId').value;if(id)await sb(`ge_produtos?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_produtos',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Produto atualizado!':'✅ Produto criado!');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return toast('Nome obrigatório','err');const dados={restaurante_id:REST_ID,nome,categoria:$('mpCat').value||null,emoji:($('mpEmoji')&&$('mpEmoji').value)||($('mpEmojiBtn')&&$('mpEmojiBtn').textContent)||'📦',unidade:$('mpUnit').value||'un',quantidade:parseFloat($('mpQty').value)||0,estoque_minimo:parseFloat($('mpMin').value)||0,preco_custo:parseFloat($('mpCusto').value)||0,data_fabricacao:($('mpFab').dataset.isoDate||($('mpFab').value&&$('mpFab').value.match(/^\d{4}-/)?$('mpFab').value:null))||null,data_validade:($('mpVal').dataset.isoDate||($('mpVal').value&&$('mpVal').value.match(/^\d{4}-/)?$('mpVal').value:null))||null,fornecedor_id:$('mpFornec').value||null,atualizado_por:FUNC_ID,atualizado_em:new Date().toISOString()};try{const id=$('mpId').value;if(id)await sb(`ge_produtos?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_produtos',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Produto atualizado!':'✅ Produto criado!');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirProd(){if(!confirm('Excluir produto?'))return;try{await sb(`ge_produtos?id=eq.${$('mpId').value}`,{method:'DELETE'});toast('Produto removido');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro ao excluir','err');}}
 
 // MOVIMENTOS
@@ -1440,17 +1465,16 @@ function setSt(sub){
     const msg=sub==='perda'
       ?'⚠️ Este produto estragou ou foi desperdiçado?'
       :'📅 Este produto passou da validade?';
-    // Mostrar confirmação inline no modal
+    // Bloquear botão Confirmar até aceitar
+    const mmConf=$('mmConf');
+    if(mmConf){mmConf.disabled=true;mmConf.style.opacity='0.4';}
     const conf=document.getElementById('stConf');
     if(conf){
       conf.style.display='block';
-      conf.innerHTML=`<div style="background:var(--am2);border:1.5px solid var(--am3);border-radius:11px;padding:11px 13px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-        <span style="font-size:12px;font-weight:700;color:var(--am);">${msg}</span>
-        <div style="display:flex;gap:6px;flex-shrink:0;">
-          <button onclick="confirmarSt('${sub}')" style="padding:6px 12px;background:var(--am);border:none;border-radius:8px;color:#0B1120;font-weight:800;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">✓ Sim</button>
-          <button onclick="cancelarSt()" style="padding:6px 10px;background:var(--s3);border:1px solid var(--b);border-radius:8px;color:var(--t2);font-weight:700;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">✗ Não</button>
-        </div>
-      </div>`;
+      window._pendingSub=sub;
+      conf.innerHTML='<div style="background:var(--am2);border:1.5px solid var(--am3);border-radius:11px;padding:11px 13px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:12px;font-weight:700;color:var(--am);">'+msg+'</span><div style="display:flex;gap:6px;flex-shrink:0;"><button id="btnConfSt" style="padding:6px 12px;background:var(--am);border:none;border-radius:8px;color:#0B1120;font-weight:800;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;touch-action:manipulation;">✓ Sim</button><button id="btnCancelSt" style="padding:6px 10px;background:var(--s3);border:1px solid var(--b);border-radius:8px;color:var(--t2);font-weight:700;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;touch-action:manipulation;">✗ Não</button></div></div>';
+      document.getElementById('btnConfSt').onclick=function(){confirmarSt(window._pendingSub);};
+      document.getElementById('btnCancelSt').onclick=function(){cancelarSt();};
     }
     return;
   }
@@ -1459,6 +1483,9 @@ function setSt(sub){
   const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};
   const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
   const conf=document.getElementById('stConf');if(conf)conf.style.display='none';
+  // Reabilitar botão Confirmar
+  const mmConf=$('mmConf');
+  if(mmConf){mmConf.disabled=false;mmConf.style.opacity='1';}
 }
 function confirmarSt(sub){
   subtipoSaida=sub;
@@ -1466,6 +1493,9 @@ function confirmarSt(sub){
   const map={normal:'N',perda:'P',vencimento:'V',ajuste:'A'};
   const btn=$('tb'+map[sub]);if(btn)btn.classList.add('on');
   const conf=document.getElementById('stConf');if(conf)conf.style.display='none';
+  // Reabilitar botão Confirmar
+  const mmConf=$('mmConf');
+  if(mmConf){mmConf.disabled=false;mmConf.style.opacity='1';}
   toast(sub==='perda'?'⚠️ Perda selecionada':'📅 Vencido selecionado','warn');
 }
 function cancelarSt(){
@@ -1988,7 +2018,7 @@ function abrirAjuda(){
 }
 
 // LOGO
-function previewLogo(){
+async function previewLogo(){
   const file=$('logoFile')&&$('logoFile').files[0];
   if(!file)return;
   const reader=new FileReader();
@@ -2009,6 +2039,8 @@ function previewLogo(){
       const ico=$('topIco');if(ico)ico.innerHTML='<img src="'+data+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';
       // Salvar no localStorage
       try{if(REST_ID)localStorage.setItem('ge_logo_'+REST_ID,data);}catch(err){toast('Imagem muito grande, use uma menor','warn');}
+      // Salvar no Supabase para sincronizar entre dispositivos
+      try{sb('ge_restaurantes?id=eq.'+REST_ID,{method:'PATCH',body:JSON.stringify({logo_base64:data})});}catch(err){}
     };
     img.src=e.target.result;
   };
