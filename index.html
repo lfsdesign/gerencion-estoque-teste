@@ -1974,7 +1974,7 @@ function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)
     <div style="font-size:16px;font-weight:800;margin-bottom:6px;">Deseja sair?</div>
     <div style="font-size:13px;color:var(--t2);margin-bottom:20px;">Você precisará do PIN para entrar novamente.</div>
     <div style="display:flex;gap:10px;">
-      <button onclick="fecharModal('ovSair')" style="flex:1;padding:13px;background:var(--c2);border:1px solid var(--brd);border-radius:13px;color:var(--t1);font-weight:700;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>
+      <button onclick="fM('ovSair')" style="flex:1;padding:13px;background:var(--c2);border:1px solid var(--brd);border-radius:13px;color:var(--t1);font-weight:700;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>
       <button onclick="confirmarSair()" style="flex:1;padding:13px;background:var(--rd);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✓ Sair</button>
     </div>
   </div>
@@ -2004,8 +2004,8 @@ function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)
     </div>
     <div class="fg">
       <label class="fl">📷 Foto da NF</label>
-      <div id="recebFotoPreview" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;max-height:200px;">
-        <img id="recebFotoImg" src="" style="width:100%;object-fit:cover;" alt="Foto NF">
+      <div id="recebFotoPreview" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;max-height:420px;text-align:center;background:#000;">
+        <img id="recebFotoImg" src="" style="max-width:100%;max-height:420px;object-fit:contain;" alt="Foto NF">
       </div>
       <input type="file" id="recebFotoInput" accept="image/jpeg,image/png,image/webp" capture="environment" style="display:none;" onchange="previewFoto(this)">
       <button onclick="$('recebFotoInput').click()" style="width:100%;padding:11px;background:var(--c2);border:1px dashed var(--brd);border-radius:12px;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" id="recebFotoBtn">
@@ -2017,7 +2017,7 @@ function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)
       <input class="inp" id="recebPin" placeholder="Seu PIN de 4 dígitos" type="password" inputmode="numeric" maxlength="4">
     </div>
     <button class="mb-gn" onclick="salvarRecebimento()">✅ Confirmar Recebimento</button>
-    <button class="mb-d" onclick="fecharModal('ovReceb')" style="width:100%;margin-top:6px;">Cancelar</button>
+    <button class="mb-d" onclick="fM('ovReceb')" style="width:100%;margin-top:6px;">Cancelar</button>
   </div>
 </div>
 
@@ -2026,7 +2026,7 @@ function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)
   <div class="modal" style="padding:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-size:14px;font-weight:800;">📷 Foto da NF</div>
-      <button onclick="fecharModal('ovFoto')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);">✕</button>
+      <button onclick="fM('ovFoto')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);">✕</button>
     </div>
     <img id="fotoZoom" src="" style="width:100%;border-radius:10px;" alt="NF">
     <div id="fotoZoomInfo" style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px;"></div>
@@ -2256,13 +2256,32 @@ function abrirNovoRecebimento(){
   abrirModal('ovReceb');
 }
 
+async function comprimirFoto(file){
+  return new Promise(res=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const MAX=1200;
+      let w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>res(blob||file),'image/jpeg',0.82);
+      URL.revokeObjectURL(url);
+    };
+    img.onerror=()=>res(file);
+    img.src=url;
+  });
+}
 async function uploadFoto(file){
-  const ext=file.name.split('.').pop()||'jpg';
-  const nome=REST_ID+'/'+Date.now()+'.'+ext;
+  const comprimido=await comprimirFoto(file);
+  const nome=REST_ID+'/'+Date.now()+'.jpg';
   const r=await fetch(SB_URL+'/storage/v1/object/recebimentos-nf/'+nome,{
     method:'POST',
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':file.type},
-    body:file
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'image/jpeg'},
+    body:comprimido
   });
   if(!r.ok){const t=await r.text();throw new Error('Upload falhou: '+t);}
   return SB_URL+'/storage/v1/object/public/recebimentos-nf/'+nome;
@@ -2272,7 +2291,7 @@ async function salvarRecebimento(){
   const fornec=$('recebFornec').value.trim();
   const nf=$('recebNF').value.trim();
   const pin=$('recebPin').value.trim();
-  if(!fornec)return toast('Informe o fornecedor','err');
+  if(!fornec)return toast('Informe o nome do fornecedor','err');
   if(!nf)return toast('Informe o nº da NF','err');
   if(!pin||pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 dígitos','err');
 
@@ -2303,7 +2322,7 @@ async function salvarRecebimento(){
     };
     await sb('ge_recebimentos',{method:'POST',body:JSON.stringify(dados)});
     toast('✅ Recebimento registrado!');
-    fecharModal('ovReceb');
+    fM('ovReceb');
     await carregarRecebimentos();
   }catch(e){toast('Erro: '+(e.message||'tente novamente'),'err');}
 }
@@ -2383,7 +2402,7 @@ async function apagarRecebimento(){
     }
     await sb('ge_recebimentos?id=eq.'+recebApagarId,{method:'DELETE'});
     toast('🗑️ Recebimento apagado','warn');
-    fecharModal('ovFoto');
+    fM('ovFoto');
     recebApagarId=null;
     await carregarRecebimentos();
   }catch(e){toast('Erro ao apagar','err');}
@@ -2450,7 +2469,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     <div style="font-size:16px;font-weight:800;margin-bottom:6px;">Deseja sair?</div>
     <div style="font-size:13px;color:var(--t2);margin-bottom:20px;">Você precisará do PIN para entrar novamente.</div>
     <div style="display:flex;gap:10px;">
-      <button onclick="fecharModal('ovSair')" style="flex:1;padding:13px;background:var(--c2);border:1px solid var(--brd);border-radius:13px;color:var(--t1);font-weight:700;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>
+      <button onclick="fM('ovSair')" style="flex:1;padding:13px;background:var(--c2);border:1px solid var(--brd);border-radius:13px;color:var(--t1);font-weight:700;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>
       <button onclick="confirmarSair()" style="flex:1;padding:13px;background:var(--rd);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✓ Sair</button>
     </div>
   </div>
@@ -2480,8 +2499,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
     </div>
     <div class="fg">
       <label class="fl">📷 Foto da NF</label>
-      <div id="recebFotoPreview" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;max-height:200px;">
-        <img id="recebFotoImg" src="" style="width:100%;object-fit:cover;" alt="Foto NF">
+      <div id="recebFotoPreview" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;max-height:420px;text-align:center;background:#000;">
+        <img id="recebFotoImg" src="" style="max-width:100%;max-height:420px;object-fit:contain;" alt="Foto NF">
       </div>
       <input type="file" id="recebFotoInput" accept="image/jpeg,image/png,image/webp" capture="environment" style="display:none;" onchange="previewFoto(this)">
       <button onclick="$('recebFotoInput').click()" style="width:100%;padding:11px;background:var(--c2);border:1px dashed var(--brd);border-radius:12px;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" id="recebFotoBtn">
@@ -2493,7 +2512,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       <input class="inp" id="recebPin" placeholder="Seu PIN de 4 dígitos" type="password" inputmode="numeric" maxlength="4">
     </div>
     <button class="mb-gn" onclick="salvarRecebimento()">✅ Confirmar Recebimento</button>
-    <button class="mb-d" onclick="fecharModal('ovReceb')" style="width:100%;margin-top:6px;">Cancelar</button>
+    <button class="mb-d" onclick="fM('ovReceb')" style="width:100%;margin-top:6px;">Cancelar</button>
   </div>
 </div>
 
@@ -2502,7 +2521,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   <div class="modal" style="padding:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-size:14px;font-weight:800;">📷 Foto da NF</div>
-      <button onclick="fecharModal('ovFoto')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);">✕</button>
+      <button onclick="fM('ovFoto')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);">✕</button>
     </div>
     <img id="fotoZoom" src="" style="width:100%;border-radius:10px;" alt="NF">
     <div id="fotoZoomInfo" style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px;"></div>
