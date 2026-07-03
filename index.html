@@ -1259,13 +1259,7 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
     verificarAvisaTrial();
   }
 }
-function sair(){
-  const el=document.getElementById('toast');
-  el.innerHTML='👋 Deseja sair? <button onclick="confirmarSair()" style="margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-weight:900;cursor:pointer;font-family:Inter,sans-serif;">✓ Sair</button> <button onclick="fecharToast()" style="margin-left:4px;padding:2px 10px;background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>';
-  el.className='show info';
-  el.style.pointerEvents='all';
-  clearTimeout(el._t);el._t=setTimeout(function(){el.className='';el.innerHTML='';el.style.pointerEvents='';},5000);
-}
+function sair(){abrirModal('ovSair');}
 function atualizarBadgePlano(){
   const plano=PLANO_ATUAL||'basico';
   const p=PLANOS[plano]||PLANOS.basico;
@@ -1959,7 +1953,20 @@ function confirmarEnvioLista(){
 // RELATÓRIOS
 function relWpp(){if(!verificarLimite('relatorio'))return;const raw=($('cfgWpp').value||'').replace(/\D/g,'');if(!raw)return toast('Configure o WhatsApp','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('\n');const msg=encodeURIComponent(`📦 *Relatório de Estoque*\n${new Date().toLocaleDateString('pt-BR')}\n\n${linhas}`);window.open(`https://wa.me/55${raw}?text=${msg}`,'_blank');}
 function relEmail(){if(!verificarLimite('relatorio'))return;const email=$('cfgEmail')&&$('cfgEmail').value;if(!email)return toast('Digite um e-mail','warn');const linhas=todosProds.map(p=>`${p.emoji||'📦'} ${p.nome}: ${fmtN(p.quantidade||0)} ${p.unidade||'un'}`).join('%0A');const sub=encodeURIComponent('Relatório de Estoque - '+new Date().toLocaleDateString('pt-BR'));window.open(`mailto:${email}?subject=${sub}&body=${linhas}`,'_blank');}
-function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)return toast('Sem produtos','warn');const w=window.open('','_blank');const linhas=todosProds.map(p=>`<tr><td>${p.emoji||'📦'} ${p.nome}</td><td>${p.categoria||'-'}</td><td>${fmtN(p.quantidade||0)}</td><td>${p.unidade||'un'}</td><td>${fmtN(p.estoque_minimo||0)}</td><td>R$ ${fmtN(p.preco_custo||0)}</td><td>${p.data_validade||'-'}</td><td>${p.data_fabricacao||'-'}</td></tr>`).join('');w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estoque</title><style>body{font-family:Arial,sans-serif;padding:20px;}h2{color:#22C55E;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;font-size:12px;}th{background:#22C55E;color:#fff;}tr:nth-child(even){background:#f9f9f9;}</style></head><body><h2>📦 Relatório de Estoque</h2><p style="font-size:11px;color:#999;">Gerencion Estoque v1.0 — Todos os direitos reservados ©</p><p>${new Date().toLocaleDateString('pt-BR')}</p><table><thead><tr><th>Produto</th><th>Categoria</th><th>Qtd</th><th>Un</th><th>Mín</th><th>Custo</th><th>Validade</th><th>Fabricação</th></tr></thead><tbody>${linhas}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),500);}
+function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)return toast('Sem produtos','warn');const w=window.open('','_blank');const linhas=todosProds.map(p=>`<tr><td>${p.emoji||'📦'} ${p.nome}</td><td>${p.categoria||'-'}</td><td>${fmtN(p.quantidade||0)}</td><td>${p.unidade||'un'}</td><td>${fmtN(p.estoque_minimo||0)}</td><td>R$ ${fmtN(p.preco_custo||0)}</td><td>${p.data_validade||'-'}</td><td>${p.data_fabricacao||'-'}</td></tr>`).join('');w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estoque</title><style>body{font-family:Arial,sans-serif;padding:20px;}h2{color:#22C55E;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;font-size:12px;}th{background:#22C55E;color:#fff;}tr:nth-child(even){background:#f9f9f9;}</style></head><body><h2>📦 Relatório de Estoque</h2><p style="font-size:11px;color:#999;">Gerencion Estoque v1.0 — Todos os direitos reservados ©</p><p>${new Date().toLocaleDateString('pt-BR')}</p><table><thead><tr><th>Produto</th><th>Categoria</th><th>Qtd</th><th>Un</th><th>Mín</th><th>Custo</th><th>Validade</th><th>Fabricação</th></tr></thead><tbody>${linhas}</tbody></table>
+<!-- Modal Sair -->
+<div class="overlay" id="ovSair">
+  <div class="modal" style="max-width:300px;text-align:center;">
+    <div style="font-size:32px;margin-bottom:8px;">👋</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:6px;">Deseja sair?</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:20px;">Você precisará do PIN para entrar novamente.</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="fecharModal('ovSair')" style="flex:1;padding:13px;background:var(--c2);border:1px solid var(--brd);border-radius:13px;color:var(--t1);font-weight:700;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>
+      <button onclick="confirmarSair()" style="flex:1;padding:13px;background:var(--rd);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✓ Sair</button>
+    </div>
+  </div>
+</div>
+</body></html>`);w.document.close();setTimeout(()=>w.print(),500);}
 function relCSV(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)return toast('Sem produtos','warn');const rows=[['Nome','Categoria','Emoji','Qtd','Unidade','Mín','Custo','Validade','Fabricação'],...todosProds.map(p=>[p.nome,p.categoria||'',p.emoji||'',p.quantidade||0,p.unidade||'',p.estoque_minimo||0,p.preco_custo||0,p.data_validade||'',p.data_fabricacao||''])];const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='estoque.csv';a.click();toast('✅ CSV baixado!');}
 
 
@@ -2191,5 +2198,18 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{const total=await sb('ge_restaurantes?select=id&limit=1');if(total.length)mostrarTela('tela1Acesso');else mostrarTela('telaSetup');}catch(e){mostrarTela('telaSetup');}
 });
 </script>
+
+<!-- Modal Sair -->
+<div class="overlay" id="ovSair">
+  <div class="modal" style="max-width:300px;text-align:center;">
+    <div style="font-size:32px;margin-bottom:8px;">👋</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:6px;">Deseja sair?</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:20px;">Você precisará do PIN para entrar novamente.</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="fecharModal('ovSair')" style="flex:1;padding:13px;background:var(--c2);border:1px solid var(--brd);border-radius:13px;color:var(--t1);font-weight:700;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✗ Ficar</button>
+      <button onclick="confirmarSair()" style="flex:1;padding:13px;background:var(--rd);border:none;border-radius:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;">✓ Sair</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
