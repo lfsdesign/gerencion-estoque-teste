@@ -621,13 +621,26 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
       <div style="text-align:center;padding:14px;font-size:11px;color:var(--t3);">Gerencion Estoque v1.0 · Todos os direitos reservados ©</div>
     </div>
   </div>
+
+    <!-- PÁGINA CONFERENTE -->
+    <div id="pg-receb" class="pg">
+      <div style="padding:14px 14px 0;">
+        <div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:4px;">📋 Recebimentos</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:12px;">Registre e acompanhe as notas fiscais recebidas</div>
+        <div id="recebLista" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="recebVazio" style="display:none;padding:40px 0;text-align:center;color:var(--t3);font-size:13px;">Nenhum recebimento ainda</div>
+      </div>
+    </div>
+
   <button id="helpBtn" onclick="abrirAjuda()">?</button>
   <button id="fab" onclick="abrirProd()">+</button>
+  <button id="fabReceb" onclick="abrirNovoRecebimento()" style="display:none;position:fixed;bottom:70px;right:16px;width:54px;height:54px;border-radius:50%;background:var(--bl);border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(26,115,232,.4);z-index:100;font-family:Inter,sans-serif;align-items:center;justify-content:center;">+</button>
   <div id="nav">
     <button class="nav-btn on" onclick="irPg('dash',this)"><span>🏠</span>Início</button>
     <button class="nav-btn" onclick="irPg('produtos',this)"><span>📦</span>Produtos</button>
     <button class="nav-btn" onclick="irPg('hist',this)"><span>📋</span>Histórico</button>
     <button class="nav-btn" onclick="irPg('insights',this)"><span>📊</span>Insights</button>
+    <button class="nav-btn" id="navReceb" onclick="irPg('receb',this)"><span>📋</span>Recebim.</button>
     <button class="nav-btn" id="navCfg" onclick="irPg('config',this)"><span>⚙️</span>Config</button>
   </div>
 </div>
@@ -1239,7 +1252,7 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
     }catch(e){}
   }
   const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
-  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
+  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';const navReceb=$('navReceb');if(navReceb)navReceb.style.display='flex';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
   // Solicitar permissão de notificação e verificar alertas
   solicitarPermissaoNotificacao().then(()=>setTimeout(verificarENotificar,2000));
   // Verificar backup automático
@@ -1381,8 +1394,8 @@ function confirmarSair(){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null
 
 // PÁGINAS
 let pgAtual='dash';
-function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
-  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}}
+function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const fabR=$('fabReceb');if(fabR)fabR.style.display=pg==='receb'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
+  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}if(pg==='receb'){carregarRecebimentos();}}
 
 // PRODUTOS
 async function carregarProds(){try{todosProds=await sb(`ge_produtos?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosProds=[];toast('Erro ao carregar produtos','err');}}
@@ -1966,6 +1979,61 @@ function relPDF(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)
     </div>
   </div>
 </div>
+
+<!-- Modal Novo Recebimento -->
+<div class="overlay" id="ovReceb">
+  <div class="modal">
+    <div class="mt" id="recebTit">📋 Novo Recebimento</div>
+    <input type="hidden" id="recebId">
+    <div class="fg"><label class="fl">Fornecedor *</label>
+      <input class="inp" id="recebFornec" placeholder="Ex: Fornecedor São Paulo Ltda">
+    </div>
+    <div class="fg"><label class="fl">Nº da NF *</label>
+      <input class="inp" id="recebNF" placeholder="Ex: 001234" inputmode="numeric">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="fg"><label class="fl">Valor Total (R$)</label>
+        <input class="inp" id="recebValor" placeholder="0,00" type="number" step="0.01" inputmode="decimal">
+      </div>
+      <div class="fg"><label class="fl">Volumes/Caixas</label>
+        <input class="inp" id="recebVolumes" placeholder="Ex: 5" type="number" inputmode="numeric">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Observação</label>
+      <input class="inp" id="recebObs" placeholder="Ex: Caixa 3 avariada, faltou 2 unid...">
+    </div>
+    <div class="fg">
+      <label class="fl">📷 Foto da NF</label>
+      <div id="recebFotoPreview" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;max-height:200px;">
+        <img id="recebFotoImg" src="" style="width:100%;object-fit:cover;" alt="Foto NF">
+      </div>
+      <input type="file" id="recebFotoInput" accept="image/jpeg,image/png,image/webp" capture="environment" style="display:none;" onchange="previewFoto(this)">
+      <button onclick="$('recebFotoInput').click()" style="width:100%;padding:11px;background:var(--c2);border:1px dashed var(--brd);border-radius:12px;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" id="recebFotoBtn">
+        📷 Tirar foto / escolher imagem
+      </button>
+      <div id="recebFotoStatus" style="font-size:11px;color:var(--t3);margin-top:4px;text-align:center;"></div>
+    </div>
+    <div class="fg"><label class="fl">✍️ Assinar com PIN</label>
+      <input class="inp" id="recebPin" placeholder="Seu PIN de 4 dígitos" type="password" inputmode="numeric" maxlength="4">
+    </div>
+    <button class="mb-gn" onclick="salvarRecebimento()">✅ Confirmar Recebimento</button>
+    <button class="mb-d" onclick="fecharModal('ovReceb')" style="width:100%;margin-top:6px;">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal Ver Foto -->
+<div class="overlay" id="ovFoto">
+  <div class="modal" style="padding:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:14px;font-weight:800;">📷 Foto da NF</div>
+      <button onclick="fecharModal('ovFoto')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);">✕</button>
+    </div>
+    <img id="fotoZoom" src="" style="width:100%;border-radius:10px;" alt="NF">
+    <div id="fotoZoomInfo" style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px;"></div>
+    <button id="btnApagarFoto" onclick="apagarRecebimento()" style="display:none;width:100%;margin-top:10px;padding:11px;background:var(--rd);border:none;border-radius:12px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:Inter,sans-serif;">🗑️ Apagar Recebimento</button>
+  </div>
+</div>
+
 </body></html>`);w.document.close();setTimeout(()=>w.print(),500);}
 function relCSV(){if(!verificarLimite('relatorio'))return;if(!todosProds.length)return toast('Sem produtos','warn');const rows=[['Nome','Categoria','Emoji','Qtd','Unidade','Mín','Custo','Validade','Fabricação'],...todosProds.map(p=>[p.nome,p.categoria||'',p.emoji||'',p.quantidade||0,p.unidade||'',p.estoque_minimo||0,p.preco_custo||0,p.data_validade||'',p.data_fabricacao||''])];const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='estoque.csv';a.click();toast('✅ CSV baixado!');}
 
@@ -2146,6 +2214,182 @@ function verificarBackupAutomatico(){
 // Fechar sugestões ao clicar fora
 document.addEventListener('click',e=>{['tipoSugsS','tipoSugsC'].forEach(id=>{const el=$(id);if(el&&el.style.display==='block'){const inp=el.previousElementSibling;if(inp&&!inp.contains(e.target)&&!el.contains(e.target))el.style.display='none';}});if($('emojiPicker')&&$('emojiPicker').style.display==='block'){const ep=$('emojiPicker');if(!ep.contains(e.target)&&e.target.id!=='emjBtn')ep.style.display='none';}if($('emojiPickerProd')&&$('emojiPickerProd').style.display==='block'){const ep2=$('emojiPickerProd');if(!ep2.contains(e.target)&&e.target.id!=='mpEmojiBtn')ep2.style.display='none';}});
 
+
+// ============================================================
+// MÓDULO CONFERENTE
+// ============================================================
+let todosRecebimentos=[];
+let recebApagarId=null;
+let fotoFile=null;
+
+function previewFoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){toast('Foto muito grande! Máximo 5 MB','err');input.value='';return;}
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){toast('Apenas JPG, PNG ou WebP','err');input.value='';return;}
+  fotoFile=file;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    $('recebFotoImg').src=e.target.result;
+    $('recebFotoPreview').style.display='block';
+    $('recebFotoBtn').textContent='📷 Trocar foto';
+    $('recebFotoStatus').textContent='✅ '+file.name+' ('+Math.round(file.size/1024)+' KB)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function abrirNovoRecebimento(){
+  fotoFile=null;
+  $('recebId').value='';
+  $('recebTit').textContent='📋 Novo Recebimento';
+  $('recebFornec').value='';
+  $('recebNF').value='';
+  $('recebValor').value='';
+  $('recebVolumes').value='';
+  $('recebObs').value='';
+  $('recebPin').value='';
+  $('recebFotoPreview').style.display='none';
+  $('recebFotoImg').src='';
+  $('recebFotoBtn').textContent='📷 Tirar foto / escolher imagem';
+  $('recebFotoStatus').textContent='';
+  $('recebFotoInput').value='';
+  abrirModal('ovReceb');
+}
+
+async function uploadFoto(file){
+  const ext=file.name.split('.').pop()||'jpg';
+  const nome=REST_ID+'/'+Date.now()+'.'+ext;
+  const r=await fetch(SB_URL+'/storage/v1/object/recebimentos-nf/'+nome,{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':file.type},
+    body:file
+  });
+  if(!r.ok){const t=await r.text();throw new Error('Upload falhou: '+t);}
+  return SB_URL+'/storage/v1/object/public/recebimentos-nf/'+nome;
+}
+
+async function salvarRecebimento(){
+  const fornec=$('recebFornec').value.trim();
+  const nf=$('recebNF').value.trim();
+  const pin=$('recebPin').value.trim();
+  if(!fornec)return toast('Informe o fornecedor','err');
+  if(!nf)return toast('Informe o nº da NF','err');
+  if(!pin||pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 dígitos','err');
+
+  // Validar PIN
+  try{
+    const rp=await sb('ge_restaurantes?id=eq.'+REST_ID+'&pin_dono=eq.'+pin+'&select=id');
+    const rf=await sb('ge_funcionarios?restaurante_id=eq.'+REST_ID+'&pin=eq.'+pin+'&select=id,nome');
+    if(!rp.length&&!rf.length)return toast('PIN incorreto','err');
+  }catch(e){return toast('Erro ao validar PIN','err');}
+
+  toast('⏳ Salvando...','info',10000);
+  try{
+    let fotoUrl=null;
+    if(fotoFile){
+      fotoUrl=await uploadFoto(fotoFile);
+    }
+    const dados={
+      restaurante_id:REST_ID,
+      fornecedor:fornec,
+      numero_nf:nf,
+      valor_total:parseFloat($('recebValor').value)||null,
+      volumes:parseInt($('recebVolumes').value)||null,
+      observacao:$('recebObs').value||null,
+      foto_url:fotoUrl,
+      conferente_nome:FUNC_NOME,
+      conferente_id:FUNC_ID||null,
+      assinado_em:new Date().toISOString()
+    };
+    await sb('ge_recebimentos',{method:'POST',body:JSON.stringify(dados)});
+    toast('✅ Recebimento registrado!');
+    fecharModal('ovReceb');
+    await carregarRecebimentos();
+  }catch(e){toast('Erro: '+(e.message||'tente novamente'),'err');}
+}
+
+async function carregarRecebimentos(){
+  try{
+    todosRecebimentos=await sb('ge_recebimentos?restaurante_id=eq.'+REST_ID+'&order=created_at.desc&limit=50');
+    renderRecebimentos();
+  }catch(e){todosRecebimentos=[];renderRecebimentos();}
+}
+
+function renderRecebimentos(){
+  const el=$('recebLista');
+  const vazio=$('recebVazio');
+  if(!todosRecebimentos.length){
+    el.innerHTML='';
+    if(vazio)vazio.style.display='block';
+    return;
+  }
+  if(vazio)vazio.style.display='none';
+  el.innerHTML=todosRecebimentos.map(r=>{
+    const dt=new Date(r.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const valor=r.valor_total?'R$ '+r.valor_total.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—';
+    const volumes=r.volumes?r.volumes+' vol.':'—';
+    return '<div style="background:var(--c2);border:1px solid var(--brd);border-radius:14px;padding:14px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:800;color:var(--t1);">'+r.fornecedor+'</div>'+
+          '<div style="font-size:11px;color:var(--t2);">NF '+r.numero_nf+' · '+dt+'</div>'+
+        '</div>'+
+        (r.foto_url?'<button onclick="verFoto(\''+r.id+'\')" style="padding:5px 10px;background:var(--bl2);border:1px solid var(--bl3);border-radius:8px;color:var(--bl);font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">📷 Ver NF</button>':'<span style="font-size:11px;color:var(--t3);">Sem foto</span>')+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">'+
+        '<div style="background:var(--bg);border-radius:8px;padding:7px;text-align:center;">'+
+          '<div style="font-size:11px;color:var(--t3);">Valor</div>'+
+          '<div style="font-size:12px;font-weight:700;color:var(--gn);">'+valor+'</div>'+
+        '</div>'+
+        '<div style="background:var(--bg);border-radius:8px;padding:7px;text-align:center;">'+
+          '<div style="font-size:11px;color:var(--t3);">Volumes</div>'+
+          '<div style="font-size:12px;font-weight:700;">'+volumes+'</div>'+
+        '</div>'+
+        '<div style="background:var(--bg);border-radius:8px;padding:7px;text-align:center;">'+
+          '<div style="font-size:11px;color:var(--t3);">Conferente</div>'+
+          '<div style="font-size:11px;font-weight:700;color:var(--pu);">'+r.conferente_nome+'</div>'+
+        '</div>'+
+      '</div>'+
+      (r.observacao?'<div style="font-size:11px;color:var(--am);background:var(--am2);border-radius:8px;padding:6px 10px;">⚠️ '+r.observacao+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function verFoto(id){
+  const r=todosRecebimentos.find(x=>x.id===id);
+  if(!r||!r.foto_url)return;
+  $('fotoZoom').src=r.foto_url;
+  $('fotoZoomInfo').textContent='NF '+r.numero_nf+' · '+r.fornecedor+' · Conferente: '+r.conferente_nome;
+  recebApagarId=id;
+  const btnApagar=$('btnApagarFoto');
+  if(btnApagar)btnApagar.style.display=FUNC_ROLE==='proprietario'?'block':'none';
+  abrirModal('ovFoto');
+}
+
+async function apagarRecebimento(){
+  if(!recebApagarId)return;
+  if(!confirm('Apagar este recebimento e a foto?'))return;
+  try{
+    const r=todosRecebimentos.find(x=>x.id===recebApagarId);
+    // Apagar foto do storage
+    if(r&&r.foto_url){
+      const path=r.foto_url.split('/object/public/recebimentos-nf/')[1];
+      if(path){
+        await fetch(SB_URL+'/storage/v1/object/recebimentos-nf/'+path,{
+          method:'DELETE',
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+        });
+      }
+    }
+    await sb('ge_recebimentos?id=eq.'+recebApagarId,{method:'DELETE'});
+    toast('🗑️ Recebimento apagado','warn');
+    fecharModal('ovFoto');
+    recebApagarId=null;
+    await carregarRecebimentos();
+  }catch(e){toast('Erro ao apagar','err');}
+}
+// ============================================================
+
 // INIT
 document.addEventListener('DOMContentLoaded',async()=>{
   // Se veio com ?novo= na URL, é link gerado pelo Master para novo cliente
@@ -2211,5 +2455,60 @@ document.addEventListener('DOMContentLoaded',async()=>{
     </div>
   </div>
 </div>
+
+<!-- Modal Novo Recebimento -->
+<div class="overlay" id="ovReceb">
+  <div class="modal">
+    <div class="mt" id="recebTit">📋 Novo Recebimento</div>
+    <input type="hidden" id="recebId">
+    <div class="fg"><label class="fl">Fornecedor *</label>
+      <input class="inp" id="recebFornec" placeholder="Ex: Fornecedor São Paulo Ltda">
+    </div>
+    <div class="fg"><label class="fl">Nº da NF *</label>
+      <input class="inp" id="recebNF" placeholder="Ex: 001234" inputmode="numeric">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="fg"><label class="fl">Valor Total (R$)</label>
+        <input class="inp" id="recebValor" placeholder="0,00" type="number" step="0.01" inputmode="decimal">
+      </div>
+      <div class="fg"><label class="fl">Volumes/Caixas</label>
+        <input class="inp" id="recebVolumes" placeholder="Ex: 5" type="number" inputmode="numeric">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Observação</label>
+      <input class="inp" id="recebObs" placeholder="Ex: Caixa 3 avariada, faltou 2 unid...">
+    </div>
+    <div class="fg">
+      <label class="fl">📷 Foto da NF</label>
+      <div id="recebFotoPreview" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;max-height:200px;">
+        <img id="recebFotoImg" src="" style="width:100%;object-fit:cover;" alt="Foto NF">
+      </div>
+      <input type="file" id="recebFotoInput" accept="image/jpeg,image/png,image/webp" capture="environment" style="display:none;" onchange="previewFoto(this)">
+      <button onclick="$('recebFotoInput').click()" style="width:100%;padding:11px;background:var(--c2);border:1px dashed var(--brd);border-radius:12px;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" id="recebFotoBtn">
+        📷 Tirar foto / escolher imagem
+      </button>
+      <div id="recebFotoStatus" style="font-size:11px;color:var(--t3);margin-top:4px;text-align:center;"></div>
+    </div>
+    <div class="fg"><label class="fl">✍️ Assinar com PIN</label>
+      <input class="inp" id="recebPin" placeholder="Seu PIN de 4 dígitos" type="password" inputmode="numeric" maxlength="4">
+    </div>
+    <button class="mb-gn" onclick="salvarRecebimento()">✅ Confirmar Recebimento</button>
+    <button class="mb-d" onclick="fecharModal('ovReceb')" style="width:100%;margin-top:6px;">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal Ver Foto -->
+<div class="overlay" id="ovFoto">
+  <div class="modal" style="padding:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:14px;font-weight:800;">📷 Foto da NF</div>
+      <button onclick="fecharModal('ovFoto')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);">✕</button>
+    </div>
+    <img id="fotoZoom" src="" style="width:100%;border-radius:10px;" alt="NF">
+    <div id="fotoZoomInfo" style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px;"></div>
+    <button id="btnApagarFoto" onclick="apagarRecebimento()" style="display:none;width:100%;margin-top:10px;padding:11px;background:var(--rd);border:none;border-radius:12px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:Inter,sans-serif;">🗑️ Apagar Recebimento</button>
+  </div>
+</div>
+
 </body>
 </html>
