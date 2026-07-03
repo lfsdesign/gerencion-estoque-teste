@@ -71,10 +71,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 .top-right{display:flex;align-items:center;gap:7px;}
 #alertBadge{background:var(--rd);color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700;display:none;}
 .top-sair{padding:5px 10px;background:var(--rd2);border:1px solid var(--rd3);border-radius:8px;color:var(--rd);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
-#nav{background:var(--s1);border-top:1px solid var(--b);position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
-.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;gap:3px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;border-top:2px solid transparent;transition:all .15s;touch-action:manipulation;min-height:52px;}
+#nav{background:var(--s1);border-top:1px solid var(--b);position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 1px;gap:2px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;font-size:8px;font-weight:600;border-top:2px solid transparent;transition:all .15s;touch-action:manipulation;min-height:48px;}
 .nav-btn.on{color:var(--gn);border-top-color:var(--gn);}
-.nav-btn span{font-size:19px;line-height:1;}
+.nav-btn span{font-size:17px;line-height:1;}
 #main{padding:14px 14px 88px;max-width:600px;margin:0 auto;}
 .pg{display:none;}.pg.on{display:block;}
 .sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2);margin:16px 0 9px;}
@@ -640,7 +640,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <button class="nav-btn" onclick="irPg('produtos',this)"><span>📦</span>Produtos</button>
     <button class="nav-btn" onclick="irPg('hist',this)"><span>📋</span>Histórico</button>
     <button class="nav-btn" onclick="irPg('insights',this)"><span>📊</span>Insights</button>
-    <button class="nav-btn" id="navReceb" onclick="irPg('receb',this)"><span>📋</span>Recebim.</button>
+    <button class="nav-btn" id="navReceb" onclick="irPg('receb',this)"><span>📋</span>NF</button>
     <button class="nav-btn" id="navCfg" onclick="irPg('config',this)"><span>⚙️</span>Config</button>
   </div>
 </div>
