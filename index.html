@@ -659,7 +659,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;background:var(--s2);border-radius:10px;padding:12px;">
       <input type="checkbox" id="chkAceitePromo" style="width:18px;height:18px;accent-color:var(--gn);margin-top:2px;flex-shrink:0;cursor:pointer;">
       <label for="chkAceitePromo" id="chkAceitePromoLabel" style="font-size:11px;color:var(--t2);line-height:1.7;cursor:pointer;">
-        Li e entendi que após 30 dias meu plano será ajustado automaticamente.
+        Li e entendi que após 28 dias meu plano será ajustado automaticamente.
       </label>
     </div>
     <button onclick="confirmarAceitePromo()" style="width:100%;padding:14px;background:var(--gn);border:none;border-radius:13px;color:#0B1120;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;min-height:50px;touch-action:manipulation;">🚀 Aceitar e Criar Minha Conta</button>
@@ -1174,7 +1174,10 @@ async function calcularPrevisao(prodId, qtdAtual, unidade){
 function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;const dtVal=($('mpVal')&&($('mpVal').dataset.isoDate||($('mpVal').value&&$('mpVal').value.match(/^\d{4}-/)&&$('mpVal').value)))||'';const dtFab=($('mpFab')&&($('mpFab').dataset.isoDate||($('mpFab').value&&$('mpFab').value.match(/^\d{4}-/)&&$('mpFab').value)))||'';if(!dtVal){el.style.display='none';return;}const s=labelVal({data_validade:dtVal,data_fabricacao:dtFab||null});el.textContent=s.ico+' '+s.txt;el.style.display='block';el.style.background=s.cls==='venc'?'var(--rd2)':s.cls==='warn'?'var(--am2)':'var(--gn2)';el.style.color=s.cls==='venc'?'var(--rd)':s.cls==='warn'?'var(--am)':'var(--gn)';el.style.border=`1px solid ${s.cls==='venc'?'var(--rd3)':s.cls==='warn'?'var(--am3)':'var(--gn3)'}`;}
 
 // SETUP
-async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!$('chkTermos')||!$('chkTermos').checked)return toast('Você precisa aceitar os Termos de Uso para continuar','warn',3000);if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!$('chkTermos')||!$('chkTermos').checked)return toast('Você precisa aceitar os Termos de Uso para continuar','warn',3000);if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const planoTrial=localStorage.getItem('ge_plano_escolhido')||'basico';
+const valTrial=new Date();valTrial.setDate(valTrial.getDate()+28);
+const validadeTrial=valTrial.toISOString().split('T')[0];
+const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod,ativo:true,plano:planoTrial,validade_ate:validadeTrial})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 
 // CÓDIGO FUNCIONÁRIO
 async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperCase();if(cod.length<4)return toast('Código inválido','err');try{const r=await sb(`ge_restaurantes?codigo_acesso=eq.${cod}&select=*`);if(!r.length)return toast('Código não encontrado','err');REST_ID=r[0].id;REST_NOME=r[0].nome;localStorage.setItem('ge_rest_id',REST_ID);$('loginNome').textContent=r[0].nome;$('loginTipo').textContent=r[0].tipo_negocio||'';$('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';mostrarTela('telaLogin');pinDigitos='';renderPin();}catch(e){toast('Erro: '+e.message,'err');}}
@@ -1299,13 +1302,13 @@ function abrirAceitePromo(plano){
   const desc=$('promoPlanoDesc');
   const label=$('chkAceitePromoLabel');
   if(desc)desc.innerHTML=
-    'Após 30 dias, seu plano voltará para <strong style="color:var(--am);">'+p.label+'</strong> ('+p.preco+') com:<br>'+
+    'Após 28 dias, seu plano voltará para <strong style="color:var(--am);">'+p.label+'</strong> ('+p.preco+') com:<br>'+
     '📦 Até '+p.produtos+' produtos<br>'+
     '👥 Até '+p.funcionarios+' funcionários<br>'+
     '🚚 Até '+p.fornecedores+' fornecedores<br>'+
     (p.relatorios?'✅ Relatórios PDF/CSV':'❌ Sem relatórios PDF/CSV')+'<br>'+
     (p.lista?'✅ Lista de compras por fornecedor com envio pelo WhatsApp':'❌ Lista de compras por fornecedor não disponível');
-  if(label)label.innerHTML='Li e <strong>entendi</strong> que após 30 dias experimentando o plano Empresarial, meu plano será ajustado automaticamente para <strong>'+p.label+'</strong> ('+p.preco+').';
+  if(label)label.innerHTML='Li e <strong>entendi</strong> que após 28 dias experimentando o plano Empresarial, meu plano será ajustado automaticamente para <strong>'+p.label+'</strong> ('+p.preco+').';
   $('chkAceitePromo').checked=false;
   abrirModal('ovAceitePromo');
 }
@@ -1321,13 +1324,13 @@ function verificarTrialAtivo(){
   const inicio=localStorage.getItem('ge_trial_inicio');
   if(!inicio)return false;
   const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
-  return dias<30;
+  return dias<28;
 }
 function diasRestantesTrial(){
   const inicio=localStorage.getItem('ge_trial_inicio');
   if(!inicio)return 0;
   const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
-  return Math.max(0,30-dias);
+  return Math.max(0,28-dias);
 }
 function verificarAvisaTrial(){
   if(FUNC_ROLE!=='proprietario')return;
@@ -1999,10 +2002,10 @@ const TUTORIAIS={
     hi('📊','Resumo do Mês','Mostra as entradas, saídas e perdas do mês atual em números. Acompanhe a evolução do seu estoque mês a mês.'),
     hi('📈','Comparativo de Consumo por Categoria','Barras mostram quanto saiu de cada categoria este mês. Abaixo de cada categoria aparecem os produtos individuais com a quantidade. Ótimo para planejar compras.'),
     hi('⚠️','Relatório de Perdas — impacto financeiro','Lista todas as perdas e vencimentos do mês com quantidade e <strong>valor em R$</strong>. No topo aparece o <strong>total perdido em dinheiro</strong>. Use para identificar o que mais desperdiça e agir para reduzir prejuízo.'),
-    hi('🛒','Lista de Compras por Fornecedor','⭐ Disponível nos planos <strong>Profissional e Empresarial</strong>.<br><strong>Durante os 30 dias promocionais</strong> todos os clientes têm acesso!<br><br>Passo a passo:<br><strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
+    hi('🛒','Lista de Compras por Fornecedor','⭐ Disponível nos planos <strong>Profissional e Empresarial</strong>.<br><strong>Durante os 28 dias promocionais</strong> todos os clientes têm acesso!<br><br>Passo a passo:<br><strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
   ],
   config:[
-    hi('🎁','Promoção de Boas-vindas — 30 dias Empresarial','Ao criar sua conta, você ganha <strong>30 dias com todos os recursos do Empresarial</strong>: produtos ilimitados, relatórios PDF/CSV e lista de compras por fornecedor. Após 30 dias, seu plano volta ao que você escolheu — no <strong>Básico</strong> a lista de compras por fornecedor e os relatórios não estarão disponíveis. Você é avisado <strong>7 dias antes</strong> do fim do período!'),
+    hi('🎁','Promoção de Boas-vindas — 28 dias Empresarial','Ao criar sua conta, você ganha <strong>28 dias com todos os recursos do Empresarial</strong>: produtos ilimitados, relatórios PDF/CSV e lista de compras por fornecedor. Após 28 dias, seu plano volta ao que você escolheu — no <strong>Básico</strong> a lista de compras por fornecedor e os relatórios não estarão disponíveis. Você é avisado <strong>7 dias antes</strong> do fim do período!'),
     hi('🏷️','Seu Plano Atual','No topo das configurações você vê <strong>qual plano está ativo</strong>, os limites de produtos, funcionários e fornecedores, e o valor mensal. Se precisar de mais recursos, entre em contato pelo WhatsApp para fazer upgrade!'),
     hi('🔗','Enviar acesso para Funcionário — PASSO A PASSO','<strong>1.</strong> Vá em <strong>👥 Funcionários</strong> e cadastre o funcionário com nome e PIN<br><strong>2.</strong> Volte em <strong>🔗 Acesso para Funcionários</strong><br><strong>3.</strong> Toque em <strong>📲 Enviar Link pelo WhatsApp</strong><br><strong>4.</strong> O funcionário abre o link no celular<br><strong>5.</strong> Digita o PIN que você criou para ele<br><strong>6.</strong> Instala o app na tela inicial<br>Pronto! Ele já pode registrar entradas e saídas.'),
     hi('🔐','Permissões do Funcionário','Por padrão o funcionário só pode registrar entradas e saídas. Para liberar mais acesso:<br><strong>1.</strong> Toque no nome do funcionário na lista<br><strong>2.</strong> Aparece a seção 🔐 Permissões<br><strong>3.</strong> Ative o que quiser liberar:<br>• 📋 Ver Histórico<br>• 📊 Ver Insights<br>• 📦 Cadastrar Produtos<br>• 💰 Ver Valor do Estoque<br>• ↩️ Estornar Movimentos<br><strong>4.</strong> Ou toque em ✅ Liberar Tudo de uma vez'),
