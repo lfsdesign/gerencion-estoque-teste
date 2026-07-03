@@ -1249,7 +1249,7 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
   // Verificar trial promocional
   if(FUNC_ROLE==='proprietario'){
     const trialAtivo=verificarTrialAtivo();
-    if(trialAtivo){
+    if(trialAtivo&&PLANO_ATUAL!=='empresarial'&&PLANO_ATUAL!=='profissional'){
       PLANO_ATUAL='empresarial';
       const restantes=diasRestantesTrial();
       // Mostrar badge trial no topbar
