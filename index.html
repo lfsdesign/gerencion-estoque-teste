@@ -593,6 +593,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
         <div id="listaUnits"></div>
         <div style="display:flex;gap:7px;margin-top:9px;">
           <input class="inp" id="novaUnit" placeholder="Ex: porção, bandeja, ampola..." style="flex:1;padding:10px 12px;">
+          <button id="btnEditUnits" class="btn-c b-am" onclick="toggleEditUnits()" style="width:auto;padding:0 15px;height:46px;margin-bottom:0;">✏️ Editar</button>
           <button class="btn-c b-gn" onclick="addUnit()" style="width:auto;padding:0 15px;height:46px;margin-bottom:0;">+</button>
         </div>
       </div>
@@ -673,7 +674,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;background:var(--s2);border-radius:10px;padding:12px;">
       <input type="checkbox" id="chkAceitePromo" style="width:18px;height:18px;accent-color:var(--gn);margin-top:2px;flex-shrink:0;cursor:pointer;">
       <label for="chkAceitePromo" id="chkAceitePromoLabel" style="font-size:11px;color:var(--t2);line-height:1.7;cursor:pointer;">
-        Li e entendi que após 28 dias meu plano será ajustado automaticamente.
+        Li e entendi que após 30 dias meu plano será ajustado automaticamente.
       </label>
     </div>
     <button onclick="confirmarAceitePromo()" style="width:100%;padding:14px;background:var(--gn);border:none;border-radius:13px;color:#0B1120;font-weight:800;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;min-height:50px;touch-action:manipulation;">🚀 Aceitar e Criar Minha Conta</button>
@@ -975,18 +976,20 @@ const EMOJI_CATS=[{tab:'🍽️',nome:'Alimentos',emojis:['🍖','🥩','🍗','
 
 // LIMITES POR PLANO
 const PLANOS={
-  basico:{produtos:50,funcionarios:2,fornecedores:5,relatorios:false,lista:false,label:'📦 Básico',preco:'R$ 97/mês'},
-  profissional:{produtos:150,funcionarios:8,fornecedores:10,relatorios:true,lista:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
-  empresarial:{produtos:99999,funcionarios:99999,fornecedores:99999,relatorios:true,lista:true,label:'🏆 Empresarial',preco:'R$ 197/mês'}
+  basico:{produtos:50,funcionarios:3,fornecedores:5,relatorios:false,lista:true,insights:true,nf:false,label:'📦 Básico',preco:'R$ 97/mês'},
+  profissional:{produtos:150,funcionarios:8,fornecedores:10,relatorios:true,lista:true,insights:true,nf:true,label:'⭐ Profissional',preco:'R$ 147/mês'},
+  empresarial:{produtos:99999,funcionarios:99999,fornecedores:99999,relatorios:true,lista:true,insights:true,nf:true,label:'🏆 Empresarial',preco:'R$ 197/mês'}
 };
 function getLimite(){return PLANOS[PLANO_ATUAL]||PLANOS.basico;}
 function verificarLimite(tipo){
   const lim=getLimite();
-  if(tipo==='produto'&&todosProds.length>=lim.produtos){mostrarUpgrade('produtos',lim.produtos);return false;}
-  if(tipo==='funcionario'&&todosFuncs.length>=lim.funcionarios){mostrarUpgrade('funcionários',lim.funcionarios);return false;}
-  if(tipo==='fornecedor'&&todosFornecs.length>=lim.fornecedores){mostrarUpgrade('fornecedores',lim.fornecedores);return false;}
-  if(tipo==='relatorio'&&!lim.relatorios){mostrarUpgrade('relatórios',0);return false;}
-  if(tipo==='lista'&&!lim.lista){mostrarUpgrade('lista de compras',0);return false;}
+  const trial=verificarTrialAtivo();
+  if(tipo==='produto'&&todosProds.length>=lim.produtos&&!trial){mostrarUpgrade('produtos',lim.produtos);return false;}
+  if(tipo==='funcionario'&&todosFuncs.length>=lim.funcionarios&&!trial){mostrarUpgrade('funcionários',lim.funcionarios);return false;}
+  if(tipo==='fornecedor'&&todosFornecs.length>=lim.fornecedores&&!trial){mostrarUpgrade('fornecedores',lim.fornecedores);return false;}
+  if(tipo==='relatorio'&&!lim.relatorios&&!trial){mostrarUpgrade('Relatórios PDF/CSV',0);return false;}
+  if(tipo==='lista'&&!lim.lista&&!trial){mostrarUpgrade('lista de compras',0);return false;}
+  if(tipo==='nf'&&!lim.nf&&!trial){mostrarUpgrade('Recebimento de NF',0);return false;}
   return true;
 }
 function mostrarUpgrade(recurso,limite){
@@ -1006,50 +1009,50 @@ function mostrarUpgrade(recurso,limite){
       '<table style="width:100%;border-collapse:collapse;font-size:11px;">'+
         '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Recurso</td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--t2);">📦 Básico<br><span style="color:var(--t3);">R$97</span></td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">⭐ Prof.<br><span style="color:var(--t3);">R$147</span></td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--am);">🏆 Emp.<br><span style="color:var(--t3);">R$197</span></td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--t2);">📦 Básico<br><span style="color:var(--gn);font-weight:800;">R$97/mês</span></td>'+
+          '<td style="padding:8px 6px;text-align:center;color:var(--bl);background:rgba(59,130,246,0.08);border-radius:8px;">⭐ Prof.<br><span style="color:var(--bl);font-weight:800;">R$147/mês</span><br><span style="font-size:9px;background:var(--bl);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">RECOMENDADO</span></td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">🏆 Emp.<br><span style="color:var(--am);font-weight:800;">R$197/mês</span></td>'+
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Produtos</td>'+
           '<td style="padding:8px 10px;text-align:center;font-weight:700;">50</td>'+
-          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">150</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);background:rgba(59,130,246,0.05);">150</td>'+
           '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Funcionários</td>'+
-          '<td style="padding:8px 10px;text-align:center;font-weight:700;">2</td>'+
-          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">8</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;">3</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);background:rgba(59,130,246,0.05);">8</td>'+
           '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Fornecedores</td>'+
           '<td style="padding:8px 10px;text-align:center;font-weight:700;">5</td>'+
-          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);">10</td>'+
+          '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--bl);background:rgba(59,130,246,0.05);">10</td>'+
           '<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--am);">♾️</td>'+
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
-          '<td style="padding:8px 10px;color:var(--t2);">Insights</td>'+
+          '<td style="padding:8px 10px;color:var(--t2);">Relatório</td>'+
           '<td style="padding:8px 10px;text-align:center;">✅</td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
-        '</tr>'+
-        '<tr style="border-bottom:1px solid var(--b);">'+
-          '<td style="padding:8px 10px;color:var(--t2);">Relatórios PDF/CSV</td>'+
-          '<td style="padding:8px 10px;text-align:center;">❌</td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);background:rgba(59,130,246,0.05);">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
         '</tr>'+
         '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Lista de Compras</td>'+
           '<td style="padding:8px 10px;text-align:center;">✅</td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);background:rgba(59,130,246,0.05);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
+        '</tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
+          '<td style="padding:8px 10px;color:var(--t2);">PDF/CSV</td>'+
+          '<td style="padding:8px 10px;text-align:center;">❌</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);background:rgba(59,130,246,0.05);">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
         '</tr>'+
         '<tr>'+
           '<td style="padding:8px 10px;color:var(--t2);">Recebimento NF</td>'+
           '<td style="padding:8px 10px;text-align:center;">❌</td>'+
-          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);background:rgba(59,130,246,0.05);">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
         '</tr>'+
       '</table>'+
@@ -1195,9 +1198,9 @@ function atualizarStatusVal(){const el=$('mpValStatus');if(!el)return;const dtVa
 
 // SETUP
 async function criarEstabelecimento(){const nome=$('sNome').value.trim();const tipo=$('sTipo').value.trim();const dono=$('sDonoNome').value.trim();const pin=$('sPin').value;if(!$('chkTermos')||!$('chkTermos').checked)return toast('Você precisa aceitar os Termos de Uso para continuar','warn',3000);if(!nome||!tipo||!dono||!pin)return toast('Preencha todos os campos','err');if(pin.length!==4||isNaN(pin))return toast('PIN deve ter 4 números','err');try{const cod=Math.random().toString(36).substring(2,8).toUpperCase();const planoTrial=localStorage.getItem('ge_plano_escolhido')||'basico';
-const valTrial=new Date();valTrial.setDate(valTrial.getDate()+28);
+const valTrial=new Date();valTrial.setDate(valTrial.getDate()+30);
 const validadeTrial=valTrial.toISOString().split('T')[0];
-const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod,ativo:true,plano:planoTrial,validade_ate:validadeTrial,observacao:'Trial 28 dias'})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
+const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod,ativo:true,plano:planoTrial,validade_ate:validadeTrial,observacao:'Trial 30 dias'})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 
 // CÓDIGO FUNCIONÁRIO
 async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperCase();if(cod.length<4)return toast('Código inválido','err');try{const r=await sb(`ge_restaurantes?codigo_acesso=eq.${cod}&select=*`);if(!r.length)return toast('Código não encontrado','err');REST_ID=r[0].id;REST_NOME=r[0].nome;localStorage.setItem('ge_rest_id',REST_ID);$('loginNome').textContent=r[0].nome;$('loginTipo').textContent=r[0].tipo_negocio||'';$('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';mostrarTela('telaLogin');pinDigitos='';renderPin();}catch(e){toast('Erro: '+e.message,'err');}}
@@ -1316,13 +1319,13 @@ function abrirAceitePromo(plano){
   const desc=$('promoPlanoDesc');
   const label=$('chkAceitePromoLabel');
   if(desc)desc.innerHTML=
-    'Após 28 dias, seu plano voltará para <strong style="color:var(--am);">'+p.label+'</strong> ('+p.preco+') com:<br>'+
+    'Após 30 dias, seu plano voltará para <strong style="color:var(--am);">'+p.label+'</strong> ('+p.preco+') com:<br>'+
     '📦 Até '+p.produtos+' produtos<br>'+
     '👥 Até '+p.funcionarios+' funcionários<br>'+
     '🚚 Até '+p.fornecedores+' fornecedores<br>'+
     (p.relatorios?'✅ Relatórios PDF/CSV':'❌ Sem relatórios PDF/CSV')+'<br>'+
     (p.lista?'✅ Lista de compras por fornecedor com envio pelo WhatsApp':'❌ Lista de compras por fornecedor não disponível');
-  if(label)label.innerHTML='Li e <strong>entendi</strong> que após 28 dias experimentando o plano Empresarial, meu plano será ajustado automaticamente para <strong>'+p.label+'</strong> ('+p.preco+').';
+  if(label)label.innerHTML='Li e <strong>entendi</strong> que após 30 dias experimentando o plano Empresarial, meu plano será ajustado automaticamente para <strong>'+p.label+'</strong> ('+p.preco+').';
   $('chkAceitePromo').checked=false;
   abrirModal('ovAceitePromo');
 }
@@ -1338,13 +1341,13 @@ function verificarTrialAtivo(){
   const inicio=localStorage.getItem('ge_trial_inicio');
   if(!inicio)return false;
   const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
-  return dias<28;
+  return dias<30;
 }
 function diasRestantesTrial(){
   const inicio=localStorage.getItem('ge_trial_inicio');
   if(!inicio)return 0;
   const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
-  return Math.max(0,28-dias);
+  return Math.max(0,30-dias);
 }
 function verificarAvisaTrial(){
   if(FUNC_ROLE!=='proprietario')return;
@@ -1402,15 +1405,7 @@ function confirmarSair(){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null
 // PÁGINAS
 let pgAtual='dash';
 function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const fabR=$('fabReceb');if(fabR)fabR.style.display=pg==='receb'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config','receb'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
-  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}if(pg==='receb'){
-  const temNF=PLANO_ATUAL==='empresarial'||PLANO_ATUAL==='profissional'||verificarTrialAtivo();
-  if(!temNF){
-    mostrarUpgrade('módulo de Recebimento de NF',0);
-    irPg('dash',document.querySelector('#nav .nav-btn'));
-    return;
-  }
-  carregarRecebimentos();
-}}
+  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}if(pg==='receb'){if(!verificarLimite('nf'))return;carregarRecebimentos();}}
 
 // PRODUTOS
 async function carregarProds(){try{todosProds=await sb(`ge_produtos?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosProds=[];toast('Erro ao carregar produtos','err');}}
@@ -1846,16 +1841,19 @@ async function carregarUnits(){try{todasUnits=await sb(`ge_unidades?restaurante_
 function renderCats(){const el=$('listaCats');if(!el)return;if(!todasCats.length){el.innerHTML='<div style="color:var(--t3);font-size:12px;padding:8px">Nenhuma categoria criada ainda</div>';return;}el.innerHTML=todasCats.map(c=>`<div style="display:flex;align-items:center;gap:9px;padding:8px;background:var(--s2);border-radius:9px;margin-bottom:6px;"><span style="font-size:20px;">${c.emoji||'🏷️'}</span><span style="flex:1;font-size:13px;font-weight:600;">${c.nome}</span><button onclick="excluirCat('${c.id}')" style="background:var(--rd2);border:none;border-radius:7px;color:var(--rd);padding:4px 8px;font-size:11px;cursor:pointer;">✕</button></div>`).join('');}
 async function addCat(){const nome=$('novaCatNome').value.trim();const ico=$('novaCatIco').value||'🏷️';if(!nome)return toast('Nome da categoria obrigatório','err');try{await sb('ge_categorias',{method:'POST',body:JSON.stringify({restaurante_id:REST_ID,nome,emoji:ico})});toast('✅ Categoria criada!');$('novaCatNome').value='';$('novaCatIco').value='🏷️';$('emjBtn').textContent='🏷️';await carregarCats();renderCats();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirCat(id){if(!confirm('Excluir categoria?'))return;try{await sb(`ge_categorias?id=eq.${id}`,{method:'DELETE'});await carregarCats();renderCats();}catch(e){toast('Erro','err');}}
+let unitsEditMode=false;
 function renderUnits(){
   const exclKeyP='ge_units_excl_'+REST_ID;const exclListP=JSON.parse(localStorage.getItem(exclKeyP)||'[]');const UNITS_PAD=['un','kg','g','l','ml','cx','pc','frd','pç','bd','pt'].filter(u=>!exclListP.includes(u));
   const el=$('listaUnits');if(!el)return;
-  // Todas as unidades são editáveis — padrão e customizadas juntas
   const todas=[
     ...UNITS_PAD.map(u=>({id:'pad_'+u,nome:u,padrao:true})),
     ...todasUnits.map(u=>({id:u.id,nome:u.nome||u,padrao:false}))
   ];
-  el.innerHTML=todas.map(u=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:3px 4px;padding:5px 10px;background:${u.padrao?'var(--s3)':'var(--gn2)'};border:1px solid ${u.padrao?'var(--b)':'var(--gn3)'};border-radius:7px;font-size:12px;color:${u.padrao?'var(--t2)':'var(--gn)'};">${u.nome} <button onclick="excluirUnitAny('${u.id}','${u.nome}',${u.padrao})" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:11px;padding:0;line-height:1;">✕</button></span>`).join('');
+  const btnEdit=$('btnEditUnits');
+  if(btnEdit)btnEdit.textContent=unitsEditMode?'✅ Concluir':'✏️ Editar';
+  el.innerHTML=todas.map(u=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:3px 4px;padding:5px 10px;background:${u.padrao?'var(--s3)':'var(--gn2)'};border:1px solid ${unitsEditMode?(u.padrao?'var(--rd3)':'var(--rd3)'):(u.padrao?'var(--b)':'var(--gn3)')};border-radius:7px;font-size:12px;color:${u.padrao?'var(--t2)':'var(--gn)'};">${u.nome}${unitsEditMode?` <button onclick="excluirUnitAny('${u.id}','${u.nome}',${u.padrao})" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:13px;padding:0;line-height:1;font-weight:700;">✕</button>`:''}</span>`).join('');
 }
+function toggleEditUnits(){unitsEditMode=!unitsEditMode;renderUnits();}
 async function excluirUnitAny(id, nome, padrao){
   if(padrao){
     // Unidade padrão — salvar exclusão no localStorage
@@ -2092,7 +2090,7 @@ const TUTORIAIS={
     hi('📊','Resumo do Mês','Mostra as entradas, saídas e perdas do mês atual em números. Acompanhe a evolução do seu estoque mês a mês.'),
     hi('📈','Comparativo de Consumo por Categoria','Barras mostram quanto saiu de cada categoria este mês. Abaixo de cada categoria aparecem os produtos individuais com a quantidade. Ótimo para planejar compras.'),
     hi('⚠️','Relatório de Perdas — impacto financeiro','Lista todas as perdas e vencimentos do mês com quantidade e <strong>valor em R$</strong>. No topo aparece o <strong>total perdido em dinheiro</strong>. Use para identificar o que mais desperdiça e agir para reduzir prejuízo.'),
-    hi('🛒','Lista de Compras por Fornecedor','⭐ Disponível nos planos <strong>Profissional e Empresarial</strong>.<br><strong>Durante os 28 dias promocionais</strong> todos os clientes têm acesso!<br><br>Passo a passo:<br><strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
+    hi('🛒','Lista de Compras por Fornecedor','⭐ Disponível nos planos <strong>Profissional e Empresarial</strong>.<br><strong>Durante os 30 dias promocionais</strong> todos os clientes têm acesso!<br><br>Passo a passo:<br><strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
   ],
   nf:[
     hi('📋','O que é o Módulo de Recebimento?','Aqui o conferente registra tudo que chega: fornecedor, número da NF, valor total, volumes e foto da nota. O registro fica salvo na nuvem e o proprietário e a estoquista podem consultar a qualquer hora.'),
@@ -2100,12 +2098,12 @@ const TUTORIAIS={
     hi('📷','Foto da NF — como funciona?','Ao tocar em 📷 Tirar foto, a câmera do celular abre direto. Tire a foto da nota fiscal na vertical (retrato). A foto é comprimida automaticamente e enviada para a nuvem. Se aparecer mensagem de memória, tente novamente — o celular libera espaço automaticamente.'),
     hi('👀','Quem pode ver os recebimentos?','Todos os funcionários com acesso ao app veem a lista de recebimentos na aba 📋 NF. A foto da NF fica disponível para consulta clicando em <strong>📷 Ver NF</strong>. Apenas o <strong>proprietário</strong> pode apagar um recebimento.'),
     hi('🗑️','Como apagar um recebimento?','Apenas o proprietário pode apagar. Toque em <strong>📷 Ver NF</strong> no recebimento → aparece a foto em tela cheia → toque em <strong>🗑️ Apagar Recebimento</strong>. A foto e o registro são removidos permanentemente.'),
-    hi('🔒','Planos e acesso ao módulo NF','O módulo de recebimento está disponível para os planos <strong>Profissional e Empresarial</strong>. Durante o <strong>período promocional de 28 dias</strong>, todos os clientes têm acesso liberado independente do plano!'),
+    hi('🔒','Planos e acesso ao módulo NF','O módulo de recebimento está disponível para os planos <strong>Profissional e Empresarial</strong>. Durante o <strong>período promocional de 30 dias</strong>, todos os clientes têm acesso liberado independente do plano!'),
     hi('📱','Como atualizar o app — iPhone','Se o app não mostrar as últimas atualizações:<br><strong>1.</strong> Pressione e segure o ícone do app na tela inicial<br><strong>2.</strong> Toque em <strong>Remover App → Excluir App</strong><br><strong>3.</strong> Abra o Safari e acesse o endereço do app<br><strong>4.</strong> Toque em Compartilhar → <strong>Adicionar à Tela de Início</strong><br><strong>5.</strong> Abra o app novo instalado e entre com seu código'),
     hi('📱','Como atualizar o app — Android','Se o app não mostrar as últimas atualizações:<br><strong>1.</strong> Abra o Chrome e acesse o endereço do app<br><strong>2.</strong> Toque nos <strong>3 pontinhos → Configurações → Privacidade</strong><br><strong>3.</strong> Toque em <strong>Limpar dados de navegação</strong><br><strong>4.</strong> Marque <strong>Cookies e dados de sites</strong> + <strong>Cache</strong><br><strong>5.</strong> Limpe e acesse o app de novo para reinstalar'),
   ],
 config:[
-    hi('🎁','Promoção de Boas-vindas — 28 dias Empresarial','Ao criar sua conta, você ganha <strong>28 dias com todos os recursos do Empresarial</strong>: produtos ilimitados, relatórios PDF/CSV e lista de compras por fornecedor. Após 28 dias, seu plano volta ao que você escolheu — no <strong>Básico</strong> a lista de compras por fornecedor e os relatórios não estarão disponíveis. Você é avisado <strong>7 dias antes</strong> do fim do período!'),
+    hi('🎁','Promoção de Boas-vindas — 30 dias Empresarial','Ao criar sua conta, você ganha <strong>30 dias com todos os recursos do Empresarial</strong>: produtos ilimitados, relatórios PDF/CSV e lista de compras por fornecedor. Após 30 dias, seu plano volta ao que você escolheu — no <strong>Básico</strong> a lista de compras por fornecedor e os relatórios não estarão disponíveis. Você é avisado <strong>7 dias antes</strong> do fim do período!'),
     hi('🏷️','Seu Plano Atual','No topo das configurações você vê <strong>qual plano está ativo</strong>, os limites de produtos, funcionários e fornecedores, e o valor mensal. Se precisar de mais recursos, entre em contato pelo WhatsApp para fazer upgrade!'),
     hi('🔗','Enviar acesso para Funcionário — PASSO A PASSO','<strong>1.</strong> Vá em <strong>👥 Funcionários</strong> e cadastre o funcionário com nome e PIN<br><strong>2.</strong> Volte em <strong>🔗 Acesso para Funcionários</strong><br><strong>3.</strong> Toque em <strong>📲 Enviar Link pelo WhatsApp</strong><br><strong>4.</strong> O funcionário abre o link no celular<br><strong>5.</strong> Digita o PIN que você criou para ele<br><strong>6.</strong> Instala o app na tela inicial<br>Pronto! Ele já pode registrar entradas e saídas.'),
     hi('🔐','Permissões do Funcionário','Por padrão o funcionário só pode registrar entradas e saídas. Para liberar mais acesso:<br><strong>1.</strong> Toque no nome do funcionário na lista<br><strong>2.</strong> Aparece a seção 🔐 Permissões<br><strong>3.</strong> Ative o que quiser liberar:<br>• 📋 Ver Histórico<br>• 📊 Ver Insights<br>• 📦 Cadastrar Produtos<br>• 💰 Ver Valor do Estoque<br>• ↩️ Estornar Movimentos<br><strong>4.</strong> Ou toque em ✅ Liberar Tudo de uma vez'),
