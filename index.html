@@ -1040,9 +1040,15 @@ function mostrarUpgrade(recurso,limite){
           '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
         '</tr>'+
-        '<tr>'+
+        '<tr style="border-bottom:1px solid var(--b);">'+
           '<td style="padding:8px 10px;color:var(--t2);">Lista de Compras</td>'+
           '<td style="padding:8px 10px;text-align:center;">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
+          '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
+        '</tr>'+
+        '<tr>'+
+          '<td style="padding:8px 10px;color:var(--t2);">Recebimento NF</td>'+
+          '<td style="padding:8px 10px;text-align:center;">❌</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--bl);">✅</td>'+
           '<td style="padding:8px 10px;text-align:center;color:var(--am);">✅</td>'+
         '</tr>'+
@@ -1253,11 +1259,7 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
     }catch(e){}
   }
   const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
-  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';const navReceb=$('navReceb');
-if(navReceb){
-  const temNF=PLANO_ATUAL==='empresarial'||PLANO_ATUAL==='profissional'||verificarTrialAtivo();
-  navReceb.style.display=temNF?'flex':'none';
-}await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
+  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';const navReceb=$('navReceb');if(navReceb)navReceb.style.display='flex';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
   // Solicitar permissão de notificação e verificar alertas
   solicitarPermissaoNotificacao().then(()=>setTimeout(verificarENotificar,2000));
   // Verificar backup automático
@@ -1400,7 +1402,15 @@ function confirmarSair(){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null
 // PÁGINAS
 let pgAtual='dash';
 function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const fabR=$('fabReceb');if(fabR)fabR.style.display=pg==='receb'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config','receb'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
-  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}if(pg==='receb'){carregarRecebimentos();}}
+  if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}if(pg==='receb'){
+  const temNF=PLANO_ATUAL==='empresarial'||PLANO_ATUAL==='profissional'||verificarTrialAtivo();
+  if(!temNF){
+    mostrarUpgrade('módulo de Recebimento de NF',0);
+    irPg('dash',document.querySelector('#nav .nav-btn'));
+    return;
+  }
+  carregarRecebimentos();
+}}
 
 // PRODUTOS
 async function carregarProds(){try{todosProds=await sb(`ge_produtos?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosProds=[];toast('Erro ao carregar produtos','err');}}
