@@ -640,7 +640,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
     <button class="nav-btn on" onclick="irPg('dash',this)"><span>🏠</span>Início</button>
     <button class="nav-btn" onclick="irPg('produtos',this)"><span>📦</span>Produtos</button>
     <button class="nav-btn" onclick="irPg('hist',this)"><span>📋</span>Histórico</button>
-    <button class="nav-btn" onclick="irPg('insights',this)"><span>📊</span>Insights</button>
+    <button class="nav-btn" onclick="irPg('insights',this)"><span>📊</span>Relatório</button>
     <button class="nav-btn" id="navReceb" onclick="irPg('receb',this)"><span>📋</span>NF</button>
     <button class="nav-btn" id="navCfg" onclick="irPg('config',this)"><span>⚙️</span>Config</button>
   </div>
@@ -1253,7 +1253,11 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
     }catch(e){}
   }
   const ico=$('topIco');if(ico){if(logoSalva)ico.innerHTML='<img src="'+logoSalva+'" style="width:34px;height:34px;object-fit:cover;border-radius:8px;">';else ico.textContent='GE';}
-  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';const navReceb=$('navReceb');if(navReceb)navReceb.style.display='flex';await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
+  const navCfg=$('navCfg');if(navCfg)navCfg.style.display=FUNC_ROLE==='proprietario'?'flex':'none';const navReceb=$('navReceb');
+if(navReceb){
+  const temNF=PLANO_ATUAL==='empresarial'||PLANO_ATUAL==='profissional'||verificarTrialAtivo();
+  navReceb.style.display=temNF?'flex':'none';
+}await Promise.all([carregarProds(),carregarFuncs(),carregarCats(),carregarUnits(),carregarFornecs()]);document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));$('pg-dash')&&$('pg-dash').classList.add('on');document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===0)b.classList.add('on');else b.classList.remove('on');});renderDash();
   // Solicitar permissão de notificação e verificar alertas
   solicitarPermissaoNotificacao().then(()=>setTimeout(verificarENotificar,2000));
   // Verificar backup automático
@@ -1395,7 +1399,7 @@ function confirmarSair(){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null
 
 // PÁGINAS
 let pgAtual='dash';
-function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const fabR=$('fabReceb');if(fabR)fabR.style.display=pg==='receb'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
+function irPg(pg,btn){pgAtual=pg;document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));const el=$('pg-'+pg);if(el)el.classList.add('on');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const fab=$('fab');if(fab)fab.style.display=(pg==='produtos'&&(FUNC_ROLE==='proprietario'||FUNC_PERMS.produtos))?'flex':'none';const fabR=$('fabReceb');if(fabR)fabR.style.display=pg==='receb'?'flex':'none';const hb=$('helpBtn');if(hb)hb.style.display=['dash','produtos','hist','insights','config','receb'].includes(pg)?'flex':'none';if(pg==='dash')renderDash();if(pg==='produtos'){renderProds();}if(pg==='hist'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.historico){toast('Sem permissão para ver o histórico','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderHist();}
   if(pg==='insights'){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.insights){toast('Sem permissão para ver insights','warn');irPg('dash',document.querySelector('#nav .nav-btn'));return;}renderInsights();}if(pg==='config'){if(FUNC_ROLE==='proprietario'){carregarConfig();atualizarBadgePlano();}else toast('Acesso restrito','warn');}if(pg==='receb'){carregarRecebimentos();}}
 
 // PRODUTOS
@@ -2080,7 +2084,17 @@ const TUTORIAIS={
     hi('⚠️','Relatório de Perdas — impacto financeiro','Lista todas as perdas e vencimentos do mês com quantidade e <strong>valor em R$</strong>. No topo aparece o <strong>total perdido em dinheiro</strong>. Use para identificar o que mais desperdiça e agir para reduzir prejuízo.'),
     hi('🛒','Lista de Compras por Fornecedor','⭐ Disponível nos planos <strong>Profissional e Empresarial</strong>.<br><strong>Durante os 28 dias promocionais</strong> todos os clientes têm acesso!<br><br>Passo a passo:<br><strong>1.</strong> Toque em <strong>📲 Enviar Lista ao Fornecedor</strong><br><strong>2.</strong> Abre um card para cada fornecedor com os produtos em falta<br><strong>3.</strong> As quantidades são sugeridas automaticamente (mínimo − atual)<br><strong>4.</strong> Ajuste cada quantidade com − e + ou digitando<br><strong>5.</strong> Toque em <strong>📲 Enviar Pedido</strong> no card do fornecedor<br><strong>6.</strong> O WhatsApp abre com a mensagem pronta — só enviar!<br><strong>Dica:</strong> produtos sem fornecedor vão para uma lista geral.'),
   ],
-  config:[
+  nf:[
+    hi('📋','O que é o Módulo de Recebimento?','Aqui o conferente registra tudo que chega: fornecedor, número da NF, valor total, volumes e foto da nota. O registro fica salvo na nuvem e o proprietário e a estoquista podem consultar a qualquer hora.'),
+    hi('+','Como registrar um recebimento — PASSO A PASSO','<strong>1.</strong> Toque no botão azul <strong>+</strong> no canto inferior direito<br><strong>2.</strong> Preencha o <strong>Fornecedor</strong> (nome de quem entregou)<br><strong>3.</strong> Preencha o <strong>Nº da NF</strong> (número da nota fiscal)<br><strong>4.</strong> Preencha o <strong>Valor Total</strong> da nota<br><strong>5.</strong> Preencha a <strong>Quantidade de Volumes/Caixas</strong><br><strong>6.</strong> Se houver problema (avaria, falta), descreva na <strong>Observação</strong><br><strong>7.</strong> Toque em <strong>📷 Tirar foto</strong> para fotografar a nota<br><strong>8.</strong> Digite seu <strong>PIN</strong> para assinar<br><strong>9.</strong> Toque em <strong>✅ Confirmar Recebimento</strong>'),
+    hi('📷','Foto da NF — como funciona?','Ao tocar em 📷 Tirar foto, a câmera do celular abre direto. Tire a foto da nota fiscal na vertical (retrato). A foto é comprimida automaticamente e enviada para a nuvem. Se aparecer mensagem de memória, tente novamente — o celular libera espaço automaticamente.'),
+    hi('👀','Quem pode ver os recebimentos?','Todos os funcionários com acesso ao app veem a lista de recebimentos na aba 📋 NF. A foto da NF fica disponível para consulta clicando em <strong>📷 Ver NF</strong>. Apenas o <strong>proprietário</strong> pode apagar um recebimento.'),
+    hi('🗑️','Como apagar um recebimento?','Apenas o proprietário pode apagar. Toque em <strong>📷 Ver NF</strong> no recebimento → aparece a foto em tela cheia → toque em <strong>🗑️ Apagar Recebimento</strong>. A foto e o registro são removidos permanentemente.'),
+    hi('🔒','Planos e acesso ao módulo NF','O módulo de recebimento está disponível para os planos <strong>Profissional e Empresarial</strong>. Durante o <strong>período promocional de 28 dias</strong>, todos os clientes têm acesso liberado independente do plano!'),
+    hi('📱','Como atualizar o app — iPhone','Se o app não mostrar as últimas atualizações:<br><strong>1.</strong> Pressione e segure o ícone do app na tela inicial<br><strong>2.</strong> Toque em <strong>Remover App → Excluir App</strong><br><strong>3.</strong> Abra o Safari e acesse o endereço do app<br><strong>4.</strong> Toque em Compartilhar → <strong>Adicionar à Tela de Início</strong><br><strong>5.</strong> Abra o app novo instalado e entre com seu código'),
+    hi('📱','Como atualizar o app — Android','Se o app não mostrar as últimas atualizações:<br><strong>1.</strong> Abra o Chrome e acesse o endereço do app<br><strong>2.</strong> Toque nos <strong>3 pontinhos → Configurações → Privacidade</strong><br><strong>3.</strong> Toque em <strong>Limpar dados de navegação</strong><br><strong>4.</strong> Marque <strong>Cookies e dados de sites</strong> + <strong>Cache</strong><br><strong>5.</strong> Limpe e acesse o app de novo para reinstalar'),
+  ],
+config:[
     hi('🎁','Promoção de Boas-vindas — 28 dias Empresarial','Ao criar sua conta, você ganha <strong>28 dias com todos os recursos do Empresarial</strong>: produtos ilimitados, relatórios PDF/CSV e lista de compras por fornecedor. Após 28 dias, seu plano volta ao que você escolheu — no <strong>Básico</strong> a lista de compras por fornecedor e os relatórios não estarão disponíveis. Você é avisado <strong>7 dias antes</strong> do fim do período!'),
     hi('🏷️','Seu Plano Atual','No topo das configurações você vê <strong>qual plano está ativo</strong>, os limites de produtos, funcionários e fornecedores, e o valor mensal. Se precisar de mais recursos, entre em contato pelo WhatsApp para fazer upgrade!'),
     hi('🔗','Enviar acesso para Funcionário — PASSO A PASSO','<strong>1.</strong> Vá em <strong>👥 Funcionários</strong> e cadastre o funcionário com nome e PIN<br><strong>2.</strong> Volte em <strong>🔗 Acesso para Funcionários</strong><br><strong>3.</strong> Toque em <strong>📲 Enviar Link pelo WhatsApp</strong><br><strong>4.</strong> O funcionário abre o link no celular<br><strong>5.</strong> Digita o PIN que você criou para ele<br><strong>6.</strong> Instala o app na tela inicial<br>Pronto! Ele já pode registrar entradas e saídas.'),
@@ -2098,7 +2112,7 @@ const TUTORIAIS={
 };
 function abrirAjuda(){
   const pg=pgAtual||'dash';
-  const titulos={dash:'🏠 Início',produtos:'📦 Produtos',hist:'📋 Histórico',insights:'📊 Insights',config:'⚙️ Configurações'};
+  const titulos={dash:'🏠 Início',produtos:'📦 Produtos',hist:'📋 Histórico',insights:'📊 Relatório',config:'⚙️ Configurações',receb:'📋 Recebimentos NF'};
   $('helpTi').textContent='❓ '+(titulos[pg]||'Como usar');
   let itens=TUTORIAIS[pg]||TUTORIAIS['dash'];
   // Filtrar tutorial por permissões do funcionário
