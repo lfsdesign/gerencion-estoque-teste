@@ -1087,6 +1087,51 @@ function mostrarUpgrade(recurso,limite){
 
 // Estado
 let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null,FUNC_PERMS={},PLANO_ATUAL='basico',VALIDADE_ATE=null;
+
+// DEVICE ID — identificador único do dispositivo via cookie (sobrevive limpeza de cache)
+function getDeviceId(){
+  const match=document.cookie.match(/ge_device=([^;]+)/);
+  if(match)return match[1];
+  const id='dev_'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+  const exp=new Date();exp.setFullYear(exp.getFullYear()+10);
+  document.cookie='ge_device='+id+';expires='+exp.toUTCString()+';path=/;SameSite=Lax';
+  return id;
+}
+const DEVICE_ID=getDeviceId();
+
+// Salvar sessão no Supabase
+async function salvarSessaoSB(){
+  if(!REST_ID||!DEVICE_ID)return;
+  try{
+    // Verificar se já existe sessão para esse device
+    const ex=await sb('ge_sessoes?device_id=eq.'+DEVICE_ID+'&select=id');
+    if(ex.length){
+      await sb('ge_sessoes?device_id=eq.'+DEVICE_ID,{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({restaurante_id:REST_ID,atualizado_em:new Date().toISOString()})});
+    }else{
+      await sb('ge_sessoes',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({device_id:DEVICE_ID,restaurante_id:REST_ID})});
+    }
+  }catch(e){}
+}
+
+// Recuperar sessão do Supabase
+async function recuperarSessaoSB(){
+  if(!DEVICE_ID)return null;
+  try{
+    const r=await sb('ge_sessoes?device_id=eq.'+DEVICE_ID+'&select=restaurante_id,atualizado_em');
+    if(!r.length)return null;
+    // Sessão válida por 30 dias
+    const atualizado=new Date(r[0].atualizado_em);
+    const dias=Math.floor((Date.now()-atualizado)/86400000);
+    if(dias>30){await sb('ge_sessoes?device_id=eq.'+DEVICE_ID,{method:'DELETE'});return null;}
+    return r[0].restaurante_id;
+  }catch(e){return null;}
+}
+
+// Limpar sessão do Supabase
+async function limparSessaoSB(){
+  if(!DEVICE_ID)return;
+  try{await sb('ge_sessoes?device_id=eq.'+DEVICE_ID,{method:'DELETE'});}catch(e){}
+}
 let todosFornecs=[];
 let prodAtual=null,funcAtual=null;
 let todosProds=[],todosFuncs=[],todasCats=[],todasUnits=[];
@@ -1115,7 +1160,7 @@ function fM(id){const el=$(id);if(el)el.classList.remove('on');}
 function abrirModal(id){const el=$(id);if(el)el.classList.add('on');}
 
 // SESSÃO 24h
-const salvarSessao=(uid,forcar=false)=>{if(!forcar&&(!$('chkLembrar')||!$('chkLembrar').checked))return;localStorage.setItem('ge_sess_uid_'+REST_ID,uid);localStorage.setItem('ge_sess_ts_'+REST_ID,Date.now());};
+const salvarSessao=(uid,forcar=false)=>{if(!forcar&&(!$('chkLembrar')||!$('chkLembrar').checked))return;localStorage.setItem('ge_sess_uid_'+REST_ID,uid);localStorage.setItem('ge_sess_ts_'+REST_ID,Date.now());salvarSessaoSB();};
 const verificarSessao=()=>{if(!REST_ID)return false;const uid=localStorage.getItem('ge_sess_uid_'+REST_ID);const ts=parseInt(localStorage.getItem('ge_sess_ts_'+REST_ID)||'0');if(!uid||!ts)return false;if(Date.now()-ts>86400000){limparSessao();return false;}return uid;};
 const limparSessao=()=>{localStorage.removeItem('ge_sess_uid_'+REST_ID);localStorage.removeItem('ge_sess_ts_'+REST_ID);};
 
@@ -1225,7 +1270,7 @@ const validadeTrial=valTrial.toISOString().split('T')[0];
 const r=await sb('ge_restaurantes',{method:'POST',body:JSON.stringify({nome:nome,tipo_negocio:tipo,nome_proprietario:dono,pin_dono:pin,codigo_acesso:cod,ativo:true,plano:planoTrial,validade_ate:validadeTrial,observacao:'Trial 30 dias'})});REST_ID=r[0].id;REST_NOME=nome;localStorage.setItem('ge_rest_id',REST_ID);localStorage.removeItem('ge_cod_pendente');FUNC_NOME=dono;FUNC_ROLE='proprietario';toast('✅ Estabelecimento criado!');setTimeout(()=>entrarApp(),1000);}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 
 // CÓDIGO FUNCIONÁRIO
-async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperCase();if(cod.length<4)return toast('Código inválido','err');try{const r=await sb(`ge_restaurantes?codigo_acesso=eq.${cod}&select=*`);if(!r.length)return toast('Código não encontrado','err');REST_ID=r[0].id;REST_NOME=r[0].nome;localStorage.setItem('ge_rest_id',REST_ID);$('loginNome').textContent=r[0].nome;$('loginTipo').textContent=r[0].tipo_negocio||'';$('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';mostrarTela('telaLogin');pinDigitos='';renderPin();}catch(e){toast('Erro: '+e.message,'err');}}
+async function entrarComCodigo(){const cod=$('codigoFunc').value.trim().toUpperCase();if(cod.length<4)return toast('Código inválido','err');try{const r=await sb(`ge_restaurantes?codigo_acesso=eq.${cod}&select=*`);if(!r.length)return toast('Código não encontrado','err');REST_ID=r[0].id;REST_NOME=r[0].nome;localStorage.setItem('ge_rest_id',REST_ID);salvarSessaoSB();$('loginNome').textContent=r[0].nome;$('loginTipo').textContent=r[0].tipo_negocio||'';$('loginDono').textContent=r[0].nome_proprietario?'👑 '+r[0].nome_proprietario:'';mostrarTela('telaLogin');pinDigitos='';renderPin();}catch(e){toast('Erro: '+e.message,'err');}}
 
 // PIN
 function pinD(d){if(pinDigitos.length>=4)return;pinDigitos+=d;renderPin();if(pinDigitos.length===4)setTimeout(validarPin,120);}
@@ -1412,7 +1457,7 @@ async function confirmarLimparHist(){
   }catch(e){toast('Erro ao limpar histórico: '+e.message,'err');}
 }
 function fecharToast(){const el=$('toast');el.className='';el.innerHTML='';clearTimeout(el._t);}
-function confirmarSair(){limparSessao();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;FUNC_PERMS={};pinDigitos='';mostrarTela('tela1Acesso');}
+function confirmarSair(){limparSessao();limparSessaoSB();REST_ID=null;FUNC_ID=null;FUNC_NOME=null;FUNC_ROLE=null;FUNC_PERMS={};pinDigitos='';mostrarTela('tela1Acesso');}
 
 // PÁGINAS
 let pgAtual='dash';
@@ -2505,6 +2550,13 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
   const savedId=localStorage.getItem('ge_rest_id');
   if(savedId)REST_ID=savedId;
+  
+  // Se não tem no localStorage, tenta recuperar do Supabase pelo device_id
+  if(!REST_ID){
+    const restIdSB=await recuperarSessaoSB();
+    if(restIdSB){REST_ID=restIdSB;localStorage.setItem('ge_rest_id',REST_ID);}
+  }
+  
   if(REST_ID){
     const sessUid=verificarSessao();
     if(sessUid){
