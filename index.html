@@ -224,7 +224,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
 .link-box{background:linear-gradient(135deg,var(--bl2),rgba(11,17,32,0.9));border:1.5px solid var(--bl3);border-radius:13px;padding:13px;margin-bottom:10px;}
 .link-url{font-size:11px;color:var(--bl);word-break:break-all;font-weight:600;margin:5px 0 8px;}
 /* Status validade */
-.val-status-box{font-size:11px;padding:8px 11px;border-radius:9px;margin-bottom:9px;font-weight:600;display:none;}
+.val-status-box{font-size:11px;padding:8px 11px;border-radius:9px;margin-bottom:9px;font-weight:600;display:none;}.calc-key{background:var(--s3);border:1px solid var(--b);border-radius:8px;padding:10px;font-size:15px;font-weight:700;color:var(--t);cursor:pointer;font-family:Inter,sans-serif;touch-action:manipulation;}
 </style>
 </head>
 <body>
@@ -840,6 +840,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-siz
           <span style="font-size:13px;color:var(--t);">↩️ Estornar Movimentos</span>
           <input type="checkbox" id="permEstornar" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
         </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">📤 Registrar Entrada/Saída</span>
+          <input type="checkbox" id="permMovimento" checked style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--t);">📋 Módulo Conferente (NF)</span>
+          <input type="checkbox" id="permConferente" style="width:18px;height:18px;accent-color:var(--gn);cursor:pointer;">
+        </label>
       </div>
     </div>
     <div class="mb">
@@ -1064,7 +1072,7 @@ function mostrarUpgrade(recurso,limite){
 }
 
 // Estado
-let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null,FUNC_PERMS={},PLANO_ATUAL='basico';
+let REST_ID=null,REST_NOME=null,FUNC_ID=null,FUNC_NOME=null,FUNC_ROLE=null,FUNC_PERMS={},PLANO_ATUAL='basico',VALIDADE_ATE=null;
 let todosFornecs=[];
 let prodAtual=null,funcAtual=null;
 let todosProds=[],todosFuncs=[],todasCats=[],todasUnits=[];
@@ -1215,6 +1223,7 @@ async function validarPin(){try{
   if(lic.length){
     const r=lic[0];
     if(r.plano)PLANO_ATUAL=r.plano;
+    if(r.validade_ate)VALIDADE_ATE=r.validade_ate;
     if(r.ativo===false){
       pinDigitos='';renderPin();
       $('pinErro').textContent='';
@@ -1231,7 +1240,7 @@ async function validarPin(){try{
       }
     }
   }
-  const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinDigitos}&select=id,nome,nome_proprietario`);if(rp.length){FUNC_ID=null;FUNC_NOME=rp[0].nome_proprietario||rp[0].nome;REST_NOME=rp[0].nome;FUNC_ROLE='proprietario';salvarSessao('PROP');await entrarApp();return;}const rf=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*`);const rfF=rf.filter(f=>f.pin===pinDigitos);if(rfF&&rfF.length){FUNC_ID=rfF[0].id;FUNC_NOME=rfF[0].nome;FUNC_ROLE='funcionario';FUNC_PERMS={historico:rfF[0].perm_historico,insights:rfF[0].perm_insights,produtos:rfF[0].perm_produtos,valor:rfF[0].perm_valor_estoque,estornar:rfF[0].perm_estornar};salvarSessao(rfF[0].id,true);const rrest=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rrest.length?rrest[0].nome:'';await entrarApp();return;}pinDigitos='';renderPin();const err=$('pinErro');if(err){err.textContent='PIN incorreto. Tente novamente.';setTimeout(()=>err.textContent='',2000);}}catch(e){toast('Erro: '+e.message,'err');pinDigitos='';renderPin();}}
+  const rp=await sb(`ge_restaurantes?id=eq.${REST_ID}&pin_dono=eq.${pinDigitos}&select=id,nome,nome_proprietario`);if(rp.length){FUNC_ID=null;FUNC_NOME=rp[0].nome_proprietario||rp[0].nome;REST_NOME=rp[0].nome;FUNC_ROLE='proprietario';salvarSessao('PROP');await entrarApp();return;}const rf=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*`);const rfF=rf.filter(f=>f.pin===pinDigitos);if(rfF&&rfF.length){FUNC_ID=rfF[0].id;FUNC_NOME=rfF[0].nome;FUNC_ROLE='funcionario';FUNC_PERMS={historico:rfF[0].perm_historico,insights:rfF[0].perm_insights,produtos:rfF[0].perm_produtos,valor:rfF[0].perm_valor_estoque,estornar:rfF[0].perm_estornar,movimento:rfF[0].perm_movimento!==false,conferente:rfF[0].perm_conferente};salvarSessao(rfF[0].id,true);const rrest=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rrest.length?rrest[0].nome:'';await entrarApp();return;}pinDigitos='';renderPin();const err=$('pinErro');if(err){err.textContent='PIN incorreto. Tente novamente.';setTimeout(()=>err.textContent='',2000);}}catch(e){toast('Erro: '+e.message,'err');pinDigitos='';renderPin();}}
 function trocarEst(){
   const el=document.getElementById('toast');
   el.innerHTML='🔄 Trocar estabelecimento? <button onclick="confirmarTrocarEst()" style="margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-weight:900;cursor:pointer;font-family:Inter,sans-serif;">✓ Sim</button> <button onclick="fecharToast()" style="margin-left:4px;padding:2px 10px;background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:Inter,sans-serif;">✗ Não</button>';
@@ -1272,10 +1281,9 @@ async function entrarApp(){mostrarTela('telaApp');$('topNome').textContent=REST_
   // Verificar trial promocional
   if(FUNC_ROLE==='proprietario'){
     const trialAtivo=verificarTrialAtivo();
-    if(trialAtivo&&PLANO_ATUAL!=='empresarial'&&PLANO_ATUAL!=='profissional'){
+    if(trialAtivo){
       PLANO_ATUAL='empresarial';
       const restantes=diasRestantesTrial();
-      // Mostrar badge trial no topbar
       const tr=$('topUser');
       if(tr)tr.textContent='👑 '+FUNC_NOME+' · Proprietário(a) · 🎁 Trial '+restantes+'d';
     }
@@ -1293,12 +1301,10 @@ function atualizarBadgePlano(){
   const trialAtivo=verificarTrialAtivo();
   const restantes=diasRestantesTrial();
   if(trialAtivo){
-    const planoBase=localStorage.getItem('ge_plano_escolhido')||'basico';
-    const pb=PLANOS[planoBase]||PLANOS.basico;
     label.textContent='🎁 Trial Empresarial';
     label.style.color='var(--gn)';
     if(badge)badge.style.borderColor='var(--gn)';
-    if(desc)desc.textContent='Você tem '+restantes+' dias restantes do período promocional. Após isso: '+pb.label;
+    if(desc)desc.textContent='Você tem '+restantes+' dias restantes do período gratuito. Aproveite todos os recursos!';
     if(preco)preco.textContent='Grátis';
     return;
   }
@@ -1332,40 +1338,32 @@ function abrirAceitePromo(plano){
 function confirmarAceitePromo(){
   if(!$('chkAceitePromo').checked)return toast('Você precisa confirmar que leu e entendeu a promoção','warn',3000);
   fM('ovAceitePromo');
-  // Salvar plano escolhido e data de início do trial
   localStorage.setItem('ge_plano_escolhido',planoEscolhido);
-  localStorage.setItem('ge_trial_inicio',Date.now().toString());
   mostrarTela('telaSetup');
 }
 function verificarTrialAtivo(){
-  const inicio=localStorage.getItem('ge_trial_inicio');
-  if(!inicio)return false;
-  const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
-  return dias<30;
+  if(!VALIDADE_ATE)return false;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const val=new Date(VALIDADE_ATE+'T00:00:00');
+  return val>=hoje;
 }
 function diasRestantesTrial(){
-  const inicio=localStorage.getItem('ge_trial_inicio');
-  if(!inicio)return 0;
-  const dias=Math.floor((Date.now()-parseInt(inicio))/86400000);
-  return Math.max(0,30-dias);
+  if(!VALIDADE_ATE)return 0;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const val=new Date(VALIDADE_ATE+'T00:00:00');
+  const dias=Math.round((val-hoje)/86400000);
+  return Math.max(0,dias);
 }
 function verificarAvisaTrial(){
   if(FUNC_ROLE!=='proprietario')return;
-  const inicio=localStorage.getItem('ge_trial_inicio');
-  if(!inicio)return;
+  if(!VALIDADE_ATE)return;
   const restantes=diasRestantesTrial();
-  const planoBase=localStorage.getItem('ge_plano_escolhido')||'basico';
-  const p=PLANOS[planoBase]||PLANOS.basico;
   if(restantes<=0){
-    // Trial acabou — mostrar aviso
-    PLANO_ATUAL=planoBase;
-    toast('⚠️ Seu período promocional encerrou. Agora você está no plano '+p.label,'warn',6000);
-    localStorage.removeItem('ge_trial_inicio');
+    toast('⚠️ Seu período promocional encerrou. Renove seu plano para continuar.','warn',6000);
   }else if(restantes<=7){
-    // Avisar que está acabando
     setTimeout(()=>{
       const el=$('toast');
-      el.innerHTML='🎁 Seu período Empresarial encerra em <strong>'+restantes+' dias</strong>! Após isso você terá o plano '+p.label+'.';
+      el.innerHTML='🎁 Seu período Empresarial encerra em <strong>'+restantes+' dias</strong>!';
       el.className='show warn';
       el.style.pointerEvents='all';
       clearTimeout(el._t);
@@ -1427,7 +1425,7 @@ function renderProds(){const busca=($('sprod')&&$('sprod').value||'').toLowerCas
 function renderCatPills(){const el=$('catPills');if(!el)return;const cats=[...new Set(todosProds.map(p=>p.categoria).filter(Boolean))];el.innerHTML=['<button class="cat on" onclick="filtroCat(\'\',this)">Todos</button>',...cats.map(c=>`<button class="cat" onclick="filtroCat('${c}',this)">${c}</button>`)].join('');}
 function filtroCat(cat,btn){document.querySelectorAll('#catPills .cat').forEach(b=>b.classList.remove('on'));btn&&btn.classList.add('on');renderProds();}
 
-function abrirProd(id){
+function abrirProd(id){const cb=$('calcBox');if(cb)cb.style.display='none';
   if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.produtos)return toast('Sem permissão para cadastrar produtos','warn');
   if(!id&&!verificarLimite('produto'))return;
   prodAtual=id?(todosProds.find(p=>p.id===id)||null):null;
@@ -1505,7 +1503,7 @@ async function salvarProd(){const nome=$('mpNome').value.trim();if(!nome)return 
 async function excluirProd(){if(!confirm('Excluir produto?'))return;try{await sb(`ge_produtos?id=eq.${$('mpId').value}`,{method:'DELETE'});toast('Produto removido');fM('ovProd');await carregarProds();renderProds();}catch(e){toast('Erro ao excluir','err');}}
 
 // MOVIMENTOS
-function abrirMov(tipo){movQty=1;subtipoSaida='normal';$('mmTit').textContent=tipo==='entrada'?'📥 Registrar Entrada':'📤 Registrar Saída';$('mmSub').textContent=tipo==='entrada'?'Compra, recebimento ou ajuste':'Consumo, venda, perda ou vencimento';$('mmTipo').value=tipo;$('mmStWrap').style.display=tipo==='saida'?'block':'none';$('mmEstBox').style.display='none';movQty=1;const qv=$('qpV');if(qv)qv.value=1;$('mmObs').value='';const sel=$('mmProd');sel.innerHTML='<option value="">Selecione um produto...</option>'+todosProds.map(p=>`<option value="${p.id}">${p.emoji||'📦'} ${p.nome} (${fmtN(p.quantidade||0)} ${p.unidade||'un'})</option>`).join('');['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});$('tbN')&&$('tbN').classList.add('on');abrirModal('ovMov');}
+function abrirMov(tipo){if(FUNC_ROLE!=='proprietario'&&!FUNC_PERMS.movimento)return toast('Sem permissão para registrar movimentos','warn');movQty=1;subtipoSaida='normal';$('mmTit').textContent=tipo==='entrada'?'📥 Registrar Entrada':'📤 Registrar Saída';$('mmSub').textContent=tipo==='entrada'?'Compra, recebimento ou ajuste':'Consumo, venda, perda ou vencimento';$('mmTipo').value=tipo;$('mmStWrap').style.display=tipo==='saida'?'block':'none';$('mmEstBox').style.display='none';movQty=1;const qv=$('qpV');if(qv)qv.value=1;$('mmObs').value='';const sel=$('mmProd');sel.innerHTML='<option value="">Selecione um produto...</option>'+todosProds.map(p=>`<option value="${p.id}">${p.emoji||'📦'} ${p.nome} (${fmtN(p.quantidade||0)} ${p.unidade||'un'})</option>`).join('');['N','P','V','A'].forEach(l=>{const b=$('tb'+l);if(b)b.classList.remove('on');});$('tbN')&&$('tbN').classList.add('on');abrirModal('ovMov');}
 function setSt(sub){
   if(sub==='perda'||sub==='vencimento'){
     const msg=sub==='perda'
@@ -1810,7 +1808,7 @@ async function verificarPinConf(){
   }catch(e){toast('Erro','err');}
 }
 
-function liberarTudo(){['permHist','permInsights','permProdutos','permValor','permEstornar'].forEach(id=>{const el=$(id);if(el)el.checked=true;});}
+function liberarTudo(){['permHist','permInsights','permProdutos','permValor','permEstornar','permMovimento','permConferente'].forEach(id=>{const el=$(id);if(el)el.checked=true;});}
 async function carregarFuncs(){try{todosFuncs=await sb(`ge_funcionarios?restaurante_id=eq.${REST_ID}&select=*&order=nome.asc`);}catch(e){todosFuncs=[];}}
 function renderFuncs(){const el=$('listaFuncs');if(!el)return;if(!todosFuncs.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3);font-size:12px;">Nenhum funcionário cadastrado</div>';return;}el.innerHTML=todosFuncs.map(f=>`<div class="f-c" onclick="abrirFunc('${f.id}')"><div style="font-size:22px;width:36px;height:36px;border-radius:50%;background:var(--gn2);display:flex;align-items:center;justify-content:center;">${f.nome[0]||'?'}</div><div class="f-inf"><div class="f-n">${f.nome}</div><div class="f-s">Funcionário(a) · PIN: ••••</div></div><div style="color:var(--t3);">›</div></div>`).join('');}
 function abrirNovoFunc(){if(!verificarLimite('funcionario'))return;funcAtual=null;$('mfTit').textContent='Novo Funcionário';$('mfId').value='';$('mfNome').value='';$('mfPin').value='';$('mfExc').style.display='none';$('mfPerms').style.display='none';abrirModal('ovFunc');}
@@ -1822,10 +1820,12 @@ function abrirFunc(id){funcAtual=todosFuncs.find(f=>f.id===id)||null;const f=fun
   $('permProdutos').checked=f?.perm_produtos||false;
   $('permValor').checked=f?.perm_valor_estoque||false;
   $('permEstornar').checked=f?.perm_estornar||false;
+  $('permMovimento').checked=f?.perm_movimento!==false;
+  $('permConferente').checked=f?.perm_conferente||false;
   abrirModal('ovFunc');}
 async function salvarFunc(){const nome=$('mfNome').value.trim();const pin=$('mfPin').value;if(!nome)return toast('Nome obrigatório','err');if(!funcAtual&&(!pin||pin.length!==4||isNaN(pin)))return toast('PIN deve ter 4 números','err');
   // PIN pode ser igual ao do proprietário — o sistema distingue pelo contexto de login
-  const perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked}:{};
+  const perms=funcAtual?{perm_historico:$('permHist').checked,perm_insights:$('permInsights').checked,perm_produtos:$('permProdutos').checked,perm_valor_estoque:$('permValor').checked,perm_estornar:$('permEstornar').checked,perm_movimento:$('permMovimento').checked,perm_conferente:$('permConferente').checked}:{};
   const dados={restaurante_id:REST_ID,nome,...(pin?{pin}:{}),...perms};try{const id=$('mfId').value;if(id)await sb(`ge_funcionarios?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(dados)});else await sb('ge_funcionarios',{method:'POST',body:JSON.stringify(dados)});toast(id?'✅ Funcionário atualizado!':'✅ Funcionário criado!');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro: '+JSON.stringify(e),'err');}}
 async function excluirFunc(){if(!confirm('Remover funcionário?'))return;try{await sb(`ge_funcionarios?id=eq.${$('mfId').value}`,{method:'DELETE'});toast('Funcionário removido');fM('ovFunc');await carregarFuncs();renderFuncs();}catch(e){toast('Erro ao remover','err');}}
 
@@ -2239,6 +2239,35 @@ document.addEventListener('click',e=>{['tipoSugsS','tipoSugsC'].forEach(id=>{con
 
 
 // ============================================================
+// CALCULADORA DE CUSTO
+function toggleCalc(){
+  const box=$('calcBox');if(!box)return;
+  box.style.display=box.style.display==='none'||box.style.display===''?'block':'none';
+  if(box.style.display==='block'){$('calcExpr').value='';$('calcResult').textContent='';$('calcExpr').focus();}
+}
+function calcBtn(v){const el=$('calcExpr');if(!el)return;el.value+=v;calcPreview();}
+function calcApagar(){const el=$('calcExpr');if(!el)return;el.value=el.value.slice(0,-1);calcPreview();}
+function calcPreview(){
+  const el=$('calcResult');if(!el)return;
+  try{
+    const expr=$('calcExpr').value.replace(/x/gi,'*').replace(/,/g,'.');
+    if(!expr.trim())return el.textContent='';
+    const res=Function('"use strict";return ('+expr+')')();
+    if(isNaN(res)||!isFinite(res))return el.textContent='';
+    el.textContent='= R$ '+parseFloat(res).toFixed(2).replace('.',',');
+    el.style.color='var(--gn)';
+  }catch(e){el.textContent='';}
+}
+function calcInserir(){
+  try{
+    const expr=$('calcExpr').value.replace(/x/gi,'*').replace(/,/g,'.');
+    const res=Function('"use strict";return ('+expr+')')();
+    if(isNaN(res)||!isFinite(res))return toast('Expressão inválida','err');
+    const campo=$('mpCusto');if(campo)campo.value=parseFloat(res).toFixed(2);
+    $('calcBox').style.display='none';
+    toast('✅ R$ '+parseFloat(res).toFixed(2).replace('.',','));
+  }catch(e){toast('Expressão inválida','err');}
+}
 // MÓDULO CONFERENTE
 // ============================================================
 let todosRecebimentos=[];
