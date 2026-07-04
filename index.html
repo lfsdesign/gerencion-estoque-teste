@@ -2495,8 +2495,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
     const sessUid=verificarSessao();
     if(sessUid){
       try{
-        if(sessUid==='PROP'){const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome,nome_proprietario`);if(r.length){FUNC_NOME=r[0].nome_proprietario||r[0].nome;REST_NOME=r[0].nome;FUNC_ROLE='proprietario';await entrarApp();return;}}
-        else{const r=await sb(`ge_funcionarios?id=eq.${sessUid}&restaurante_id=eq.${REST_ID}&select=*`);if(r.length){FUNC_ID=r[0].id;FUNC_NOME=r[0].nome;FUNC_PERMS={historico:r[0].perm_historico,insights:r[0].perm_insights,produtos:r[0].perm_produtos,valor:r[0].perm_valor_estoque,estornar:r[0].perm_estornar};const rr=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome`);REST_NOME=rr.length?rr[0].nome:'';FUNC_ROLE='funcionario';await entrarApp();return;}}
+        if(sessUid==='PROP'){const r=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome,nome_proprietario,plano,validade_ate`);if(r.length){FUNC_NOME=r[0].nome_proprietario||r[0].nome;REST_NOME=r[0].nome;FUNC_ROLE='proprietario';if(r[0].plano)PLANO_ATUAL=r[0].plano;if(r[0].validade_ate)VALIDADE_ATE=r[0].validade_ate;await entrarApp();return;}}
+        else{const r=await sb(`ge_funcionarios?id=eq.${sessUid}&restaurante_id=eq.${REST_ID}&select=*`);if(r.length){FUNC_ID=r[0].id;FUNC_NOME=r[0].nome;FUNC_PERMS={historico:r[0].perm_historico,insights:r[0].perm_insights,produtos:r[0].perm_produtos,valor:r[0].perm_valor_estoque,estornar:r[0].perm_estornar,movimento:r[0].perm_movimento!==false,conferente:r[0].perm_conferente};const rr=await sb(`ge_restaurantes?id=eq.${REST_ID}&select=nome,plano,validade_ate`);REST_NOME=rr.length?rr[0].nome:'';if(rr.length&&rr[0].plano)PLANO_ATUAL=rr[0].plano;if(rr.length&&rr[0].validade_ate)VALIDADE_ATE=rr[0].validade_ate;FUNC_ROLE='funcionario';await entrarApp();return;}}
       }catch(e){limparSessao();}
     }
     try{
